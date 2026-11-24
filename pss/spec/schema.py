@@ -530,10 +530,32 @@ def _validate_robot(robot: Any, errors: list[str], warnings: list[str]) -> None:
             "end_effector",
             "skill_library",
             "workspace_limits_m",
+            "usd",
+            "prim_path",
+            "variants",
+            "pose",
+            "visible",
         ),
     )
     if not isinstance(robot.get("model"), str) or not robot.get("model"):
         _fail(errors, "robot.model", "must be a non-empty string")
+    if "usd" in robot and not (
+        isinstance(robot["usd"], str) and robot["usd"]
+    ):
+        _fail(errors, "robot.usd", "must be a non-empty path")
+    if "prim_path" in robot and not (
+        isinstance(robot["prim_path"], str) and robot["prim_path"].startswith("/")
+    ):
+        _fail(errors, "robot.prim_path", "must be an absolute USD path")
+    if "variants" in robot and not (
+        isinstance(robot["variants"], Mapping)
+        and all(isinstance(k, str) and isinstance(v, str) for k, v in robot["variants"].items())
+    ):
+        _fail(errors, "robot.variants", "must map variant-set names to selections")
+    if "pose" in robot and not _is_vec(robot["pose"], 7):
+        _fail(errors, "robot.pose", "must be 7 numbers (xyz + quat wxyz)")
+    if "visible" in robot and not isinstance(robot["visible"], bool):
+        _fail(errors, "robot.visible", "must be a boolean")
     base_mode = robot.get("base_mode")
     if base_mode not in BASE_MODES:
         _fail(errors, "robot.base_mode", f"must be one of {BASE_MODES}")

@@ -1,0 +1,96 @@
+spec_version: 1
+id: g1_load_v1
+task_family: tracking
+split: test
+
+# W2 T11: load the Unitree G1 beside the W1 tabletop and verify it composes.
+# Rendering is off; this spec is a load/composition check, not a scoring suite.
+notes:
+  - "G1 asset fetched by scripts/fetch_isaac_assets.py into _external/isaac_assets/G1."
+  - "Hands and sensors disabled (None); collision-only base_fixed load in W2."
+  - "Robot is hidden from rendering until the camera/detection stage (W3+)."
+
+seed_policy:
+  episode_seeds: [0]
+  pose_sampling: fixed
+
+assets:
+  instances:
+    - id: cube_red_01
+      class: cube
+      usd: builtin://cube
+      size_m: [0.04, 0.04, 0.04]
+      mass_kg: 0.05
+      friction: {static: 0.8, dynamic: 0.6}
+      restitution: 0.05
+      pose: [-0.15, -0.10, 0.79, 1, 0, 0, 0]
+      color: [0.80, 0.10, 0.10]
+      split: test
+
+scene:
+  table:
+    size: [1.2, 0.8, 0.04]
+    height_m: 0.75
+    friction: 0.7
+  workspace:
+    xy: [[-0.30, -0.25], [0.30, 0.25]]
+    table_z: 0.77
+
+cameras:
+  - name: overhead
+    pose: [0.0, 0.0, 1.30, 1, 0, 0, 0]
+    fov_deg: 60
+    width: 640
+    height: 480
+    rate_hz: 10
+
+robot:
+  model: unitree_g1
+  base_mode: base_fixed
+  usd: _external/isaac_assets/G1/g1.usd
+  prim_path: /World/Robot
+  variants:
+    Physics: SimplifiedPhysX
+    Sensor: None
+    left_hand: None
+    right_hand: None
+  pose: [0.0, -0.55, 0.77, 1, 0, 0, 0]
+  visible: false
+  end_effector: {type: parallel_jaw, max_width_m: 0.08}
+
+physics:
+  dt: 0.008333333333333333
+  substeps: 2
+  solver: TGS
+  contact_report: {enabled: true, max_contacts_per_pair: 8}
+  determinism: {fixed_gpu: true, seed: 0}
+
+task:
+  id: g1_load_check
+  initial_facts: []
+  goal_facts: []
+  time_limit_s: 1
+
+faults: []
+
+perception:
+  mode: offline
+  detector_tier: oracle
+  noise_profile: null
+
+relations_gt:
+  predicates: [left_of, right_of, in_front_of, behind, on_top_of, inside,
+               touching, near, above, below]
+  compute_from: gt_poses
+  tolerance_m: 0.02
+
+metrics:
+  primary: [idf1, id_retention, id_switches, duplicate_rate, reappearance_rate]
+  leading: [slot_purity, provenance_completeness]
+  guardrail: [safety_violation_rate, permission_violation_count]
+
+recording:
+  obs_rate_hz: 10
+  gt_rate_hz: 120
+  bundle_format: parquet
+  store_images: false
