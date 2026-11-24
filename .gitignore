@@ -14,3 +14,5 @@ checkpoints/
 _external/
 _research/
 bundles/
+eval/results/
+.gstack/

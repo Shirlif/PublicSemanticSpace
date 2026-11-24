@@ -49,3 +49,14 @@
 - 遮挡物用 `scene.occluders`（W1 扩展字段）+ 运动时间采样，而不是 W3 的 fault。
 - W1 可见率用解析 ray/box 采样（确定性、零显存），W2 换渲染/PhysX 通路。
 - W1 `store_images: false`，先把 bundle 契约跑通；W2 打开相机渲染与检测。
+
+## W1 DoD
+
+- [x] git 首次提交 + `freeze.json`（isaac/physx/graphics API 已填）
+- [x] 双环境可用；Isaac headless 启动成功；基线与耗时记录在 `notes/env.md`
+- [x] `pss spec lint` 可跑并产出 hash（`specs/registry.jsonl`）
+- [x] 一条 episode bundle 可读，D5 四项断言全过
+- [x] 本文件记录显存、单条耗时与踩坑
+
+spec hash：`sha256:16ea9f38d590e00f3a795180dd411e5a3f4f0e6d1ba1c83d3ab9bbeb53e9ca2d`
+bundle：`bundles/dev/s1_occlusion/16ea9f38/seed0/`

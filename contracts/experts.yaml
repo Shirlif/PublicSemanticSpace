@@ -1,0 +1,179 @@
+# 公共语义空间 · 感官专家契约（ExpertSpec）
+# 版本：0.1.0（骨架）
+# 对应计划：公共语义空间-落地执行计划-v1.md → Phase 3 / D.6
+# 对应评测：eval/expert_zoo.md
+#
+# 规则：
+#   1. 换专家只改本文件与对应实现，不改 Phase 4/5 的张量形状与归一化假设。
+#   2. 新增专家先登记，跑完 eval/expert_zoo.md 的 bake-off 才能进主线。
+#   3. output_dim 变化按 D.5 独立升版本，不触发公共空间大版本。
+#   4. 本文件只做登记，不存放权重；权重路径放 source。
+
+schema_version: "0.1.0"
+space_version: "0.1.1"        # 对齐 contracts/README.md 的 SPACE_VERSION
+public_dim: 128
+
+# 允许值，供校验脚本使用
+schema:
+  route: [R0, R1, R1.5, R2]
+  status: [active, planned, deferred, retired]
+  normalize: [l2, none]
+
+defaults:
+  dtype: float32
+  device: cpu
+  batch_size: 1
+  normalize: l2
+  latency_ms: null
+
+experts:
+  # ── R0：当前自训基线（Phase 3 bake-off 的 A 组） ─────────────────────
+  - name: vision_smallcnn_v0
+    modality: vision
+    route: R0
+    status: active
+    input_schema:
+      rgb: [3, 64, 64]
+    preprocess: imagenet_normalize_v1
+    feature_layer: penultimate
+    output_dim: 256
+    normalize: l2
+    license: project-internal
+    latency_ms: null
+    source: checkpoints/category_pretrain_experts/vision.pt
+    version: "0.1.0"
+    owner: perception
+    notes: 当前基线 A；MuJoCo 类别预训练，test top-1 0.943。
+
+  - name: tactile_mlp_v0
+    modality: tactile
+    route: R0
+    status: active
+    input_schema:
+      contact_grid: [64]
+    preprocess: contact_grid_v1
+    feature_layer: penultimate
+    output_dim: 64
+    normalize: l2
+    license: project-internal
+    latency_ms: null
+    source: checkpoints/category_pretrain_experts/tactile.pt
+    version: "0.1.0"
+    owner: perception
+    notes: 主线 R0：合成接触图，本轮全量 test top-1 0.220；D 仅研究用途，主线不做替换。
+
+  - name: geometry_handcrafted_v0
+    modality: geometry
+    route: R0
+    status: active
+    input_schema:
+      depth: [H, W]
+      segmentation: [H, W]
+    preprocess: geometry_features_v1
+    feature_layer: fixed
+    output_dim: 16
+    normalize: l2
+    license: project-internal
+    latency_ms: null
+    source: pss/encoders/geometry.py
+    version: "0.1.0"
+    owner: perception
+    notes: 当前基线 A；16 维手工特征 + LR，test 0.911。
+
+  # ── R1：现成模型候选（bake-off 的 B/C 组） ────────────────────────────
+  - name: vision_dinov2_vit_s14
+    modality: vision
+    route: R1
+    status: planned
+    input_schema:
+      rgb: [3, 224, 224]
+    preprocess: imagenet_normalize_v1
+    feature_layer: blocks.11.norm1
+    output_dim: 384
+    normalize: l2
+    license: Apache-2.0
+    latency_ms: null
+    source: https://huggingface.co/facebook/dinov2-small
+    version: "0.1.0"
+    owner: perception
+    notes: 第一轮 bake-off：闭集 0.965、属性 0.495，均低于 SmallCNN；仿真主线不采用，保留 R-Gate 候选。
+
+  - name: vision_squeezenet_expert_v0
+    modality: vision
+    route: R1.5
+    status: retired
+    input_schema:
+      rgb: [3, 64, 64]
+    preprocess: imagenet_normalize_v1
+    feature_layer: penultimate
+    output_dim: 256
+    normalize: l2
+    license: BSD-3-Clause
+    latency_ms: null
+    source: checkpoints/expert_pretrained_v1/vision_pretrained.pt
+    version: "0.1.0"
+    owner: perception
+    notes: 第一轮 bake-off：闭集 0.955、属性 0.547，低于 SmallCNN；不采用。
+
+  - name: tactile_octopi_v0
+    modality: tactile
+    route: R1
+    status: retired
+    input_schema:
+      tactile_frames: [3, 224, 224]
+    preprocess: octopi_clip_v1
+    feature_layer: pooler_output
+    output_dim: 1024
+    normalize: l2
+    license: all-rights-reserved
+    latency_ms: null
+    source: _external/octopi_weights/7b_encoder.pt
+    version: "0.1.0"
+    owner: perception
+    notes: C 组：闭集 0.250、属性 0.106，触发 K-E2；仿真主线不采用。硬/粗糙度单项更好（0.886/0.894），保留真实 GelSight 数据复测；仓库无 LICENSE，默认 all rights reserved。
+
+  # ── R2：公开真实数据自训（bake-off 的 D 组） ──────────────────────────
+  - name: tactile_real_smallcnn_v0
+    modality: tactile
+    route: R2
+    status: deferred
+    input_schema:
+      contact_grid: [64]
+    preprocess: physiclear_frame_v1
+    feature_layer: penultimate
+    output_dim: 128
+    normalize: l2
+    license: all-rights-reserved
+    latency_ms: null
+    source: checkpoints/tactile_physiclear/tactile_real.pt
+    version: "0.1.0"
+    owner: perception
+    notes: 研究用途保留：闭集 0.252、属性 0.381，量化最优；G4 无 LICENSE，主线不采用（R0 继续），不得再分发权重/数据/衍生 checkpoint。
+
+# 本期只登记、不训练的模态。等 S1 到 M4 后再评估。
+deferred_modalities:
+  - thermal
+  - radar
+  - motion
+  - smell
+
+# bake-off 配置（与 eval/expert_zoo.md 对齐）
+bakeoff:
+  report: eval/expert_zoo.md
+  groups:
+    A: [vision_smallcnn_v0, tactile_mlp_v0, geometry_handcrafted_v0]
+    B: [vision_dinov2_vit_s14, vision_squeezenet_expert_v0]
+    C: [tactile_octopi_v0]
+    D: [tactile_real_smallcnn_v0]
+  metrics:
+    - closed_set_top1
+    - open_set_auroc
+    - unseen_reject_rate
+    - attribute_probe
+    - cross_modal_r1
+    - cross_modal_r5
+    - latency_ms_p50
+    - latency_ms_p95
+    - peak_memory_mb
+    - license_ok
+  seeds: [0, 1, 2]

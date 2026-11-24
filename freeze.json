@@ -2,7 +2,7 @@
   "tag": "p1-w1",
   "date": "2026-11-25",
   "code": {
-    "commit": "72906aeb45b873b3abbf05c8923203436f37d631"
+    "commit": "32991fd6f90a0352fcb0710f5a21deb5152a25cf"
   },
   "python": {
     "pss": "3.13.7",
@@ -11,9 +11,11 @@
   "sim": {
     "isaac_sim": "5.1.0.0",
     "isaac_lab": "TBD",
-    "physx": "TBD",
+    "physx": "107.3.26",
     "graphics_api": "D3D12",
-    "extra_args": ["--/app/vulkan=false"]
+    "extra_args": [
+      "--/app/vulkan=false"
+    ]
   },
   "driver": "616.64",
   "gpu": {

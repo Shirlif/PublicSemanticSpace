@@ -1,0 +1,223 @@
+"""Evaluation and reporting for the spatial suite."""
+
+from __future__ import annotations
+
+import json
+from collections import defaultdict
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Callable, Iterable
+
+import numpy as np
+
+from .baselines import Prediction, timed
+from .schema import Item
+
+
+@dataclass
+class FamilyMetrics:
+    n: int = 0
+    correct: int = 0
+    invalid: int = 0
+    tp: int = 0
+    fp: int = 0
+    tn: int = 0
+    fn: int = 0
+    count_abs_error: float = 0.0
+    count_n: int = 0
+    latencies: list[float] = field(default_factory=list)
+    tool_items: int = 0
+    tool_items_used: int = 0
+    tool_calls: int = 0
+    tool_errors: int = 0
+
+    def add(self, item: Item, pred: Prediction) -> None:
+        self.n += 1
+        self.latencies.append(pred.latency_ms)
+        if pred.trace is not None:
+            self.tool_items += 1
+            if pred.trace:
+                self.tool_items_used += 1
+            self.tool_calls += len(pred.trace)
+            self.tool_errors += sum(0 if step.get("ok") else 1 for step in pred.trace)
+        if pred.answer is None:
+            self.invalid += 1
+            return
+        if pred.answer == item.query.answer:
+            self.correct += 1
+        if item.query.kind == "bool":
+            positive = item.query.answer == "yes"
+            predicted = pred.answer == "yes"
+            if positive and predicted:
+                self.tp += 1
+            elif positive and not predicted:
+                self.fn += 1
+            elif not positive and predicted:
+                self.fp += 1
+            else:
+                self.tn += 1
+        if item.query.kind == "count":
+            try:
+                self.count_abs_error += abs(int(pred.answer) - int(item.query.answer))
+                self.count_n += 1
+            except ValueError:
+                pass
+
+    def to_dict(self) -> dict:
+        n = max(1, self.n)
+        valid = max(1, self.n - self.invalid)
+        precision = self.tp / max(1, self.tp + self.fp)
+        recall = self.tp / max(1, self.tp + self.fn)
+        f1_yes = 2 * precision * recall / max(1e-9, precision + recall)
+        specificity = self.tn / max(1, self.tn + self.fp)
+        f1_macro = (f1_yes + specificity) / 2.0
+        lat = np.asarray(self.latencies, dtype=float) if self.latencies else np.zeros(1)
+        return {
+            "n": self.n,
+            "accuracy": self.correct / n,
+            "accuracy_valid": self.correct / valid,
+            "invalid": self.invalid,
+            "invalid_rate": self.invalid / n,
+            "f1_yes": f1_yes if (self.tp + self.fp + self.fn) else None,
+            "f1_macro": f1_macro if (self.tp + self.fp + self.fn + self.tn) else None,
+            "count_mae": (self.count_abs_error / self.count_n) if self.count_n else None,
+            "latency_p50_ms": float(np.percentile(lat, 50)),
+            "latency_p95_ms": float(np.percentile(lat, 95)),
+            "tool_items": self.tool_items,
+            "tool_items_used": self.tool_items_used,
+            "tool_calls_mean": (self.tool_calls / self.tool_items) if self.tool_items else 0.0,
+            "tool_error_rate": (self.tool_errors / self.tool_calls) if self.tool_calls else 0.0,
+            "no_tool_answer_rate": (
+                (self.tool_items - self.tool_items_used) / self.tool_items
+                if self.tool_items
+                else 0.0
+            ),
+        }
+
+
+def evaluate_predictor(
+    predictor: Callable[[Item], str | None],
+    items: Iterable[Item],
+    name: str,
+) -> dict:
+    by_family: dict[str, FamilyMetrics] = defaultdict(FamilyMetrics)
+    by_split: dict[str, FamilyMetrics] = defaultdict(FamilyMetrics)
+    overall = FamilyMetrics()
+    rows = []
+    for item in items:
+        pred = timed(predictor, item)
+        by_family[item.query.family].add(item, pred)
+        by_split[item.scene.split].add(item, pred)
+        overall.add(item, pred)
+        rows.append(
+            {
+                "query_id": item.query.query_id,
+                "scene_id": item.scene.scene_id,
+                "family": item.query.family,
+                "split": item.scene.split,
+                "ood": item.scene.ood,
+                "kind": item.query.kind,
+                "answer": item.query.answer,
+                "prediction": pred.answer,
+                "raw": pred.raw,
+                "latency_ms": pred.latency_ms,
+                "trace": pred.trace,
+                "meta": item.query.meta,
+            }
+        )
+    return {
+        "name": name,
+        "overall": overall.to_dict(),
+        "by_family": {k: v.to_dict() for k, v in sorted(by_family.items())},
+        "by_split": {k: v.to_dict() for k, v in sorted(by_split.items())},
+        "rows": rows,
+    }
+
+
+def write_report(results: dict, out_dir: Path, suite_summary: dict) -> Path:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    lines = [
+        "# Spatial S1 report",
+        "",
+        "> Generated by `python -m pss.eval.spatial.scripts.run_s1`.",
+        "> T-text only: no images. PSS exact recomputes answers from geometry.",
+        "",
+        "## Suite",
+        "",
+        "| split | ood | items |",
+        "|---|---|---:|",
+    ]
+    for row in suite_summary.get("splits", []):
+        lines.append(f"| {row['split']} | {row['ood']} | {row['items']} |")
+
+    lines += [
+        "",
+        "## Overall",
+        "",
+        "| baseline | n | accuracy | valid acc | invalid | latency p50 (ms) | tool calls/item | tool error rate |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for name, result in results.items():
+        o = result["overall"]
+        lines.append(
+            f"| {name} | {o['n']} | {o['accuracy']:.3f} | {o['accuracy_valid']:.3f} | "
+            f"{o['invalid_rate']:.3f} | {o['latency_p50_ms']:.2f} | "
+            f"{o['tool_calls_mean']:.2f} | {o['tool_error_rate']:.3f} |"
+        )
+
+    tool_names = [name for name, result in results.items() if result["overall"]["tool_items"]]
+    if tool_names:
+        lines += [
+            "",
+            "## Tool use",
+            "",
+            "| baseline | tool-capable items | items that called tools | tool calls/item | tool error rate | no-tool answer rate |",
+            "|---|---:|---:|---:|---:|---:|",
+        ]
+        for name in tool_names:
+            o = results[name]["overall"]
+            lines.append(
+                f"| {name} | {o['tool_items']} | {o['tool_items_used']} | "
+                f"{o['tool_calls_mean']:.2f} | {o['tool_error_rate']:.3f} | "
+                f"{o['no_tool_answer_rate']:.3f} |"
+            )
+
+    lines += [
+        "",
+        "## By family",
+        "",
+        "| baseline | family | n | accuracy | invalid | f1 macro | count MAE |",
+        "|---|---|---:|---:|---:|---:|---:|",
+    ]
+    for name, result in results.items():
+        for family, m in result["by_family"].items():
+            f1 = "-" if m["f1_macro"] is None else f"{m['f1_macro']:.3f}"
+            mae = "-" if m["count_mae"] is None else f"{m['count_mae']:.2f}"
+            lines.append(
+                f"| {name} | {family} | {m['n']} | {m['accuracy']:.3f} | "
+                f"{m['invalid_rate']:.3f} | {f1} | {mae} |"
+            )
+
+    lines += [
+        "",
+        "## Notes",
+        "",
+        "- `pss_exact` is an upper-bound sanity check; if it is below 0.99, the label or predicate is buggy.",
+        "- `naive_world` ignores reference frames and occlusion; it is a diagnostic strawman, not an LLM.",
+        "- LLM baselines require an explicit `--llm-model`; they are omitted from this table when not run.",
+        "- Do not read a win over `random` as a capability result.",
+        "",
+    ]
+    path = out_dir / "report.md"
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
+def write_jsonl(items: Iterable[Item], path: Path) -> Path:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        for item in items:
+            handle.write(json.dumps(item.to_record(), ensure_ascii=False) + "\n")
+    return path
