@@ -1,0 +1,124 @@
+spec_version: 1
+id: s1_occlusion_v1
+task_family: tracking
+split: test
+
+# W1 minimal scene.  Deliberately no robot and no injected faults: the only
+# thing this spec has to prove is that one 10 s episode lands on disk and that
+# visibility actually changes over time.
+notes:
+  - "W1: table + 4 cubes + fixed overhead camera; robot section added in W2 (G1 base_fixed)."
+  - "scene.occluders is a W1 extension: a kinematic board sweeps across the view so visibility_ratio varies; it is scene setup, not a fault injection."
+  - "store_images=false for the W1 smoke; enabled in W2 together with the detection stage."
+  - "No twin_group yet; S2 adds twin assets at W4."
+
+seed_policy:
+  episode_seeds: [0, 1, 2, 3, 4]
+  pose_sampling: fixed
+
+assets:
+  instances:
+    - id: cube_red_01
+      class: cube
+      usd: builtin://cube
+      size_m: [0.04, 0.04, 0.04]
+      mass_kg: 0.05
+      friction: {static: 0.8, dynamic: 0.6}
+      restitution: 0.05
+      pose: [-0.15, -0.10, 0.79, 1, 0, 0, 0]
+      color: [0.80, 0.10, 0.10]
+      split: test
+    - id: cube_green_01
+      class: cube
+      usd: builtin://cube
+      size_m: [0.04, 0.04, 0.04]
+      mass_kg: 0.05
+      friction: {static: 0.8, dynamic: 0.6}
+      restitution: 0.05
+      pose: [0.15, -0.10, 0.79, 1, 0, 0, 0]
+      color: [0.10, 0.70, 0.15]
+      split: test
+    - id: cube_blue_01
+      class: cube
+      usd: builtin://cube
+      size_m: [0.04, 0.04, 0.04]
+      mass_kg: 0.05
+      friction: {static: 0.8, dynamic: 0.6}
+      restitution: 0.05
+      pose: [-0.15, 0.10, 0.79, 1, 0, 0, 0]
+      color: [0.10, 0.25, 0.80]
+      split: test
+    - id: cube_yellow_01
+      class: cube
+      usd: builtin://cube
+      size_m: [0.04, 0.04, 0.04]
+      mass_kg: 0.05
+      friction: {static: 0.8, dynamic: 0.6}
+      restitution: 0.05
+      pose: [0.15, 0.10, 0.79, 1, 0, 0, 0]
+      color: [0.85, 0.70, 0.10]
+      split: test
+
+scene:
+  table:
+    size: [1.2, 0.8, 0.04]
+    height_m: 0.75
+    friction: 0.7
+  workspace:
+    xy: [[-0.30, -0.25], [0.30, 0.25]]
+    table_z: 0.77
+  lighting:
+    preset: studio
+  occluders:
+    - name: occluder_board_01
+      size: [0.12, 0.50, 0.01]
+      pose: [-0.60, 0.0, 0.90, 1, 0, 0, 0]
+      motion:
+        - {t_s: 0.0, pos: [-0.60, 0.0, 0.90]}
+        - {t_s: 5.0, pos: [0.00, 0.0, 0.90]}
+        - {t_s: 10.0, pos: [0.60, 0.0, 0.90]}
+
+cameras:
+  - name: overhead
+    pose: [0.0, 0.0, 1.30, 1, 0, 0, 0]
+    fov_deg: 60
+    width: 640
+    height: 480
+    rate_hz: 10
+
+physics:
+  dt: 0.008333333333333333
+  substeps: 2
+  solver: TGS
+  contact_report: {enabled: true, max_contacts_per_pair: 8}
+  determinism: {fixed_gpu: true, seed: 0}
+
+task:
+  id: track_objects
+  initial_facts: []
+  goal_facts: []
+  time_limit_s: 10
+
+faults: []
+
+perception:
+  mode: offline
+  detector_tier: oracle
+  noise_profile: null
+
+relations_gt:
+  predicates: [left_of, right_of, in_front_of, behind, on_top_of, inside,
+               touching, near, above, below]
+  compute_from: gt_poses
+  tolerance_m: 0.02
+
+metrics:
+  primary: [idf1, id_retention, id_switches, duplicate_rate, reappearance_rate]
+  leading: [slot_purity, provenance_completeness]
+  guardrail: [safety_violation_rate, permission_violation_count]
+
+recording:
+  obs_rate_hz: 10
+  gt_rate_hz: 120
+  bundle_format: parquet
+  store_images: false
