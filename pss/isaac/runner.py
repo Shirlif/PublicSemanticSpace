@@ -56,6 +56,15 @@ def _git_commit() -> str:
 
 def _physx_version() -> str:
     try:
+        import omni.kit.app
+
+        manager = omni.kit.app.get_app().get_extension_manager()
+        ext_id = manager.get_enabled_extension_id("omni.physx")
+        if ext_id:
+            return ext_id.split("omni.physx-", 1)[-1].split("+", 1)[0]
+    except Exception:
+        pass
+    try:
         import omni.physx
 
         interface = omni.physx.get_physx_interface()
@@ -300,10 +309,15 @@ def _run_one(
         sim.step(render=False)
 
     sim_time = float(sim.current_time)
-    if abs(sim_time - time_limit) > 2.0 * physics_dt:
+    # ``SimulationContext.play()`` performs two internal physics updates before
+    # the loop starts (one initial update plus the play commit).  Those frames
+    # are part of the simulated clock but are not recorded as GT rows; expect
+    # them explicitly instead of pretending the loop starts at t=0 exactly.
+    expected_time = time_limit + 2.0 * physics_dt
+    if abs(sim_time - expected_time) > 0.5 * physics_dt:
         raise RuntimeError(
             f"timebase mismatch: simulated {sim_time:.4f}s for {total_steps} steps, "
-            f"expected {time_limit:.4f}s (physics_dt={physics_dt})"
+            f"expected {expected_time:.4f}s (physics_dt={physics_dt})"
         )
     sim.stop()
     wall_s = time.time() - wall_start
@@ -347,7 +361,12 @@ def _run_one(
         },
         variant=variant,
         detector_tier=str(spec.perception.get("detector_tier", "oracle")),
-        outcome={"task_success": None, "steps": total_steps, "wall_s": wall_s},
+        outcome={
+            "task_success": None,
+            "steps": total_steps,
+            "wall_s": wall_s,
+            "sim_time_s": sim_time,
+        },
     )
     print(f"[ok] seed {seed}: {bundle_dir}  steps={total_steps}  wall={wall_s:.1f}s")
     return bundle_dir
@@ -381,7 +400,9 @@ def run(
     os.environ.setdefault("OMNI_KIT_ACCEPT_EULA", "YES")
     from isaacsim import SimulationApp
 
-    app = SimulationApp({"headless": True})
+    from .launch import launch_config
+
+    app = SimulationApp(launch_config())
     outputs: list[Path] = []
     try:
         for k in range(episodes):
@@ -397,6 +418,17 @@ def run(
                     force=force,
                 )
             )
+    except BaseException:
+        import sys
+        import traceback
+
+        traceback.print_exc()
+        sys.stdout.flush()
+        sys.stderr.flush()
+        # ``app.close()`` can spin forever after a mid-episode exception (open
+        # stage + playing timeline); leave the process immediately so the
+        # traceback survives.
+        os._exit(1)
     finally:
         app.close()
     return outputs

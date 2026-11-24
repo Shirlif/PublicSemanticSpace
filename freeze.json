@@ -11,7 +11,9 @@
   "sim": {
     "isaac_sim": "5.1.0.0",
     "isaac_lab": "TBD",
-    "physx": "TBD"
+    "physx": "TBD",
+    "graphics_api": "D3D12",
+    "extra_args": ["--/app/vulkan=false"]
   },
   "driver": "616.64",
   "gpu": {

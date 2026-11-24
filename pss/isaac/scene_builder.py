@@ -38,9 +38,9 @@ def _jsonable(value: Any) -> Any:
     if isinstance(value, (list, tuple)):
         return [_jsonable(v) for v in value]
     if isinstance(value, Gf.Vec2f) or isinstance(value, Gf.Vec2d):
-        return [float(v[0]), float(v[1])]
+        return [float(value[0]), float(value[1])]
     if isinstance(value, Gf.Vec3f) or isinstance(value, Gf.Vec3d):
-        return [float(v[0]), float(v[1]), float(v[2])]
+        return [float(value[0]), float(value[1]), float(value[2])]
     if isinstance(value, Gf.Vec4f) or isinstance(value, Gf.Vec4d):
         return [float(v[i]) for i in range(4)]
     if isinstance(value, Gf.Quatf) or isinstance(value, Gf.Quatd):

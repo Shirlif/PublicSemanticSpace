@@ -10,16 +10,20 @@ from pss.spec import load_spec
 
 
 def _cmd_build(args: argparse.Namespace) -> int:
-    # ``import isaacsim`` bootstraps the Kit kernel paths and makes ``pxr``
-    # importable without starting the full application.
+    # Build under SimulationApp so Kit sets up its extension paths and DLL
+    # directories; a bare ``import isaacsim`` does not expose ``pxr``.
     os.environ.setdefault("OMNI_KIT_ACCEPT_EULA", "YES")
-    import isaacsim  # noqa: F401
+    from isaacsim import SimulationApp
 
+    from .launch import launch_config
+
+    app = SimulationApp(launch_config())
     from .scene_builder import build_scene
 
     spec = load_spec(args.spec)
     manifest = build_scene(spec, cache_dir=args.cache_dir, force=args.force)
-    print(json.dumps(manifest, indent=2, ensure_ascii=False))
+    print(json.dumps(manifest, indent=2, ensure_ascii=False), flush=True)
+    app.close()
     return 0
 
 

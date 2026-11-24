@@ -21,19 +21,21 @@
 
 ## D1 验收：headless 启动与显存
 
-- 启动命令：`OMNI_KIT_ACCEPT_EULA=YES D:\isaac\env\Scripts\python.exe -m ...`
-- 首次启动耗时：TBD
-- 空场景显存：TBD
-- 最小示例：TBD
+- 启动命令：`OMNI_KIT_ACCEPT_EULA=YES D:\isaac\env\Scripts\python.exe ...`
+- 热启动到 app ready：~8.5 s；`SimulationApp` 构造到 ready：11.2 s
+- 空场景 120 物理步：0.03 s（0.268 ms/step）
+- 单进程显存：WDDM 不报告；设备总占用见 `notes/env.md`
+- 关键：默认 Vulkan 在 `rtx.scenedb` 崩溃；固定 `--/app/vulkan=false`（D3D12）
 
 ## 单条 episode
 
-- 命令：`pss sim run specs/s1_occlusion.yaml --episodes 1 --seed 0 --device dev`
-- 物理步数：1200（10 s × 120 Hz）
+- 命令：`python -m pss sim run specs/s1_occlusion.yaml --episodes 1 --seed 0 --device dev`
+- 物理步数：1200（10 s × 120 Hz；`play()` 另有 2 次内部步进，实测 sim_time 10.0167 s）
 - 观测：100 行（10 Hz）
 - GT：4800 行（1200 物理帧 × 4 实例）
-- 耗时：TBD
-- bundle：`bundles/dev/s1_occlusion/<hash8>/seed0/`
+- 耗时：模拟循环 wall 12.8 s（含 4800 次 USD 位姿读取 + 100 次可见率采样）
+- bundle：`bundles/dev/s1_occlusion/16ea9f38/seed0/`
+- D5 断言：4 实例、100 帧、1200 物理步、可见率 min=0.0 / max=1.0，全部 PASS
 
 ## 踩到的坑
 
