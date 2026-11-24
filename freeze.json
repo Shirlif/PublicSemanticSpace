@@ -2,7 +2,7 @@
   "tag": "p1-w1",
   "date": "2026-11-25",
   "code": {
-    "commit": "32991fd6f90a0352fcb0710f5a21deb5152a25cf"
+    "commit": "4298b75c1ce061de746fc476d09a7d0b48a0c305"
   },
   "python": {
     "pss": "3.13.7",
