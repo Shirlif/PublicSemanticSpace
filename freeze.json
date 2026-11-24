@@ -1,0 +1,35 @@
+{
+  "tag": "p1-w1",
+  "date": "2026-11-25",
+  "code": {
+    "commit": "72906aeb45b873b3abbf05c8923203436f37d631"
+  },
+  "python": {
+    "pss": "3.13.7",
+    "isaac": "3.11.13"
+  },
+  "sim": {
+    "isaac_sim": "5.1.0.0",
+    "isaac_lab": "TBD",
+    "physx": "TBD"
+  },
+  "driver": "616.64",
+  "gpu": {
+    "dev": "RTX 4070 Laptop 8GB",
+    "official": "RTX 3090 Ti 24GB"
+  },
+  "detector": {
+    "pss": "TBD",
+    "weights_sha256": "TBD"
+  },
+  "env": {
+    "pss_python": "D:\\Python\\python.exe",
+    "isaac_venv": "D:\\isaac\\env",
+    "isaac_uv_cache": "D:\\isaac\\uvcache"
+  },
+  "notes": [
+    "Isaac Sim 5.1.0.0 installed via uv venv (conda not present); Python 3.11.13.",
+    "isaac_lab / physx filled at W2/W8 per plan.",
+    "detector fields filled at W4 (S2)."
+  ]
+}
