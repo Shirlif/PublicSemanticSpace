@@ -28,8 +28,9 @@ D3D12 后 11 s 完成启动。该参数写入 `pss/isaac/launch.py`，可用
 | `SimulationApp` 构造 + app ready | 11.2 s |
 | 空场景 120 物理步（1/120 s） | 0.03 s |
 | 单物理步 | 0.268 ms |
-| 120 步后模拟时间 | 1.0167 s（含 play 的一次内部步进） |
+| 120 步后模拟时间 | 1.0167 s（含 play 的两次内部步进） |
 | 单进程显存 | WDDM 下 `nvidia-smi --query-compute-apps` 不报告（N/A） |
+| 设备总占用（空场景 boot 后） | 856 MiB / 8188 MiB |
 
 > 8 GB 显存下 W1 空场景无压力；G1 + 相机渲染要到 W2/W8 再测并行度上限。
 
