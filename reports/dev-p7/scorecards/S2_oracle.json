@@ -1,0 +1,78 @@
+{
+  "suite": "s2_twins_oracle",
+  "created_utc": "2026-11-25T02:57:15Z",
+  "device_class": "dev",
+  "detector_tier": "oracle",
+  "caveat": "oracle tier is a calibration upper bound (perfect GT identity/pose); it is not capability evidence",
+  "spec_hashes": [
+    "sha256:3d49ce1bca786b2706c80cf76d7723c8d563c33d04c7b2351616913ea0bfdd18"
+  ],
+  "n_episodes": 1,
+  "seeds": [
+    0
+  ],
+  "metrics": {
+    "idf1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "id_retention": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "id_switches": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "duplicate_rate": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "reappearance_rate": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "slot_purity": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    }
+  },
+  "episodes": [
+    {
+      "idf1": 1.0,
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "duplicate_rate": 0.0,
+      "reappearance_rate": 1.0,
+      "slot_purity": 1.0,
+      "gt_detections": 372,
+      "pred_detections": 372,
+      "gt_instances": 4,
+      "pred_identities": 4,
+      "episode_id": "s2_twins__seed00__oracle__full",
+      "seed": 0,
+      "bundle": "bundles\\dev\\s2_twins_oracle\\3d49ce1b\\seed0",
+      "spec_hash": "sha256:3d49ce1bca786b2706c80cf76d7723c8d563c33d04c7b2351616913ea0bfdd18",
+      "device_class": "dev",
+      "detector_tier": "oracle"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "tag": "p7-w11",
+  "date": "2026-11-25",
+  "code": {
+    "commit": "d5e1c4f756704b8e06f45a72239c371eb337c8d1"
+  },
+  "python": {
+    "pss": "3.13.7",
+    "isaac": "3.11.13"
+  },
+  "sim": {
+    "isaac_sim": "5.1.0.0",
+    "isaac_lab": "TBD",
+    "physx": "107.3.26",
+    "graphics_api": "D3D12",
+    "extra_args": [
+      "--/app/vulkan=false"
+    ]
+  },
+  "driver": "616.64",
+  "gpu": {
+    "dev": "RTX 4070 Laptop 8GB",
+    "official": "RTX 3090 Ti 24GB"
+  },
+  "detector": {
+    "pss": "TBD",
+    "weights_sha256": "TBD"
+  },
+  "env": {
+    "pss_python": "D:\\Python\\python.exe",
+    "isaac_venv": "D:\\isaac\\env",
+    "isaac_uv_cache": "D:\\isaac\\uvcache"
+  },
+  "notes": [
+    "P6 T35-T38 complete on dev/oracle: S6 memory, S7 detector calibration, S8 cost.",
+    "S6 uses oracle detections; real-detector memory and PSS uncertainty calibration remain."
+  ]
+}

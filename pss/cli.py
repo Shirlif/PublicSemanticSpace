@@ -27,6 +27,8 @@ def _help() -> str:
         "  replay run PSS over detections and write entity_trace/pss_trace\n"
         "  score  aggregate bundle traces into scorecards\n"
         "  score-relations  per-predicate F1 and consistency violations\n"
+        "  report build     assemble reports/<tag>/ (A10)\n"
+        "  verify-recompute recompute scorecards from bundles (A9)\n"
     )
 
 
@@ -60,6 +62,14 @@ def main(argv: list[str] | None = None) -> int:
         from pss.metrics.relation_cli import main as relation_main
 
         return relation_main(rest)
+    if group == "report":
+        from pss.metrics.report_cli import main as report_main
+
+        return report_main(["build", *rest])
+    if group == "verify-recompute":
+        from pss.metrics.report_cli import main as report_main
+
+        return report_main(["verify", *rest])
     print(f"unknown command group {group!r}\n", file=sys.stderr)
     print(_help(), file=sys.stderr)
     return 2

@@ -297,11 +297,11 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [x] T38 S8 成本
 
 ### P7（W13–W14）
-- [ ] T39 预注册 A4
-- [ ] T40 3090 Ti 环境对齐
-- [ ] T41 official 全量跑测
-- [ ] T42 复算验证 A9
-- [ ] T43 `reports/<tag>/` 归档 A10
+- [x] T39 预注册 A4
+- [ ] T40 3090 Ti 环境对齐（检查脚本已就绪；硬件不在本机）
+- [ ] T41 official 全量跑测（阻塞：需 3090 Ti）
+- [x] T42 复算验证 A9（dev 同机通过；跨机待 official）
+- [x] T43 `reports/<tag>/` 归档 A10（dev-p7 演练完成）
 
 ---
 
