@@ -16,7 +16,7 @@
 | 评测平台 | `pss/spec`、`pss/isaac`、`pss/detect`、`pss/baselines`、`pss/metrics`、`pss/eval` | spec → USD → bundle → 检测 → 回放 → 指标 |
 | 数据与实验 | `pss/sim`、`pss/rd2`、`pss/demos`、`scripts`、`specs`、`bundles`、`scorecards`、`freeze` | 仿真数据、真实数据 schema、实验入口、结果归档 |
 
-历史阶段报告（`PHASE*_REPORT.md`）不是运行入口，读代码时可以跳过。
+历史阶段报告（`docs/phases/PHASE*_REPORT.md`）不是运行入口，读代码时可以跳过。
 
 ---
 
@@ -58,7 +58,17 @@ PublicSemanticSpace/
 ├── bench/                   绑定稳定性等基准
 ├── _external/               G1 USD、GroundingDINO/DINOv2 权重（gitignore）
 ├── data/ checkpoints/       数据集与训练权重（gitignore）
-└── PHASE*_REPORT.md         历史阶段报告
+├── docs/                    文档
+│   ├── README.md            文档总索引
+│   ├── PRIORITY.md          优先权与发布记录
+│   ├── architecture/        架构定位、运行时、指标、推演记录、工作总结
+│   ├── experiments/         PSS vs Transformer、五优先级结论
+│   ├── plans/               落地执行计划、优化清单、Isaac Sim 计划
+│   ├── phases/              历史阶段报告（PHASE*_REPORT.md）
+│   ├── background/          架构背景长文
+│   └── releases/            版本发布记录
+├── notes/                   工作笔记、claim–evidence 映射、实验设计
+└── eval/                    预注册与评测套件说明
 ```
 
 ---

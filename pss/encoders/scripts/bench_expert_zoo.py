@@ -923,7 +923,7 @@ def render_markdown(payload: dict) -> str:
         "- 跨模态检索先用 train split 拟合线性 `Ridge` 映射 A→B，再在 test split 上检索；"
         "这是专家级探针，不是 Phase 4 的 InfoNCE 投影。",
         "- 开放集是单专家 max-prob 探针，不是 Phase 5 的原型融合；"
-        "不要与 `CATEGORY_PRETRAIN_REPORT.md` 的融合 AUROC 0.960 直接比较。",
+        "不要与 `docs/phases/CATEGORY_PRETRAIN_REPORT.md` 的融合 AUROC 0.960 直接比较。",
         "- `skipped` 不等于失败：多为 `status=planned`、缺少权重或环境不可用。",
         "- 本报告不自动下结论；按 `eval/expert_zoo.md` 的 G1–G4 与 K-E1–K-E5 判据人工决策。",
         "",

@@ -1,7 +1,7 @@
 """First-priority encoder swap: frozen backbones + calibrated projections.
 
 Implements the "换编码器，不动 PSS 接口" item from
-``PSS-认知层架构定位.md``:
+``docs/architecture/PSS-认知层架构定位.md``:
 
 - frozen CLIP / DINOv2 vision encoders (plus DINOv2 patch-token VLAD);
 - a stronger conv tactile encoder;

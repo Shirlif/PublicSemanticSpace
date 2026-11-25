@@ -172,7 +172,7 @@ category-pretrain-prototypes:
 
 category-pretrain: category-pretrain-data category-pretrain-train category-pretrain-projection category-pretrain-prototypes
 
-# First-priority encoder swap (PSS-认知层架构定位.md §7):
+# First-priority encoder swap (docs/architecture/PSS-认知层架构定位.md §7):
 # frozen DINOv2/CLIP, conv tactile, calibrated projections; runs open-set,
 # re-ID and P5b. CLIP is skipped unless its weights are cached or
 # --allow-download is passed.

@@ -5,7 +5,7 @@ canonical SHA-256 is the primary key for every experiment artifact (USD cache,
 bundle directory, manifest, scorecard), so the hash must depend only on the
 document content -- never on defaults injected at runtime.
 
-The schema follows ``PSS-IsaacSim-评测平台设计.md`` §3.1.  Unknown keys are
+The schema follows ``docs/plans/PSS-IsaacSim-评测平台设计.md`` §3.1.  Unknown keys are
 preserved (and hashed) but not interpreted; sections that are not needed yet
 (e.g. ``robot``) may be omitted and are marked TBD in ``notes``.
 """

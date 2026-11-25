@@ -2,7 +2,7 @@
 
 A bundle is the evaluation atom: simulation writes tables, metrics read them
 offline.  The W1 bundle already carries the full table set from the design
-(``PSS-IsaacSim-评测平台设计.md`` §3.6) -- tables that cannot be produced yet
+(``docs/plans/PSS-IsaacSim-评测平台设计.md`` §3.6) -- tables that cannot be produced yet
 are written empty, with their schema, so downstream readers never branch on
 "W1 vs later".
 """

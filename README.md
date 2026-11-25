@@ -1,421 +1,341 @@
-# Public Semantic Space (PSS) — Phase 0
+# PSS：感知之上的认知运行时
 
-依据 `公共语义空间推理架构-推演记录-11.19.md` 与 `公共语义空间-落地执行计划-v1.md` 建立的工程起点。
+**Public Semantic Space (PSS) — contract-level modularity for embodied cognition**
 
-> 目录结构与核心代码导读：`notes/PROJECT_MAP.md`。
+> 本文档是项目入口，说明 PSS 解决什么问题、怎么工作、证据到什么程度、边界在哪里。
+> 它不是一篇对外投稿的论文；完整的 claim–evidence 映射见 `notes/PAPER_WRITING_MAP.md`，实验设计与结果见 `notes/CLAIM_GAP_EXPERIMENTS.md` 和 `reports/claim_gaps/`。
 
-## 核心入口：三步
+---
 
-1. **冻结专家**：视觉 SmallCNN/预训练骨干、触觉 WT-MM CNN、几何手工特征。
-2. **MLP 投影头**：256 / 64 / 16 → 128 维公共空间，L2 归一化。
-3. **原型库 + 识别**：128 维向量与类别原型做余弦检索，输出 top-k。
+## 摘要
+
+具身系统的感知能力会持续升级：换编码器、换模态、加传感器。但认知状态——谁是谁、什么关系、记得什么、能不能回滚——通常埋在端到端模型里。结果是换一个专家就要重训整个栈，知识更新无法审计，推理成本没有硬上界。
+
+PSS 的答案不是在感知层造一个更大的模型，而是在感知之上放一个**显式、可组合、可审计的认知运行时**：
+
+- 感官专家可以按契约换入，其他模块和 runtime 不重训；
+- 认知状态（实体、关系、记忆、审计）显式存在，可版本化、可回滚；
+- 知识可以原子更新，推理成本有硬上界；
+- 公共语义空间只作为专家与认知层之间的**对齐接口**，不是“所有专家天然落进去的零样本坐标系”。
+
+评测上，PSS 不追求端到端 SOTA，而是用 **property-level evaluation** 把架构贡献从专家质量里分离出来：专家质量是控制变量，架构变体是配对 twin，负控制检验指标是否敏感。
+
+一句话：**PSS 不是“又一个更大的模型”，而是一套“让异构专家可以组合、让认知状态可以被测量”的运行时与评测方法。**
+
+---
+
+## 1. 问题：感知会升级，认知状态却不可替换
+
+模块化具身系统需要三件事：
+
+1. **热插拔**：换一个视觉或触觉专家，不应该重训整个栈；
+2. **知识热更新**：事实、规则、原型可以在运行中更新、回滚、审计；
+3. **推理上界**：实体、关系、规划、检索都有预算，尾延迟不能失控。
+
+现有做法通常把这三件事混在端到端精度里：
+
+- 换专家 → 全量微调，旧能力遗忘，无法证明“只有目标模块变了”；
+- 知识更新 → 改参数或重训，更新是否局部、能否回滚、审计链是否完整，说不清；
+- 推理成本 → 随上下文/历史增长，没有硬上界，也没有降级路径。
+
+因此，一个系统的“架构贡献”和“专家质量”经常被混在一起：分数涨了，不知道是模块化做好了，还是只是换了一个更强的编码器。
+
+PSS 的核心问题是：**能不能把认知状态从感知模型里拿出来，做成一个显式的、可替换的、可测量的层？**
+
+---
+
+## 2. 定位：PSS 是什么，不是什么
+
+| PSS 是 | PSS 不是 |
+|---|---|
+| 感知之上的**认知运行时** | 一个新的基础模型 / foundation model |
+| 一套**契约**：专家准入、热插拔、版本化 KB、有界推理 | 一个“零样本公共语义空间” |
+| 一套**property-level evaluation** | 端到端 SOTA 感知系统 |
+| 显式状态：实体、关系、记忆、审计 | 把所有能力压进一个端到端网络 |
+| 可校准的**对齐接口** | 所有专家天然共享的坐标系统 |
+
+两个关键判断来自实验，而不是口号：
+
+- **公共语义空间是可校准接口，不是零样本坐标系。** 跨专家族 zero-shot 接近 chance（vision 0.186，tactile 0.067–0.100），1-shot 校准后 vision 恢复到 0.936；tactile 仍受专家本身限制。
+- **显式状态层的价值不是“精度更高”。** 公平归因后 re-ID 相对 transformer 只剩 +0.012；PSS 的主张是“状态显式、可审计、可回滚”，不是“识别更准”。
+
+---
+
+## 3. 架构
+
+```
+传感器 / 专家（冻结或慢更新）
+  vision / tactile / geometry / language
+        │
+        ▼
+per-modality projection → 公共语义空间（对齐接口，128-d）
+        │
+        ▼
+认知运行时（PSS）
+  ├─ EntityLayer        持久实体 ID / 生命周期 / 属性 / provenance
+  ├─ RelationFactLayer  typed relations / scene graph / 版本化事实
+  ├─ Active-set memory  工作记忆 / 检索 / write policy
+  ├─ Uncertainty        冲突 / 弃权 / 可靠性
+  ├─ Planner            规则 / 算子 / A* / 异常重规划
+  ├─ OutputRouter       动作 / 行为 / 语言 / 安全
+  └─ Audit              版本 / 快照 / 回滚 / 权限
+        │
+        ▼
+输出头：动作 / 行为 / 语言 / 安全
+```
+
+### 3.1 四条契约
+
+| 契约 | 内容 | 关键证据 |
+|---|---|---|
+| **专家准入** | modality / version / dim / encode / health；非法模块拒绝 | SSR=1.00；无效模块全拒绝 |
+| **热插拔** | 原子换入、正确路由、非干扰、精确回滚 | SSR/RBE/INT/RCR 在 Q0–Q4 上不变 |
+| **版本化知识** | assert / retract / update / rollback / audit；TMS justification | K1–K8；`TMSFactStore` 接入生产 `MultiSourceFactStore` |
+| **有界推理** | entity / relation / expansion / latency caps；anytime；降级 FSM | BAR=1.00、MON=1.00、DCR=1.00 |
+
+### 3.2 三条设计规则
+
+1. **分模态存储，禁止相加。** 每个模态的向量独立存放；相加后无法拆回单模态。公共空间是“每个模态各自的投影 + 原型”，不是一个跨模态求和向量。
+2. **槽 ≠ 身份。** 工作记忆槽只是位置；实体身份在场景图里。换槽必须从 `raw` 重建 `bound`。
+3. **校准是准入的一部分。** 新专家换入时需要校准；这不是“零样本失败”，而是契约要求。
+
+### 3.3 认知层做什么，不做什么
+
+PSS 不负责“看懂/听懂”——那是冻结专家的活。PSS 负责：
+
+- 把观测绑成**持久实体**；
+- 算**typed relations**（spatial / semantic / tactile）；
+- 维护 **active-set 记忆**和版本化事实；
+- 做**规划、不确定性、弃权、审计、回滚**；
+- 在有预算的前提下，把状态变成动作/语言/行为。
+
+---
+
+## 4. 评测：为什么是 property-level
+
+PSS 的 claim 本身是**操作不变量**，不是端到端精度：
+
+- 换入成功（SSR）
+- 换入后不污染其他模块（INT）
+- 能精确回滚（RBE）
+- 路由正确（RCR）
+- 知识更新局部/可传播/可审计（LOC/PCR/AUD）
+- 预算遵守（BAR）、降级正确（DCR）
+
+这些指标的设计目标是**专家质量无关**。所以评测把 expert quality 作为控制变量，而不是让它在端到端分数里混淆架构效应。
+
+### 4.1 三个层级
+
+| 层级 | 内容 | 作用 |
+|---|---|---|
+| **L0** | 结构化观测 + expert stub | 隔离架构，跑全量 property 与负控制 |
+| **L1** | 真实冻结专家 + 投影 + 原型 | 在真实 embedding 上验证契约 |
+| **L2** | bundle replay + fresh Isaac S4-PSS | 外部效度：真实检测流、真实执行 |
+
+### 4.2 控制手段
+
+- **Expert quality**：Q0（oracle）→ Q4（random）。
+- **Architecture variants**：A0 full、A2 flat KB、A3 unbounded、A4 naive swap、A5 retrain-all（oracle 上界）等。
+- **Twin pairing**：同 spec/seed/scene，只变架构；配对差是因果分析单位。
+- **Negative controls N1–N8**：flat KB、unbounded planner、naive swap、random expert、shuffled embeddings、over-budget controller 等必须按预期失败/通过。
+- **统计**：bootstrap CI、TOST、two-way ANOVA、Holm–Bonferroni；预注册见 `eval/property_preregistration.md`。
+
+### 4.3 property vs capability
+
+| | property | capability |
+|---|---|---|
+| 例子 | SSR、RBE、INT、RCR、LOC、PCR、AUD、BAR | ZCR、分类准确率、re-ID、任务成功率 |
+| 是否随专家质量变化 | 不应变化 | 会变化 |
+| 用途 | 证明架构契约 | 诊断专家/接口质量 |
+
+这张表是整篇工作的支点：**契约指标专家不变，能力指标随专家变化**。如果两者混在一起，就无法回答“架构到底贡献了什么”。
+
+---
+
+## 5. 结果
+
+以下数字来自 `reports/claim_gaps/REPORT.md`、`reports/claim_gaps/FOLLOWUPS.md` 和 `scorecards/property/`。完整表格见 `reports/claim_gaps/INDEX.md`。
+
+### 5.1 认知状态：显式、可审计、可回滚（C1）
+
+- **实体审计**（E1）：provenance 完整性、retraction 正确性、rollback 精确性、rebind 身份、tamper 检出全部 **1.00**；三个负控制（禁用审计日志 / 禁用哈希链 / 浅快照回滚）目标指标全 **0.00**。
+- **绑定持久性**（E2，70 帧全遮挡）：graph+tactile retention **0.989** vs 无状态代理 **0.500**。
+- **信号分解**（E2）：tactile **+0.117**、graph/state **+0.072**、vision **+0.028**。状态层提供持久化机制，但身份信号主要来自 tactile。
+- **L2 bundle replay**（E12，有效 19/33 bundles）：full **1.000** / no_memory **0.827** / no_entity **0.270**。
+- **S4-PSS 认知变体**（E18）：`full`/`no_memory`/`no_entity` 3/3，`no_relations` **0/3**——这个 demo 测关系，不测记忆。
+
+边界：公平归因后 re-ID 相对 transformer 只剩 **+0.012**；PSS 不宣称识别精度优势。
+
+### 5.2 typed relations：学到的关系是校准层，不是几何的替代（C2）
+
+- 分布内 F1：spatial **0.957**、semantic **0.996**、tactile **0.970**；去掉 tactile 时 tactile F1 掉到 **0.483**（说明没有走捷径）。
+- **hybrid 有条件成立**（E3）：learned 头只在训练覆盖的“双轴清晰”区做校准；对齐/held-out 轴交给精确几何。
+  - 噪声 0.15：hybrid_diag **0.857** vs 几何 dead-zone **0.828**；
+  - 朴素 hybrid（learned 用于未训练的对齐轴）反而最差：**0.503**。
+
+结论：正确形态是“精确几何骨架 + 学习关系校准”，不是“学习关系替代几何”。
+
+### 5.3 记忆与预算：active-set 是成本优势，fact 选择需要 query 条件（C3）
+
+- **re-ID 候选 active-set**：k=1 + fallback 用 **~1.2 个候选**从 0.972 追平 **1.000**。
+- **计算**：N=200 快 **6.4x**，N=1000 快 **23.6x**（未达预注册 10x 门槛，如实报）。
+- **长历史 fact 的旧负结果**：learned 0.372 < hot 0.480 < full 1.000。
+- **E4 定位原因**：旧打分是 query-independent 的；加入 query 条件后，k=4 从 0.241 到 **1.000**。但简单 `query_recency` 规则也到 1.000——所以 claim 是“接口必须 query-conditioned”，不是“学习打分更好”。
+- **E13 RAG 基线**：exact-RAG（top-1 精确检索）准确率 **1.000**，但 p50 **1.38 ms** vs PSS **0.0003 ms**；成本优势不是靠弱基线。
+
+### 5.4 契约前提：可组合、可替换、可规模（C4）
+
+- **L1 契约**：SSR=1.00、RBE=1.00、INT=0.00、RCR=1.00，跨 Q0–Q4 不变（5 seeds）。
+- **contract-free baseline**（E5）：PSS 通过全部 **12 项**契约指标；flat baseline 在 **9 项**上失败（SRR/RBE/RCR/PCR/AUD/RBE-KB/BAR/MON 全 0.00，INT 0.667）。这证明 suite 不是定制试卷。
+- **scale**（E8）：dim 128/256/512 契约不变；1000 facts update **52.9 ms**、rollback **1.0**；500 实体/2000 关系仍 bounded。
+- **TMS 接生产 store**（E10）：K3/K4/K5/AUD/source-retract 全 **1.00**；`TMSFactStore` 包装 `MultiSourceFactStore`，TMS 不再是平行模块。
+- **runtime 权限/审计**（E17）：`read_only` 拒绝 5 项动作、`admin` 拒绝 0；拒绝动作全部入审计。
+
+### 5.5 评测协议：负控制、twin、非 PSS baseline（C5）
+
+- N1–N8 全部按预期失败/通过。
+- twin 配对差：ZCR -0.717、RBE -1.0、LOC +1.0、PCR -1.0、BAR -1.0（5 seeds，15 对）。
+- E5 的 contract-free baseline 补上了“suite 是否只对 PSS 有效”的敏感性控制。
+
+仍要注意：E5 是 contract-free baseline，不是竞争性能力基线；如果要把评测协议单独作为方法贡献，还需要一个强非 PSS 架构。
+
+### 5.6 公共空间：可校准接口（C6）
+
+- **跨族 zero-shot**：3 个专家族平均 vision **0.186**、tactile **0.067–0.100**（chance 0.167）。
+- **1-shot 校准**：vision 平均 **0.936**（单族最高 1.000）；tactile 仍受专家本身限制。
+- **retrain-all 的真实成本**（E6/E6b/E6c）：
+  - 冻结专家 + 重建 prototype：**0.964 / 3.2 ms**；
+  - 仅重训投影：**0.979 / 13.5 s**；
+  - 30 epoch 专家全量重训：**0.969 / 38 s**。
+  - 结论：**不需要 retrain-all**。重训专家既不更快，也没有稳定质量优势。
+
+### 5.7 诚实的负结果
+
+这些结果和正结果一样重要：
+
+- 公平归因后 re-ID 只有 **+0.012**：优势在显式状态，不在精度。
+- 朴素 hybrid（learned 用于对齐轴）**0.503**：learned 关系不能替代几何。
+- 1-shot ridge **0.922** < 冻结专家 + 重建 prototype **0.964**：校准不是万能药。
+- 30ep 专家全量重训 **0.969** < 冻结专家 + 仅重训投影 **0.979**：重训专家没有质量理由。
+- closed-set 精度在 per-modality / summed / random 三变体下都是 **0.969**；学习投影的价值在 cross-modal R@1（**0.510 vs 0.115**），不是闭集精度。
+- S4-PSS 的 `no_memory`/`no_entity` 仍然 3/3：这个 demo 不测记忆；记忆证据来自 E12。
+- tactile 单模态 test acc 在 **0.09–0.36** 之间（category_pretrain ≈ 0.245，expert_v1 ≈ 0.365）：架构不能修复弱触觉。
+
+---
+
+## 6. 边界与限制
+
+- **没有真机**：所有证据来自 MuJoCo 渲染、Isaac 仿真、离线 bundle replay。
+- **L2 是 oracle pose**：S4-PSS 使用 GT boxes/poses；H/K（hot-swap / KB update）没有在 Isaac 任务中执行。E12/E19/E20 补了 bundle replay 和 runtime 级证据，但感知驱动的 expert swap 仍需新的 L2 bundle（当前 dev bundles 的 `obs_detections.emb` 为空）。
+- **专家族有限**：只接了 3 个同宽度族；DINOv2/SqueezeNet/WT-MM 因投影宽度不兼容未接。
+- **全因子未跑**：当前是缩减设计；L0 10 seeds、L1 5 seeds。
+- **TMS 未替换全部调用点**：`TMSFactStore` 是新包装，生产路径未全部迁移。
+- **不宣称 SOTA / 零样本公共空间 / 真机可靠 / 大规模 scaling**。
+
+---
+
+## 7. 快速开始
 
 ```bash
-# 重建原型库（首次或换专家后）
-python -m pss.demos.public_semantic_space_demo --build-bank
+# 依赖
+pip install -e ".[train,sim]"
 
-# 输入一张图 + 一块触觉图，输出 top-3
+# 全量测试
+python -m pytest
+
+# 核心 property suite
+python scripts/run_property_l0.py --seed 0
+python scripts/run_property_l1.py --seed 0 --skip-family --skip-calibration
+python scripts/run_property_twins.py --seeds 0,1,2,3,4
+python scripts/run_property_anova.py
+
+# claim-gap 实验（第一批）
+python scripts/run_claim_gaps.py --run
+
+# §10 追加实验（示例；完整命令见 notes/CLAIM_GAP_EXPERIMENTS.md）
+python -m pss.eval.scripts.run_gap_entity_audit --seeds 5
+python -m pss.eval.scripts.run_gap_tactile_binding --sequences 60 --seeds 3
+python -m pss.eval.scripts.run_gap_hybrid_relations --seeds 3
+python -m pss.eval.scripts.run_gap_fact_active --seeds 3 --ks 4,8,16
+python -m pss.eval.scripts.run_gap_nonpss --seeds 3
+python -m pss.eval.scripts.run_gap_scale --seed 0
+python -m pss.eval.scripts.run_gap_detect_noise --sequences 60 --seed 0
+python -m pss.eval.scripts.run_gap_families --max-per-class 40 --ks 0,1,5,20
+python -m pss.eval.scripts.run_gap_retrain_all --epochs 10
+python -m pss.eval.scripts.run_gap_tms --seeds 5
+python -m pss.eval.scripts.run_gap_l2_memory --root bundles/dev --pattern "s1_occlusion*/**/obs_detections.parquet"
+python -m pss.eval.scripts.run_gap_l2_runtime_updates --seeds 3
+python -m pss.eval.scripts.run_gap_rag_exact --seeds 1 --epochs 100
+python -m pss.eval.scripts.run_gap_space_ablation
+python scripts/run_claim_gaps_followups.py   # 汇总；先运行对应实验
+
+# 感知层 demo（不是完整 runtime）
 python -m pss.demos.public_semantic_space_demo \
   --image data/demo_input.png --tactile data/demo_tactile.npy
 ```
 
-当前测试集 top-1 **0.990**（6 类）。示例输出：
+---
 
-```
-Top-k:
-  1. cup          +0.952
-  2. block        +0.522
-  3. bottle       +0.509
-各模态 top-1: {'vision': 'cup', 'tactile': 'plate'}
-冲突标记: True
-```
+## 8. 仓库导航
 
-> 触觉单独判错、视觉/几何判对时，融合仍是 cup，并打冲突标记。这是架构的预期行为。
+| 路径 | 内容 |
+|---|---|
+| `pss/runtime/` | 认知运行时、层次、状态、变体 |
+| `pss/memory/` | 场景图、追踪、active-set、typed relations |
+| `pss/knowledge/` | `FactStore`、TMS、`TMSFactStore` |
+| `pss/property/` | L0/L1 property suites、entity audit、契约注册表 |
+| `pss/eval/scripts/` | 实验入口（L1/L2、claim-gap） |
+| `reports/claim_gaps/` | claim-gap 报告、`INDEX.md`、`FOLLOWUPS.md` |
+| `scorecards/property/` | 原始 scorecards、manifests |
+| `notes/PAPER_WRITING_MAP.md` | claim–evidence 映射、写作口径 |
+| `notes/CLAIM_GAP_EXPERIMENTS.md` | 实验设计与结果 |
+| `eval/property_preregistration.md` | 预注册与偏差 |
+| `AUTHORS.md` | 作者、ORCID、贡献 |
+| `NOTICE` | 版权与学术归属声明 |
+| `docs/README.md` | 文档总索引（按主题、阅读顺序、维护约定） |
+| `docs/PRIORITY.md` | 优先权时间线、release/DOI 建议 |
+| `docs/architecture/` | 架构定位、认知运行时、评测指标、推演记录、工作总结 |
+| `docs/experiments/` | PSS vs Transformer 实验与五优先级结论 |
+| `docs/plans/` | 落地执行计划、优化任务清单、Isaac Sim 计划 |
+| `docs/phases/` | 工程阶段记录 `PHASE*_REPORT.md`（实现细节） |
+| `docs/background/` | 架构背景长文 |
+| `docs/releases/` | 版本发布记录 |
+
+### 推荐阅读顺序
+
+1. 本文档（目的、架构、结果、边界）。
+2. `docs/README.md`（按主题找文档）。
+3. `notes/PAPER_WRITING_MAP.md`（每个 claim 的证据、强度、不要写的 claim）。
+4. `reports/claim_gaps/INDEX.md`（实验索引与关键数字）。
+5. `eval/property_preregistration.md`（预注册、指标、阈值、偏差）。
+6. 具体 phase report（`docs/phases/`，需要实现细节时）。
 
 ---
 
-## 类别识别预训练（v2，当前主线）
+## 9. 相关工作与定位（简述）
 
-预训练阶段只做一件事：**识别物体类别**。实例 ID、追踪、绑定、具身部署往后放。
+- **Modular deep learning**（adapters、MoE、model merging）：关注模块训练与组合；PSS 关注模块**换入后的契约与状态**。
+- **Knowledge editing / RAG / temporal KG**：关注知识更新与检索；PSS 关注更新的**原子性、局部性、回滚、审计**，以及它与认知状态的关系。
+- **Anytime / resource-bounded reasoning**：关注预算下的决策；PSS 把预算做成 runtime 的硬契约与降级 FSM。
+- **Cognitive architectures / neurosymbolic**：PSS 的差异是把“感知专家”与“认知状态”分层，并用 property-level evaluation 分离两者。
 
-- 20 类（16 已见 + 4 未见），每类 24 变化 × 4 视角，1,920 帧
-- 视觉专家 test **0.943**；几何 **0.911**；触觉 0.245（材质代理，弱）
-- 公共空间融合 test **0.969**；开放集 AUROC **0.960**，未见拒绝 0.818
-- 融合权重由训练集 3 折 CV 选出：`vision 1.0 / tactile 0.0 / geometry 1.0`
+PSS 的贡献不是单个机制的首创，而是**在一个非 LLM runtime 里组合契约、状态、知识与预算，并给出可分离的评测**。
 
-> 2026-11-22 更新：Phase 4/5 材质感知投影后，融合 test **0.979**，开放集 AUROC **0.993**，未见拒绝 **0.958**，权重 `vision 1.0 / tactile 0.5 / geometry 1.0`。详见 `PHASE45_REPORT.md`。
+---
 
-```bash
-make category-pretrain
-```
+## 10. Authorship、priority 与许可
 
-详见 `CATEGORY_PRETRAIN_REPORT.md`。
+- **主要作者**：Jiahe Qi（齐嘉禾），ORCID [0009-0001-8379-631X](https://orcid.org/0009-0001-8379-631X)。
+- **作者与贡献**：`AUTHORS.md`。
+- **优先权记录**：`docs/PRIORITY.md`（按日期记录 release、commit、DOI/预印本）。
+- **引用**：`CITATION.cff`，或 GitHub 的 “Cite this repository”。
+- **许可**：Apache-2.0（`LICENSE`）；归属声明见 `NOTICE`。
+- **学术使用**：如果使用本项目的想法、方法、结果、代码、数据、图表或文档，请引用本项目；请不要把本项目的成果作为他人的原创工作发表。
+- 设计文档：`notes/PAPER_WRITING_MAP.md`。
+- 实验索引：`reports/claim_gaps/INDEX.md`。
 
+---
 
-下面是工程化与下游记录（Phase 0–10、追踪、规划、安全、公共数据），**不是核心三步的前置条件**，可按需阅读。
+## 一句话
 
-
-Phase 0 只做三件事：**冻结接口契约、重建三个基线 Demo、量化绑定算子**。感知学习、原型树、3D 场景图、世界模型、权限与安全层都在后续阶段。
-
-## 快速开始
-
-```bash
-python -m pytest
-python -m pss.demos.semantic_space_demo
-python -m pss.demos.token_vs_vector_reasoning
-python -m pss.demos.laundry_task_demo
-python bench/binding_stability.py            # Phase 0 基准
-python bench/phase1_binding.py               # Phase 1 Hadamard vs HRR
-python bench/binding_stability.py --quick    # CI 快速版
-python -m pss.sim.scripts.generate_dataset --out data/v1 --scale small --seed 0
-python -m pss.sim.scripts.generate_dataset --out data/expert_v1 --scale expert --seed 0
-python -m pss.encoders.scripts.train_experts --data data/expert_v1 --out checkpoints/expert_v1 --epochs 30 --size 64 --seed 0
-python -m pss.projection.scripts.train_projections --data data/expert_v1 --experts checkpoints/expert_v1 --out checkpoints/projection_v1 --epochs 60 --batch-size 64 --temp 0.07 --seed 0
-python -m pss.prototypes.scripts.build_prototypes --data data/expert_v1 --experts checkpoints/expert_v1 --projections checkpoints/projection_v1 --out checkpoints/prototypes_v1 --seed 0
-python -m pss.memory.scripts.run_tracking --data data/v1 --experts checkpoints/expert_v1 --projections checkpoints/projection_v1 --out checkpoints/memory_v1 --occlusion 4 --episodes 2 --seed 0
-python -m pss.reasoning.scripts.run_phase7 --data data/v1 --out checkpoints/phase7 --episodes 8 --epochs 100 --seed 0
-python -m pss.heads.scripts.run_phase8 --data data/v1 --experts checkpoints/expert_v1 --projections checkpoints/projection_v1 --prototypes checkpoints/prototypes_v1 --out checkpoints/phase8 --trials 10 --seed 0
-python -m pss.learning.scripts.run_phase9 --data data/expert_v1 --experts checkpoints/expert_v1 --projections checkpoints/projection_v1 --prototypes checkpoints/prototypes_v1 --out checkpoints/phase9
-python -m pss.eval.scripts.run_phase10 --data data/expert_v1 --occlusion-data data/hard_occlusion --experts checkpoints/expert_v1 --projections checkpoints/projection_v1 --prototypes checkpoints/prototypes_v1 --out eval/results --seed 0
-python -m pss.sim.scripts.generate_hard_occlusion --out data/hard_occlusion --sequences 6 --frames 12 --seed 0
-python -m pss.rd2.scripts.make_mock --out data/rd2_mock --data data/expert_v1 --episodes 8 --seed 0
-python -m pss.rd2.scripts.validate --path data/rd2_mock
-python -m pss.encoders.scripts.train_pretrained_expert --data data/expert_v1 --out checkpoints/expert_pretrained_v1 --backbone squeezenet1_1 --pretrained true --epochs 30 --size 64 --seed 0
-```
-
-Windows PowerShell 一键：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/run_all.ps1
-```
-
-## Phase 0 验收清单
-
-- [x] 三个 Demo 重建（客体识别 / Token vs 向量 / 洗衣任务）
-- [x] 接口契约 v0（Entity / Relation / PrototypeNode）
-- [x] 修复 `unbind` 近零负分量符号翻转缺陷
-- [x] 槽方案对比：Hadamard / Rademacher / Gaussian
-- [x] 绑定稳定性基准（噪声 × 轮次 × 容量 × 范数漂移）
-- [x] 单测覆盖数学边界（单分量可逆、同槽相加不可分离、正交槽）
-- [ ] 真实数据 schema 合并（RD0，见执行计划）
-
-结果汇总见 `PHASE0_REPORT.md`。
-
-## Phase 1（已完成）
-
-- [x] 分模态实体装配（方案 A，禁止跨模态相加）
-- [x] 关系三元组三份独立分量 + `fact` 仅检索
-- [x] HRR 对照实现与基准
-- [x] 槽池：槽 = 工作记忆位置，不是实体身份
-- [x] rebind 策略与漂移监控
-- [x] 契约 v0.1.1（`Entity.slot`、`bound` 临时性、`BINDING_SCHEME`）
-- [x] 38 个测试通过
-
-**结论：保留 Hadamard。** HRR 在迭代下误差指数发散（10 轮 ~1e6，100 轮 ~1e80），
-容量也无一致优势。详见 `PHASE1_REPORT.md` 与 `bench/results/phase1_binding.md`。
-
-## Phase 2（已完成，v1）
-
-- [x] MuJoCo 桌面场景（8 类原始几何体 + 2 容器 + 遮挡物）
-- [x] 传感器：RGB / 深度 / 分割 / 位姿 / 接触 / 关系
-- [x] 动作代理：push / lift / place / wait
-- [x] 三类样本：category / episode / occlusion
-- [x] Dataset v1：46 条，5.3 MB；`index.json` + `DATA_CARD.md`
-- [x] 44 个测试通过
-
-**边界：原始几何体、合成触觉、运动学抓取代理。** 只够打通管线，不作为能力结论。
-详见 `PHASE2_REPORT.md`。
-
-## Phase 3（已完成，冒烟版）
-
-- [x] 数据加载与按分割裁剪
-- [x] 视觉专家（小 CNN，256-d）
-- [x] 触觉专家（MLP，64-d）
-- [x] 几何专家（16-d 手工特征 + 逻辑回归探针）
-- [x] 训练 CLI 与冻结导出（`checkpoints/expert_v1/`）
-- [x] 51 个测试通过
-
-闭集 top-1（6 类，随机基线 0.167）：
-
-| 专家 | train | val | test |
-|---|---:|---:|---:|
-| 视觉 | 1.000 | 1.000 | 0.958 |
-| 触觉 | 0.479 | 0.500 | 0.365 |
-| 几何 | 1.000 | 0.948 | 0.802 |
-
-**这是管线冒烟结果，不是能力结论。** 视觉任务过于简单（原始几何体 + 强区分颜色）；
-触觉是合成材质代理，接近随机；未见类别（`test_category`）留待 Phase 5 原型匹配。
-详见 `PHASE3_REPORT.md`。
-
-## Phase 4（已完成，类别级对齐）
-
-- [x] 每模态独立投影头（256/64/16 → 128，L2 归一化）
-- [x] 多正样本监督对比（V-T / V-G / T-G 六向）
-- [x] 属性辅助头（材质 + 尺寸）
-- [x] 冻结专家，只训投影头
-- [x] 投影权重与指标（`checkpoints/projection_v1/`）
-
-类别 R@1（验证/测试）：vision↔geometry **0.82 / 0.85**；vision↔tactile **0.51 / 0.51**。
-**pair R@1 接近随机（~0.01–0.06）**：类别级损失不约束实例级配对，触觉也是视角无关的合成代理。
-实例级绑定必须等 RD2 同步数据。详见 `PHASE4_REPORT.md`。
-
-## Phase 5（已完成，冒烟版）
-
-- [x] 分模态原型库（6 类 × 3 模态，128-d）
-- [x] 数据驱动的分层原型树
-- [x] 四级检索 + 置信度加权融合
-- [x] 开放集阈值与冲突标记
-- [x] 原型准入预审 + 阈值校准诊断
-- [x] `checkpoints/prototypes_v1/`（含 manifest + sha256）
-- [x] 60 个测试通过
-
-| 查询 | val | test |
-|---|---:|---:|
-| 融合 + 树 | 0.969 | 0.938 |
-| 融合 flat | 0.990 | 0.969 |
-| 仅视觉 | 1.000 | 0.969 |
-| 仅触觉 | 0.500 | 0.521 |
-| 仅几何 | 0.854 | 0.854 |
-
-开放集：阈值 0.808，已见误拒 11.5%，未见拒绝 77.1%。
-**关键发现**：固定融合权重不如最强单模态；树贪心裁剪损失 2–3 点；准入阈值 0.25 会误杀现有合法类别（tactile 最近邻仅 0.063）。阈值只是占位值。详见 `PHASE5_REPORT.md`。
-
-## Phase 6（已完成）
-
-- [x] 3D 场景图 + 网格空间索引 + 持久化
-- [x] 位姿/外观/时序关联 + 生命周期 + re-ID
-- [x] 4 槽工作记忆 + 注意力调度 + raw 重建
-- [x] 碎片 API（目睹事件分支）
-- [x] 追踪/工作记忆/规模基准（`checkpoints/memory_v1/`）
-- [x] 69 个测试通过
-
-| 指标 | 值 |
-|---|---:|
-| 遮挡序列 ID 保持 | **1.000** |
-| Episode ID 保持 | 0.917（瞬移动作导致） |
-| 工作记忆焦点切换召回 | **1.000** |
-| 焦点切换延迟 p50 | 0.018 ms |
-| 200 实体下活跃/全量关系数 | **6 / 19,900** |
-
-**关键发现**：遮挡追踪达标；episode 的 ID 切换来自 Phase 2 的运动学瞬移动作，不是关联算法。工作记忆"槽 ≠ 身份"在运行时成立。详见 `PHASE6_REPORT.md`。
-
-## Phase 7（已完成）
-
-- [x] 关系记录 + 向量编码（三份 part + fact）
-- [x] 动作算子库（软前置条件 + 效果）
-- [x] A* 规划器 + 异常重规划
-- [x] 观测-预测冲突检测
-- [x] 解析世界模型 + 学习 MLP（target-only）
-- [x] 77 个测试通过
-
-| 指标 | 值 |
-|---|---:|
-| 关系总体 F1 | **0.878**（`in` 1.000，`contact` 0.000） |
-| A* 洗衣规划 | 12 步 / 50 节点 / 成功 |
-| 无洗衣液 | 正确返回 no path |
-| 洒出后重规划 | 9 步 / 目标达成 |
-| 世界模型 1 步误差 | zero 0.046 / 解析 0.040 / **学习 0.025** |
-| 世界模型 rollout 误差 | zero 0.154 / 解析 0.145 / **学习 0.091** |
-
-**关键发现**：规划与异常恢复跑通；`contact` 用半径近似会漏掉真实接触，必须改用碰撞几何。详见 `PHASE7_REPORT.md`。
-
-## Phase 8（已完成）
-
-- [x] 动作头（目标 → 推力原语），闭环 10/10 试验
-- [x] 文本头（零参数只读投影 + 可选冻结 LLM 适配器）
-- [x] 价值/目标头（注意力先验）
-- [x] 文本头消融：核心准确率 delta = 0，原型库 hash 不变
-- [x] 82 个测试通过
-
-| 指标 | 值 |
-|---|---:|
-| 动作头闭环成功率 | **0.900** |
-| 平均最终距离 / 推力次数 | 0.039 m / 7.6 |
-| 文本头参数量 | **0** |
-| 消融准确率 | 1.0000 → 1.0000（delta 0） |
-| 原型库 hash 未变 | ✅ |
-
-**关键发现**：语言读出与核心表征在结构上隔离；动作头是规则控制器，验证的是读出链路而非学习策略。详见 `PHASE8_REPORT.md`。
-
-## Phase 9（已完成）
-
-- [x] L1 实例记忆 + 脱敏提案
-- [x] L2 原型包：hash、增量追加、原子激活、回滚、损坏拒绝
-- [x] L3/L4 版本注册表
-- [x] 审核流水线：聚合 / 预审 / 回归 / 人工占位
-- [x] 三层护栏：硬黑名单 / 价值向量 / 场景原型
-- [x] 四级降级 FSM + debounce + 离线模式
-- [x] 审计快照 + 回放校验
-- [x] 93 个测试通过
-
-| 指标 | 值 |
-|---|---:|
-| L1 提案样本 | 28（已脱敏） |
-| 预审 / 回归 | reject / **1.000** |
-| 审核结论 | **accept**，激活 v1.1 |
-| 回滚 | v1.0；损坏包拒绝 |
-| 硬安全否决 | ✅（含 LLM 来源动作） |
-| 降级序列 | normal → warning → degraded → emergency → normal |
-| 审计回放 | ✅ 通过 |
-
-**关键发现**：预审距离阈值会误杀可用类别，回归准确率才是当前决策门；L2 完整性与回滚可用。详见 `PHASE9_REPORT.md`。
-
-## Phase 10（已完成，预注册评测）
-
-- [x] 预注册假设、指标、杀死标准（`eval/preregistration.md`）
-- [x] 指标库、基线/消融、评测 CLI
-- [x] E1–E6 全部运行并报告
-- [x] 119 个测试通过
-
-| 项 | 值 |
-|---|---:|
-| 无槽：逐实体 / 全局向量 | **0.766 / 0.250** |
-| V-T R@1：训练 / 随机投影 | **0.510 / 0.115** |
-| V-G R@1 | 0.854 |
-| 遮挡 ID retention：main / no-SG | **1.000 / 0.128** |
-| 主方法 vs B1 文本代理 | **+0.000** |
-| 杀死标准 K1–K4 | **全部触发** |
-
-**结论：结构可行性成立，能力优势未成立。** 槽位与训练投影的价值可见；但遮挡数据太弱（B1 打平）、触觉对齐不达标（V-T 0.510）、D=128 容量不足、E0 未运行。下一步应补 RD2 真机数据、更难的遮挡基准、真实 VLM 基线。详见 `PHASE10_REPORT.md`。
-
-## Phase 10 加固（1–4，已完成）
-
-- [x] 完全遮挡基准（幕布覆盖，4 帧零观测）
-- [x] RD2 schema / 校验器 / 适配器 / 采集协议 / mock
-- [x] VLM 基线适配器 + mock（真实 API 未调用）
-- [x] 真实预训练骨干（SqueezeNet1.1，test 0.979）
-
-| 项 | 结果 |
-|---|---:|
-| 硬遮挡 ID retention：main / B1 / no-SG | **1.000 / 0.500 / 0.125** |
-| K3 | **未触发**（+0.500） |
-| RD2 mock 校验 | 8/8 通过 |
-| Mock VLM retention | 0.500 |
-| SqueezeNet test vs SmallCNN | **0.979 / 0.958** |
-| K1 / K2 / K4 | 仍触发 |
-
-详见 `PHASE10_HARDENING_REPORT.md`。
-
-## 公共数据适配（LeRobot v3.0）
-
-- 注册表：`pss/rd2/public/registry.py`（WT-MM / OpenGraphLabs / Daimon-Infinity / VisuoTactile-GS）
-- 适配器：`pss/rd2/public/lerobot.py`（Parquet + 视频，tactile/state 读取）
-- 冒烟：`tactile_stats`、`temporal_consistency`、`train_autoencoder`、`video_tactile_alignment`
-- CLI：`python -m pss.rd2.public.scripts.download_smoke --dataset wt_mm --limit 1500`
-
-WT-MM（Apache-2.0）最小对验证（episode 50，1027 帧，data file-004 + video file-005）：
-
-| 指标 | 值 |
-|---|---:|
-| 接触帧比例 | 0.367 |
-| 时序余弦：相邻 / 随机 | **0.963 / 0.409** |
-| AE 验证 MSE / latent std | 0.000117 / 0.080 |
-| **视频-触觉 R@1** | **0.211** |
-| 打乱基线 / 随机 | 0.0019 / 0.00097 |
-
-R@1 约为随机的 217 倍，说明 WT-MM 的视-触是真正逐帧同步且可学的；但它是 B 类（无物体 6D 位姿/实例 ID），不能替代 C 类/E0。
-
-```bash
-python -m pss.rd2.public.scripts.download_smoke --dataset wt_mm \
-  --root data/public/wt_mm_pair --limit 1027 \
-  --video data/public/wt_mm_pair/videos/observation.images.cam/chunk-000/file-005.mp4
-```
-
-OpenGraphLabs（CC-BY-4.0）作为备选，尚未跑完；Daimon-Infinity 需 Gated 申请。
-
-### WT-MM 触觉编码器
-
-- 预训练：`pss/encoders/tactile/wtmm.py`（12×32，时序对比 + 重建 + 接触头）
-- 结果：接触探针随机平衡 **0.978**；跨传感器迁移到 8×8 合成触觉 test **0.583**（原 0.365）
-- Phase 4 重训：**V-T R@1 0.510 → 0.583**；tactile→geometry 0.438 → 0.552
-- K2 仍未过（0.583 < 0.60）；pair R@1 仍接近随机（B 类数据无实例级同步）
-
-```bash
-make tactile-wtmm
-make projection-wtmm
-```
-
-详见 `PHASE10_WTMM_TACTILE_REPORT.md`。
-
-### T1 实例级对照（合成数据）
-
-- 视角切分：每个实例视角 0–5 训练、6–7 测试（模拟 T1 异步采集）
-- 类别级 vs 实例级 SupCon：instance R@1 **0.198 vs 0.177**，category R@1 都是 0.844
-- 结论：实例信号存在（约 9.5× 随机），但当前合成触觉的实例差异太弱，实例级训练没有提升
-- 报告：`PHASE10_T1_INSTANCE_REPORT.md`；复现：`make t1-instance`
-
-### T1 数据诊断
-
-先判断原始特征有没有实例信号，再决定要不要训实例级投影：
-
-```bash
-python -m pss.rd2.scripts.t1_diagnostics --source expert_v1 --data data/expert_v1
-# 或自己的 T1 npz：vision/tactile/geometry + object_id/category/session_id
-python -m pss.rd2.scripts.t1_diagnostics --source npz --path data/t1/my_t1.npz
-```
-
-`data/expert_v1` 诊断：视觉 instance NN 0.771、触觉 0.188（gap 0.017）、几何 0.294；融合 0.703。决策 **partial**：融合能区分实例，但触觉几乎没有实例信号——这正是实例级 SupCon 没提升的原因。复现：`make t1-diagnostics`。
-
-国内镜像：`download_smoke.py` 默认 `--endpoint https://hf-mirror.com`，并直接流式 HTTP 下载（绕过 `hf_hub_download` 的 xet 元数据校验）。实测镜像会重定向到海外 CDN，速度仍受出口带宽限制；大文件支持断点续传（`.part`）。
-
-## 目录
-
-```
-pss/
-  binding/       绑定算子（bind/unbind、槽生成）
-  contracts/     v0 数据结构与版本常量
-  demos/         三个基线 Demo
-  encoders/      感官专家（视觉/触觉/几何，Phase 3 已实现）
-  projection/    跨模态投影（Phase 4，占位）
-  memory/        工作记忆 + 3D 场景图（Phase 6，占位）
-  prototypes/    分层原型树（Phase 5，占位）
-  reasoning/     关系 / 规划 / 冲突检测（Phase 7，占位）
-  world_model/   实体状态世界模型（Phase 7，占位）
-  heads/         文本 / 动作 / 价值输出头（Phase 8，占位）
-  safety/        护栏与降级（Phase 9，占位）
-  learning/      L1–L4 权限（Phase 9，占位）
-  sim/           仿真场景、传感器、数据生成（Phase 2，已实现）
-  eval/          指标、基准、基线（Phase 10，占位）
-bench/           绑定稳定性基准与结果
-contracts/       契约说明（人读）
-tests/           单元测试
-scripts/         一键运行脚本
-```
-
-## 依赖
-
-- 核心：`numpy`
-- 仿真：`mujoco`、`pillow` → `pip install -e ".[sim]"`
-- 训练：`torch`、`scikit-learn` → `pip install -e ".[train]"`
-- 测试：`pytest`
-- 说明：当前未安装 torchvision/timm，视觉骨干为从零小 CNN；生产路径应换真实预训练骨干
-
-## 契约要点（v0）
-
-| 项 | 决定 | 原因 |
-|---|---|---|
-| 公共维度 | `D = 128`（可升 256/512） | 原文 4.8：32 维太危险，128/256 更稳 |
-| 归一化 | L2，单位范数 | 余弦相似度才等价于向量距离 |
-| 槽基向量 | Hadamard 行（D 为 2 的幂） | 两两正交、分量恒为 `1/√D`，解绑无近零放大 |
-| 绑定 | `bind(f,s)=f⊙s`；`unbind=b/s` | 逐元素乘除，精确可逆 |
-| 近零保护 | **保号** clamp：`sign(s)·max(|s|,eps)` | 原 Demo 会把负的近零分量翻正 |
-| 跨模态存储 | **分模态独立存放，禁止相加** | 9.2.3：加法后无法拆回单模态 |
-| 相加的用途 | 仅单模态相似度打分 | 对应 9.2.3 方案 B |
-| 槽数 | 4 | 对应 4±1 工作记忆组块 |
-| 绑定方案 | **Hadamard** | HRR 迭代发散，容量无优势（Phase 1） |
-| 槽语义 | 工作记忆位置，非实体身份 | 换槽必须从 `raw` 重建 `bound` |
-| 关系三元组 | `subj/rel/obj` 三个独立分量 + 一个仅供检索的 `fact` | 加法不可分离 |
-
-完整说明见 `contracts/README.md`。
-
-## 当前结果
-
-运行 `python bench/binding_stability.py` 后查看 `bench/results/binding_stability.md`。核心预期：
-
-- Hadamard / Rademacher 槽在噪声下误差稳定，Hadamard 槽间正交；
-- Gaussian 槽因近零分量在除法时放大噪声，误差显著更大；
-- 叠加容量随 K 增长而下降，D 越大越能撑住更多事实。
-
-## 边界
-
-Phase 0 的所有特征都是**人工定义**的，投影是**随机正交矩阵**，没有真实感官输入、没有学习到的对齐、没有动态追踪。它验证的是骨架链路与数学契约，不是完整能力（原文 6.5）。
+**PSS 不是“更大的模型”，而是“感知之上的显式认知状态层 + 让架构贡献可以被测出来的协议”。**

@@ -4,7 +4,7 @@ The runtime does not define new perception or language models. It owns the
 typed state, routes observations into the entity/relation layers, runs the
 uncertainty and planning services, and routes results to the output heads.
 
-Layering (matching ``PSS-认知层架构定位.md``):
+Layering (matching ``docs/architecture/PSS-认知层架构定位.md``):
 
     observations
       -> EntityLayer          (object slots / persistent IDs)
