@@ -26,6 +26,7 @@ def _help() -> str:
         "  detect write oracle detections for a bundle\n"
         "  replay run PSS over detections and write entity_trace/pss_trace\n"
         "  score  aggregate bundle traces into scorecards\n"
+        "  score-relations  per-predicate F1 and consistency violations\n"
     )
 
 
@@ -55,6 +56,10 @@ def main(argv: list[str] | None = None) -> int:
         from pss.metrics.cli import main as score_main
 
         return score_main(rest)
+    if group == "score-relations":
+        from pss.metrics.relation_cli import main as relation_main
+
+        return relation_main(rest)
     print(f"unknown command group {group!r}\n", file=sys.stderr)
     print(_help(), file=sys.stderr)
     return 2

@@ -1,0 +1,112 @@
+{
+  "suite": "s3_relations_ood",
+  "created_utc": "2026-11-25T03:05:39Z",
+  "device_class": "dev",
+  "n_episodes": 1,
+  "macro_f1": 1.0,
+  "micro_f1": 1.0,
+  "per_predicate": {
+    "above": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "behind": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "below": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "in_front_of": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "left_of": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "right_of": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    }
+  },
+  "pred_consistency_violations": 0,
+  "gt_consistency_violations": 0,
+  "episodes": [
+    {
+      "per_predicate": {
+        "above": {
+          "tp": 16,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "behind": {
+          "tp": 1600,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "below": {
+          "tp": 16,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "in_front_of": {
+          "tp": 1600,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "left_of": {
+          "tp": 1850,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "right_of": {
+          "tp": 1850,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "micro": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "macro_f1": 1.0,
+      "predicates": 6,
+      "gt_relation_triples": 6932,
+      "pred_relation_triples": 6932,
+      "gt_consistency_violations": 0,
+      "pred_consistency_violations": 0,
+      "pred_consistency_rate": 0.0,
+      "bundle": "bundles\\dev\\s3_relations_ood\\66399bd6\\seed0",
+      "seed": 0,
+      "device_class": "dev",
+      "spec_hash": "sha256:66399bd63c157360f6d998f722be989aa01c0492d6261a7b84d470bf78d1ec57"
+    }
+  ]
+}

@@ -688,7 +688,7 @@ def _validate_relations(relations: Any, errors: list[str], warnings: list[str]) 
         errors,
         relations,
         "relations_gt",
-        ("predicates", "compute_from", "tolerance_m"),
+        ("predicates", "compute_from", "tolerance_m", "ood_combinations"),
     )
     predicates = relations.get("predicates")
     if predicates is not None:
@@ -703,6 +703,18 @@ def _validate_relations(relations: Any, errors: list[str], warnings: list[str]) 
     tol = relations.get("tolerance_m")
     if tol is not None and not (_is_number(tol) and tol >= 0):
         _fail(errors, "relations_gt.tolerance_m", "must be >= 0")
+    ood = relations.get("ood_combinations")
+    if ood is not None:
+        if not (
+            isinstance(ood, list)
+            and all(
+                isinstance(item, list)
+                and len(item) == 2
+                and all(isinstance(p, str) and p in PREDICATES for p in item)
+                for item in ood
+            )
+        ):
+            _fail(errors, "relations_gt.ood_combinations", "must be pairs of known predicates")
 
 
 def _validate_metrics(metrics: Any, errors: list[str], warnings: list[str]) -> None:

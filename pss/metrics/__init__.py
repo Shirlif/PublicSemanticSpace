@@ -17,6 +17,7 @@ from .entity import (
     slot_purity,
 )
 from .twin import twin_ambiguity
+from .relation import consistency_violations, per_predicate_prf
 
 __all__ = [
     "METRIC_REGISTRY",
@@ -29,4 +30,6 @@ __all__ = [
     "reappearance_rate",
     "slot_purity",
     "twin_ambiguity",
+    "consistency_violations",
+    "per_predicate_prf",
 ]

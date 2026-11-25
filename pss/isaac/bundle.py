@@ -137,6 +137,16 @@ PRED_STATES_SCHEMA = pa.schema(
     ]
 )
 
+RELATION_TRACE_SCHEMA = pa.schema(
+    [
+        ("step", pa.int64()),
+        ("t_s", pa.float64()),
+        ("subj", pa.string()),
+        ("pred", pa.string()),
+        ("obj", pa.string()),
+    ]
+)
+
 TABLES: dict[str, tuple[str, pa.Schema]] = {
     "obs_frames": ("obs_frames.parquet", OBS_SCHEMA),
     "obs_detections": ("obs_detections.parquet", DETECTIONS_SCHEMA),
@@ -144,6 +154,7 @@ TABLES: dict[str, tuple[str, pa.Schema]] = {
     "robot_state": ("robot_state.parquet", ROBOT_STATE_SCHEMA),
     "entity_trace": ("entity_trace.parquet", ENTITY_TRACE_SCHEMA),
     "pred_states": ("pred_states.parquet", PRED_STATES_SCHEMA),
+    "pred_relations": ("pred_relations.parquet", RELATION_TRACE_SCHEMA),
     "actions": ("actions.parquet", ACTIONS_SCHEMA),
     "events": ("events.parquet", EVENTS_SCHEMA),
     "pss_trace": ("pss_trace.parquet", TRACE_SCHEMA),

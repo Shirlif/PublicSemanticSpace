@@ -265,10 +265,10 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [x] T23 S2 表
 
 ### P4（W6–W7）
-- [ ] T24 GT 关系生成
-- [ ] T25 `pss/metrics/relation.py`
-- [ ] T26 S3 组合 OOD spec
-- [ ] T27 S3 表
+- [x] T24 GT 关系生成
+- [x] T25 `pss/metrics/relation.py`
+- [x] T26 S3 组合 OOD spec
+- [x] T27 S3 表
 
 ### P5（W8–W10）
 - [ ] T28 G1 全身 + 行走策略冻结

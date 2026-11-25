@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from pss.spec import WorldSpec, load_spec
+from pss.relations import RelObject, compute_relations
 
 from .bundle import write_bundle
 
@@ -571,6 +572,19 @@ def _run_one(
                 )
 
         contacts = _asset_contacts(poses, asset_rows, table_top=table_top)
+        relation_cfg = spec.relations or {}
+        predicates = relation_cfg.get("predicates") or []
+        triples = compute_relations(
+            [
+                RelObject(aid, poses[aid], inst.get("size_m", [0.04, 0.04, 0.04]))
+                for aid, inst in asset_rows.items()
+            ],
+            predicates,
+            tolerance_m=float(relation_cfg.get("tolerance_m", 0.02)),
+        )
+        relation_map: dict[str, list[str]] = {}
+        for subj, pred, obj in triples:
+            relation_map.setdefault(subj, []).append(f"{pred}({obj})")
 
         for aid, inst in asset_rows.items():
             pose = poses[aid]
@@ -601,7 +615,7 @@ def _run_one(
                     "q": [],
                     "qd": [],
                     "tau": [],
-                    "relations": [],
+                    "relations": list(relation_map.get(aid, [])),
                 }
             )
 

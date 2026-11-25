@@ -19,11 +19,13 @@ import pyarrow.parquet as pq
 from pss.isaac.bundle import (
     ENTITY_TRACE_SCHEMA,
     PRED_STATES_SCHEMA,
+    RELATION_TRACE_SCHEMA,
     TRACE_SCHEMA,
 )
 from pss.memory.perception import Observation
 from pss.memory.scene_graph import SceneGraph
 from pss.memory.tracking import Tracker, TrackerConfig
+from pss.relations import RelObject, compute_relations
 from pss.runtime.layers import EntityLayer
 from pss.runtime.runtime import PSSRuntime
 
@@ -49,6 +51,32 @@ class _AppearanceMetric:
             for j, obs in enumerate(observations):
                 matrix[i, j] = self._distance(track, obs)
         return matrix
+
+
+def _relation_config(bundle_dir: Path) -> tuple[list[str], float]:
+    import json
+
+    from pss.spec import DEFAULT_REGISTRY, load_spec
+
+    manifest = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
+    spec_id = manifest.get("spec", {}).get("id")
+    spec_hash = manifest.get("spec", {}).get("hash")
+    if DEFAULT_REGISTRY.exists():
+        for line in DEFAULT_REGISTRY.read_text(encoding="utf-8").splitlines():
+            entry = json.loads(line)
+            if entry.get("spec_id") != spec_id or entry.get("sha256") != spec_hash:
+                continue
+            path = Path(entry["path"])
+            if not path.is_absolute():
+                path = DEFAULT_REGISTRY.parents[1] / path
+            if path.exists():
+                spec = load_spec(path)
+                cfg = spec.relations or {}
+                return (
+                    list(cfg.get("predicates", [])),
+                    float(cfg.get("tolerance_m", 0.02)),
+                )
+    return [], 0.02
 
 
 def _oracle_runtime() -> PSSRuntime:
@@ -109,6 +137,8 @@ def replay_bundle(
     trace_rows: list[dict[str, Any]] = []
     pss_rows: list[dict[str, Any]] = []
     pred_rows: list[dict[str, Any]] = []
+    relation_rows: list[dict[str, Any]] = []
+    predicates, tolerance = _relation_config(root)
     frames = list(detections.groupby("step", sort=True))
     for frame_idx, (step, group) in enumerate(frames):
         step = int(step)
@@ -176,10 +206,33 @@ def replay_bundle(
                         "confidence": float(track.confidence),
                     }
                 )
+        frame_tracks = [
+            track
+            for track in runtime.entities.graph.tracks.values()
+            if int(track.last_seen) == frame_idx
+        ]
+        if predicates and len(frame_tracks) >= 2:
+            objects = [
+                RelObject(track.id, track.pos, [0.04, 0.04, 0.04])
+                for track in frame_tracks
+            ]
+            for subj, pred, obj in compute_relations(
+                objects, predicates, tolerance_m=tolerance
+            ):
+                relation_rows.append(
+                    {
+                        "step": step,
+                        "t_s": t_s,
+                        "subj": subj,
+                        "pred": pred,
+                        "obj": obj,
+                    }
+                )
 
     trace = pd.DataFrame(trace_rows, columns=["step", "t_s", "gt_id", "pred_id"])
     pss = pd.DataFrame(pss_rows, columns=list(TRACE_SCHEMA.names))
     preds = pd.DataFrame(pred_rows, columns=list(PRED_STATES_SCHEMA.names))
+    relations = pd.DataFrame(relation_rows, columns=list(RELATION_TRACE_SCHEMA.names))
     if write:
         pq.write_table(
             pa.Table.from_pylist(trace.to_dict(orient="records"), schema=ENTITY_TRACE_SCHEMA),
@@ -189,6 +242,11 @@ def replay_bundle(
         pq.write_table(
             pa.Table.from_pylist(preds.to_dict(orient="records"), schema=PRED_STATES_SCHEMA),
             root / "pred_states.parquet",
+            compression="zstd",
+        )
+        pq.write_table(
+            pa.Table.from_pylist(relations.to_dict(orient="records"), schema=RELATION_TRACE_SCHEMA),
+            root / "pred_relations.parquet",
             compression="zstd",
         )
         pq.write_table(
