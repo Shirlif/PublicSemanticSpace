@@ -1336,61 +1336,61 @@ Ha: |μ_treated - μ_control| < δ
 
 **P0**
 
-- [ ] 三条 property 的操作化定义冻结
-- [ ] Expert contract 实现并测试
-- [ ] 8 类 stub 实现
-- [ ] 指标库 `pss/metrics/property.py` 实现
-- [ ] 预注册写入 `eval/property_preregistration.md`
-- [ ] 负控制设计确认
+- [x] 三条 property 的操作化定义冻结
+- [x] Expert contract 实现并测试
+- [x] 8 类 stub 实现
+- [x] 指标库 `pss/metrics/property.py` 实现
+- [x] 预注册写入 `eval/property_preregistration.md`
+- [x] 负控制设计确认
 
 **P1**
 
-- [ ] L0 sandbox 可跑
-- [ ] H/K/C property tests 全绿
-- [ ] Hypothesis 随机序列测试通过
-- [ ] 崩溃率 = 0
+- [x] L0 sandbox 可跑
+- [x] H/K/C property tests 全绿
+- [x] Hypothesis 随机序列测试通过（`tests/property/test_hypothesis_sequences.py`，4 项）
+- [x] 崩溃率 = 0（5 seeds 无异常；未单独打点）
 
 **P2**
 
-- [ ] L1 专家池冻结（manifest + sha256）
-- [ ] 质量注入 manipulation check 通过
-- [ ] H1/H7/K1/K2/K5/C1/C3 跑完
-- [ ] twin 配对正确
+- [x] L1 专家池冻结（`expert_manifest.json`，包含 sha256）
+- [x] 质量注入 manipulation check 通过
+- [x] H1/H7/K1/K2/K5/C1/C3 跑完
+- [x] twin 配对正确（`twins.json`，5 seeds，15 对）
 
 **P3**
 
-- [ ] 交互实验跑完
-- [ ] 负控制 N1–N8 全部按预期
-- [ ] 方差分解完成
+- [x] 交互实验跑完
+- [x] 负控制 N1–N8 全部按预期
+- [x] 方差分解完成（`anova.json`，two-way ANOVA + 方差份额）
 
 **P4**
 
-- [ ] L2 真实专家跑完
-- [ ] 外部效度报告
+- [x] L2 真实专家跑完（S4-PSS 5/5 fresh Isaac；**H/K 未在 L2 执行**）
+- [x] 外部效度报告（partial：oracle GT boxes；H/K 仅 L0/L1）
 
 **P5**
 
-- [ ] 图表生成
-- [ ] 报告归档 `reports/property_validation/`
-- [ ] 代码/种子/配置归档
+- [x] 图表生成
+- [x] 报告归档 `reports/property_validation/`
+- [x] 代码/种子/配置归档（`run_manifest.json`：git、env、sha256、bundle spec hash）
 
 ### I. 术语表
 
-| 术语 | 含义 |
-|---|---|
-| capability | 任务能力，依赖专家质量 |
-| property | 架构契约，应独立于专家质量 |
-| expert contract | 专家必须满足的接口/输出/延迟约束 |
-| stub | 合成专家，用于控制质量 |
-| twin | 同场景/同 seed、只变架构的配对 run |
-| TOST | 等价性检验 |
-| BAR | budget adherence rate |
-| ZCR | zero-shot compatibility rate |
-| RBE | rollback exactness |
-| PCR | propagation correctness rate |
-| AQV | anytime quality vector |
-| DCR | degradation correctness rate |
-| VR | variance ratio（架构/专家） |
+| 术语 | 中文含义 | 英文/说明 |
+|---|---|---|
+| capability | 任务能力 | 依赖专家质量 |
+| property | 架构契约 | 应独立于专家质量 |
+| expert contract | 专家接口契约 | 专家必须满足的接口/输出/延迟约束 |
+| stub | 合成专家 | 用于控制专家质量 |
+| twin | 孪生配对 | 同场景/同 seed、只变架构的配对 run |
+| TOST | 等价性检验 | two one-sided tests |
+| BAR | 预算遵守率 | budget adherence rate：实际计算量不超过配置上界的比例 |
+| ZCR | 零样本兼容率 | zero-shot compatibility rate：换入新专家后，不做校准、不加标签，直接可用的比例 |
+| RBE | 回滚精确性 | rollback exactness：回滚后状态与回滚前/快照完全一致 |
+| PCR | 传播正确率 | propagation correctness rate：派生事实/结论按依赖关系正确更新的比例 |
+| AQV | 任意时刻质量向量 | anytime quality vector：不同中断时间点输出的质量分布 |
+| DCR | 降级正确率 | degradation correctness rate：降级 FSM 状态转移与策略一致的比例 |
+| VR | 方差比（架构/专家） | variance ratio：架构效应方差 ÷ 专家效应方差 |
 
 ---
 

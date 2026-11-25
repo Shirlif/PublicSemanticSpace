@@ -14,7 +14,7 @@ dependencies = ["numpy>=1.24", "PyYAML>=6"]
 pss = "pss.cli:main"
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6"]
+dev = ["pytest>=8", "ruff>=0.6", "hypothesis>=6"]
 eval = ["pandas>=2", "pyarrow>=14"]
 sim = ["mujoco>=3.2", "pillow>=10"]
 train = ["torch>=2.2", "scikit-learn>=1.3", "scipy>=1.10", "pyyaml>=6"]

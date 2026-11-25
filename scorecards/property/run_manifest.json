@@ -1,0 +1,213 @@
+{
+  "environment": {
+    "timestamp": 1795613380.1350374,
+    "python": "3.13.7",
+    "numpy": "2.3.2",
+    "torch": "2.10.0+cu126",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "git": {
+      "commit": "534eaef253a256edab953910ddce47bd0c26d05d",
+      "branch": "feat/property-validation"
+    }
+  },
+  "expert_manifest": {
+    "path": "scorecards\\property\\expert_manifest.json",
+    "sha256": "fdd7b800900bf77b3ec6174af3115daf68edd1a6385b351c3d2d363a8e68084d"
+  },
+  "runs": [
+    {
+      "name": "L0 property suite",
+      "script": "scripts/run_property_l0.py",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "inputs": [
+        "pss/observations/synthetic.py",
+        "pss/experts/stubs.py"
+      ],
+      "outputs": {
+        "l0_seed0.json": {
+          "sha256": "a5694262f05eb9d2df38024a80f44c4244f7eb4ab616835d852b8f26929e1115",
+          "size": 10846
+        },
+        "l0_seed1.json": {
+          "sha256": "a5e87f996a00a3ad3a7b1a48a30e50307d7709012e6c057acf9e96fa78ec5b92",
+          "size": 10850
+        },
+        "l0_seed2.json": {
+          "sha256": "ff93b8e9341df0465c24441657923106e6aebea2dd709229b7690c34a1254787",
+          "size": 10847
+        },
+        "l0_seed3.json": {
+          "sha256": "515a5ef00104c86cd48428a98e7f17d6972275427bd1974a0a5f615ef6c1bc65",
+          "size": 10850
+        },
+        "l0_seed4.json": {
+          "sha256": "0512cf797b9040dfcff3dfb1b3b6493ac0f5f2a95f513966fff49d27e87bd8cd",
+          "size": 10848
+        }
+      }
+    },
+    {
+      "name": "L1 real-expert suite",
+      "script": "scripts/run_property_l1.py",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "inputs": [
+        "checkpoints/expert_v1",
+        "checkpoints/projection_v1",
+        "checkpoints/prototypes_v1",
+        "checkpoints/category_pretrain_experts"
+      ],
+      "outputs": {
+        "l1_seed0.json": {
+          "sha256": "42d8ff112685ca8f2b47b7c4b2fca3af1018f48f617b8e5799c1b8858a1a6eb3",
+          "size": 3185
+        },
+        "l1_seed1.json": {
+          "sha256": "0d03b8c6e74cd8ccdd16f7a9a99b71b3cd1454717c680d78bc878a4eb8e2181c",
+          "size": 3232
+        },
+        "l1_seed2.json": {
+          "sha256": "0c771fccfd98818a3e13f9f25ccd1937fd98d2707b99559e3481f74157011379",
+          "size": 3208
+        }
+      }
+    },
+    {
+      "name": "interactions + negative controls",
+      "script": "scripts/run_property_interactions.py",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "interactions.json": {
+          "sha256": "79e8d0495b0c601c6cef0ef42ca3a84198ec391bb2e2415efc8c5aedb1d1d4ae",
+          "size": 5919
+        }
+      }
+    },
+    {
+      "name": "twin pairing",
+      "script": "scripts/run_property_twins.py",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "twins.json": {
+          "sha256": "75e5a979d4296d2310d44d82b274a13269b0b4328e88fd21938d3025d891102d",
+          "size": 17571
+        }
+      }
+    },
+    {
+      "name": "two-way ANOVA",
+      "script": "scripts/run_property_anova.py",
+      "inputs": [
+        "scorecards\\property\\l1_seed0.json",
+        "scorecards\\property\\l1_seed1.json",
+        "scorecards\\property\\l1_seed2.json"
+      ],
+      "outputs": {
+        "anova.json": {
+          "sha256": "478231260c176404dc66905ef497406ba2bf7725c1583c87d17be701bc73f73f",
+          "size": 5598
+        }
+      }
+    },
+    {
+      "name": "L2 bundle traces",
+      "script": "scripts/run_property_l2.py",
+      "inputs": [
+        "bundles/dev/**/pss_trace.parquet"
+      ],
+      "outputs": {
+        "l2_bundles.json": {
+          "sha256": "e8983cc7922b006fb5f8f97dfcf53c807d40a8a9adbab21df543664d5588eb67",
+          "size": 6478
+        }
+      }
+    },
+    {
+      "name": "L2 fresh Isaac S4-PSS",
+      "script": "scripts/run_s4_pss.py",
+      "env": "D:/isaac/env/Scripts/python.exe (Python 3.11)",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "l2_s4_pss_seed0.json": {
+          "sha256": "fe97fed0747f2efe0fdc4016983a5a236c2e1f544e767c608bf20839fd209391",
+          "size": 872
+        },
+        "l2_s4_pss_seed1.json": {
+          "sha256": "6493ffb05bb9df312dd5afc9806a7ac90b83c41db970fab039da7ba566417476",
+          "size": 871
+        },
+        "l2_s4_pss_seed2.json": {
+          "sha256": "2dce94a30309bd76e4271f1b5e8c25a2828885685978d7f7240d35a05769f3de",
+          "size": 871
+        },
+        "l2_s4_pss_seed3.json": {
+          "sha256": "196647bc4000ac8e95d632c6b463f8496e56ad6ded0efa86fb55c8c7cdbd338a",
+          "size": 872
+        },
+        "l2_s4_pss_seed4.json": {
+          "sha256": "48f6a67f184da348d2db774e137e5e5078d13d540daf30bbcb12bd31c5a9e508",
+          "size": 871
+        }
+      }
+    },
+    {
+      "name": "§15 report",
+      "script": "scripts/run_property_section15.py",
+      "outputs": {
+        "SECTION15_RESULTS.md": {
+          "sha256": "2ecf9ee621c475f5a75c013a77663e04228663df5ff45c6eb9f166c00381bb3a",
+          "size": 10039
+        },
+        "fig1_invariance.png": {
+          "sha256": "0ee7db49947b78bc412e52731609f733f16fe6c11af2d12186f95e62504db512",
+          "size": 61897
+        },
+        "fig2_kb_state.png": {
+          "sha256": "c96db4dc1a344858e32c1d2b94a2996d42db2222dcd45305bad3f804ceec6f90",
+          "size": 50310
+        },
+        "fig3_budget_quality.png": {
+          "sha256": "eedd1b2e86424254e1480d90613301901cb49db0f4b9694a607cc03aa3a35cb3",
+          "size": 52870
+        }
+      }
+    }
+  ],
+  "isaac_bundle": {
+    "bundle_dir": "bundles\\property_l2_s4\\dev\\s4_pss_pick_place\\ff57707c\\seed0",
+    "manifest": "bundles\\property_l2_s4\\dev\\s4_pss_pick_place\\ff57707c\\seed0\\manifest.json",
+    "manifest_sha256": "9e2460b59eff2545b3ea5c249fd2cc7bb6a244b0e12ec1badb844593e06f6421",
+    "spec_id": "s4_pss_pick_place_v1",
+    "spec_hash": "sha256:ff57707c68bd731ee77801d067fca334ca48b9b75ca2c262df7539669de838cc",
+    "pss_commit": "2423dec1a9f0de5971bbb3fe8031ca1e82327fb8",
+    "seed": 0,
+    "detector_tier": "oracle"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "episodes": 5,
+  "success_rate": 1.0,
+  "plan_actions_unique": [
+    [
+      "pick",
+      "place"
+    ]
+  ],
+  "mean_wall_s": 2.136,
+  "p95_wall_s": 2.816,
+  "max_wall_s": 2.99,
+  "steps_mean": 284.0,
+  "BAR_wall": 1.0,
+  "max_wall_bound_s": 10.0,
+  "rows": [
+    {
+      "seed": 0,
+      "success": true,
+      "plan_actions": [
+        "pick",
+        "place"
+      ],
+      "wall_s": 1.71,
+      "steps": 285,
+      "actions_ok": true
+    },
+    {
+      "seed": 1,
+      "success": true,
+      "plan_actions": [
+        "pick",
+        "place"
+      ],
+      "wall_s": 1.86,
+      "steps": 283,
+      "actions_ok": true
+    },
+    {
+      "seed": 2,
+      "success": true,
+      "plan_actions": [
+        "pick",
+        "place"
+      ],
+      "wall_s": 2.12,
+      "steps": 285,
+      "actions_ok": true
+    },
+    {
+      "seed": 3,
+      "success": true,
+      "plan_actions": [
+        "pick",
+        "place"
+      ],
+      "wall_s": 2.99,
+      "steps": 284,
+      "actions_ok": true
+    },
+    {
+      "seed": 4,
+      "success": true,
+      "plan_actions": [
+        "pick",
+        "place"
+      ],
+      "wall_s": 2.0,
+      "steps": 283,
+      "actions_ok": true
+    }
+  ],
+  "note": "S4-PSS uses oracle GT boxes; does not exercise hot-swap or KB edits."
+}

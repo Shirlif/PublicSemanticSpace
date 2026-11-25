@@ -1,0 +1,282 @@
+{
+  "design": {
+    "factors": {
+      "expert_quality": [
+        "Q0",
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "architecture": [
+        "A0",
+        "A4",
+        "A5"
+      ]
+    },
+    "replicates": 3,
+    "note": "A4 = measured cross-family zero-shot; A5 = oracle/retrain upper bound"
+  },
+  "anova": {
+    "SSR": {
+      "metric": "SSR",
+      "n_per_cell": 3,
+      "levels": {
+        "expert_quality": [
+          "Q0",
+          "Q1",
+          "Q2",
+          "Q3",
+          "Q4"
+        ],
+        "architecture": [
+          "A0",
+          "A4",
+          "A5"
+        ]
+      },
+      "SS": {
+        "A": 0.0,
+        "B": 0.0,
+        "AB": 0.0,
+        "error": 0.0,
+        "total": 0.0
+      },
+      "df": {
+        "A": 4,
+        "B": 2,
+        "AB": 8,
+        "error": 30
+      },
+      "MS": {
+        "A": 0.0,
+        "B": 0.0,
+        "AB": 0.0,
+        "error": 0.0
+      },
+      "F": {
+        "A": 0.0,
+        "B": 0.0,
+        "AB": 0.0
+      },
+      "p": {
+        "A": 1.0,
+        "B": 1.0,
+        "AB": 1.0
+      },
+      "eta2": {
+        "A": 0.0,
+        "B": 0.0,
+        "AB": 0.0
+      },
+      "R2": 0.0,
+      "variance": {
+        "expert": 0.0,
+        "architecture": 0.0,
+        "interaction": 0.0,
+        "error": 0.0
+      },
+      "variance_share": {
+        "expert": 0.0,
+        "architecture": 0.0,
+        "interaction": 0.0,
+        "error": 0.0
+      }
+    },
+    "ZCR": {
+      "metric": "ZCR",
+      "n_per_cell": 3,
+      "levels": {
+        "expert_quality": [
+          "Q0",
+          "Q1",
+          "Q2",
+          "Q3",
+          "Q4"
+        ],
+        "architecture": [
+          "A0",
+          "A4",
+          "A5"
+        ]
+      },
+      "SS": {
+        "A": 0.4255401234567906,
+        "B": 4.844444444444443,
+        "AB": 0.8510802469135805,
+        "error": 0.007450810185185191,
+        "total": 6.1285156249999995
+      },
+      "df": {
+        "A": 4,
+        "B": 2,
+        "AB": 8,
+        "error": 30
+      },
+      "MS": {
+        "A": 0.10638503086419765,
+        "B": 2.4222222222222216,
+        "AB": 0.10638503086419757,
+        "error": 0.00024836033950617305
+      },
+      "F": {
+        "A": 428.3495145631069,
+        "B": 9752.854368932029,
+        "AB": 428.3495145631066
+      },
+      "p": {
+        "A": 5.406636133486181e-26,
+        "B": 6.228468120591127e-43,
+        "AB": 9.50077499604622e-29
+      },
+      "eta2": {
+        "A": 0.06943608362861776,
+        "B": 0.7904759881303955,
+        "AB": 0.13887216725723542
+      },
+      "R2": 0.9987842390162487,
+      "variance": {
+        "expert": 0.011792963391632386,
+        "architecture": 0.16146492412551436,
+        "interaction": 0.03537889017489713,
+        "error": 0.00024836033950617305
+      },
+      "variance_share": {
+        "expert": 0.05645668956041849,
+        "architecture": 0.772984261336614,
+        "interaction": 0.16937006868125531,
+        "error": 0.001188980421712246
+      }
+    },
+    "INT": {
+      "metric": "INT",
+      "n_per_cell": 3,
+      "levels": {
+        "expert_quality": [
+          "Q0",
+          "Q1",
+          "Q2",
+          "Q3",
+          "Q4"
+        ],
+        "architecture": [
+          "A0",
+          "A4",
+          "A5"
+        ]
+      },
+      "SS": {
+        "A": 0.0,
+        "B": 0.0,
+        "AB": 0.0,
+        "error": 0.0,
+        "total": 0.0
+      },
+      "df": {
+        "A": 4,
+        "B": 2,
+        "AB": 8,
+        "error": 30
+      },
+      "MS": {
+        "A": 0.0,
+        "B": 0.0,
+        "AB": 0.0,
+        "error": 0.0
+      },
+      "F": {
+        "A": 0.0,
+        "B": 0.0,
+        "AB": 0.0
+      },
+      "p": {
+        "A": 1.0,
+        "B": 1.0,
+        "AB": 1.0
+      },
+      "eta2": {
+        "A": 0.0,
+        "B": 0.0,
+        "AB": 0.0
+      },
+      "R2": 0.0,
+      "variance": {
+        "expert": 0.0,
+        "architecture": 0.0,
+        "interaction": 0.0,
+        "error": 0.0
+      },
+      "variance_share": {
+        "expert": 0.0,
+        "architecture": 0.0,
+        "interaction": 0.0,
+        "error": 0.0
+      }
+    },
+    "RBE": {
+      "metric": "RBE",
+      "n_per_cell": 3,
+      "levels": {
+        "expert_quality": [
+          "Q0",
+          "Q1",
+          "Q2",
+          "Q3",
+          "Q4"
+        ],
+        "architecture": [
+          "A0",
+          "A4",
+          "A5"
+        ]
+      },
+      "SS": {
+        "A": 0.0,
+        "B": 10.000000000000002,
+        "AB": 0.0,
+        "error": 0.0,
+        "total": 10.000000000000002
+      },
+      "df": {
+        "A": 4,
+        "B": 2,
+        "AB": 8,
+        "error": 30
+      },
+      "MS": {
+        "A": 0.0,
+        "B": 5.000000000000001,
+        "AB": 0.0,
+        "error": 0.0
+      },
+      "F": {
+        "A": 0.0,
+        "B": Infinity,
+        "AB": 0.0
+      },
+      "p": {
+        "A": 1.0,
+        "B": 0.0,
+        "AB": 1.0
+      },
+      "eta2": {
+        "A": 0.0,
+        "B": 1.0,
+        "AB": 0.0
+      },
+      "R2": 1.0,
+      "variance": {
+        "expert": 0.0,
+        "architecture": 0.33333333333333337,
+        "interaction": 0.0,
+        "error": 0.0
+      },
+      "variance_share": {
+        "expert": 0.0,
+        "architecture": 1.0,
+        "interaction": 0.0,
+        "error": 0.0
+      }
+    }
+  }
+}

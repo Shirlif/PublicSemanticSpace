@@ -1,0 +1,878 @@
+{
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "runs": [
+    {
+      "spec_hash": "property-twin-seed0",
+      "seed": 0,
+      "pairs": [
+        {
+          "pair_id": "H1-vs-A4",
+          "spec_hash": "property-twin-seed0",
+          "seed": 0,
+          "control_variant": "A0",
+          "treated_variant": "A4",
+          "control": {
+            "SSR": 1.0,
+            "ZCR": 0.84375,
+            "INT": 0.0,
+            "RBE": 1.0
+          },
+          "treated": {
+            "SSR": 1.0,
+            "ZCR": 0.2,
+            "INT": 0.0,
+            "RBE": 0.0
+          }
+        },
+        {
+          "pair_id": "K1-vs-A2",
+          "spec_hash": "property-twin-seed0",
+          "seed": 0,
+          "control_variant": "A0",
+          "treated_variant": "A2",
+          "control": {
+            "USR": 1.0,
+            "LOC": 0.0,
+            "PCR": 1.0,
+            "RBE-KB": 1.0
+          },
+          "treated": {
+            "USR": 0.5,
+            "LOC": 1.0,
+            "PCR": 0.0,
+            "RBE-KB": 0.0
+          }
+        },
+        {
+          "pair_id": "C1-vs-A3",
+          "spec_hash": "property-twin-seed0",
+          "seed": 0,
+          "control_variant": "A0",
+          "treated_variant": "A3",
+          "control": {
+            "BAR": 1.0,
+            "MON": 1.0
+          },
+          "treated": {
+            "BAR": 0.0,
+            "MON": 1.0
+          }
+        }
+      ],
+      "deltas": {
+        "SSR": {
+          "n": 1,
+          "mean_delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "values": [
+            0.0
+          ]
+        },
+        "ZCR": {
+          "n": 1,
+          "mean_delta": -0.64375,
+          "ci95": [
+            -0.64375,
+            -0.64375
+          ],
+          "values": [
+            -0.64375
+          ]
+        },
+        "INT": {
+          "n": 1,
+          "mean_delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "values": [
+            0.0
+          ]
+        },
+        "RBE": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "LOC": {
+          "n": 1,
+          "mean_delta": 1.0,
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "values": [
+            1.0
+          ]
+        },
+        "PCR": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "RBE-KB": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "BAR": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        }
+      }
+    },
+    {
+      "spec_hash": "property-twin-seed1",
+      "seed": 1,
+      "pairs": [
+        {
+          "pair_id": "H1-vs-A4",
+          "spec_hash": "property-twin-seed1",
+          "seed": 1,
+          "control_variant": "A0",
+          "treated_variant": "A4",
+          "control": {
+            "SSR": 1.0,
+            "ZCR": 0.8958333333333334,
+            "INT": 0.0,
+            "RBE": 1.0
+          },
+          "treated": {
+            "SSR": 1.0,
+            "ZCR": 0.2,
+            "INT": 0.0,
+            "RBE": 0.0
+          }
+        },
+        {
+          "pair_id": "K1-vs-A2",
+          "spec_hash": "property-twin-seed1",
+          "seed": 1,
+          "control_variant": "A0",
+          "treated_variant": "A2",
+          "control": {
+            "USR": 1.0,
+            "LOC": 0.0,
+            "PCR": 1.0,
+            "RBE-KB": 1.0
+          },
+          "treated": {
+            "USR": 0.5,
+            "LOC": 1.0,
+            "PCR": 0.0,
+            "RBE-KB": 0.0
+          }
+        },
+        {
+          "pair_id": "C1-vs-A3",
+          "spec_hash": "property-twin-seed1",
+          "seed": 1,
+          "control_variant": "A0",
+          "treated_variant": "A3",
+          "control": {
+            "BAR": 1.0,
+            "MON": 1.0
+          },
+          "treated": {
+            "BAR": 0.0,
+            "MON": 1.0
+          }
+        }
+      ],
+      "deltas": {
+        "SSR": {
+          "n": 1,
+          "mean_delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "values": [
+            0.0
+          ]
+        },
+        "ZCR": {
+          "n": 1,
+          "mean_delta": -0.6958333333333333,
+          "ci95": [
+            -0.6958333333333333,
+            -0.6958333333333333
+          ],
+          "values": [
+            -0.6958333333333333
+          ]
+        },
+        "INT": {
+          "n": 1,
+          "mean_delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "values": [
+            0.0
+          ]
+        },
+        "RBE": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "LOC": {
+          "n": 1,
+          "mean_delta": 1.0,
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "values": [
+            1.0
+          ]
+        },
+        "PCR": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "RBE-KB": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "BAR": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        }
+      }
+    },
+    {
+      "spec_hash": "property-twin-seed2",
+      "seed": 2,
+      "pairs": [
+        {
+          "pair_id": "H1-vs-A4",
+          "spec_hash": "property-twin-seed2",
+          "seed": 2,
+          "control_variant": "A0",
+          "treated_variant": "A4",
+          "control": {
+            "SSR": 1.0,
+            "ZCR": 0.8958333333333334,
+            "INT": 0.0,
+            "RBE": 1.0
+          },
+          "treated": {
+            "SSR": 1.0,
+            "ZCR": 0.2,
+            "INT": 0.0,
+            "RBE": 0.0
+          }
+        },
+        {
+          "pair_id": "K1-vs-A2",
+          "spec_hash": "property-twin-seed2",
+          "seed": 2,
+          "control_variant": "A0",
+          "treated_variant": "A2",
+          "control": {
+            "USR": 1.0,
+            "LOC": 0.0,
+            "PCR": 1.0,
+            "RBE-KB": 1.0
+          },
+          "treated": {
+            "USR": 0.5,
+            "LOC": 1.0,
+            "PCR": 0.0,
+            "RBE-KB": 0.0
+          }
+        },
+        {
+          "pair_id": "C1-vs-A3",
+          "spec_hash": "property-twin-seed2",
+          "seed": 2,
+          "control_variant": "A0",
+          "treated_variant": "A3",
+          "control": {
+            "BAR": 1.0,
+            "MON": 1.0
+          },
+          "treated": {
+            "BAR": 0.0,
+            "MON": 1.0
+          }
+        }
+      ],
+      "deltas": {
+        "SSR": {
+          "n": 1,
+          "mean_delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "values": [
+            0.0
+          ]
+        },
+        "ZCR": {
+          "n": 1,
+          "mean_delta": -0.6958333333333333,
+          "ci95": [
+            -0.6958333333333333,
+            -0.6958333333333333
+          ],
+          "values": [
+            -0.6958333333333333
+          ]
+        },
+        "INT": {
+          "n": 1,
+          "mean_delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "values": [
+            0.0
+          ]
+        },
+        "RBE": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "LOC": {
+          "n": 1,
+          "mean_delta": 1.0,
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "values": [
+            1.0
+          ]
+        },
+        "PCR": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "RBE-KB": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "BAR": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        }
+      }
+    },
+    {
+      "spec_hash": "property-twin-seed3",
+      "seed": 3,
+      "pairs": [
+        {
+          "pair_id": "H1-vs-A4",
+          "spec_hash": "property-twin-seed3",
+          "seed": 3,
+          "control_variant": "A0",
+          "treated_variant": "A4",
+          "control": {
+            "SSR": 1.0,
+            "ZCR": 0.9,
+            "INT": 0.0,
+            "RBE": 1.0
+          },
+          "treated": {
+            "SSR": 1.0,
+            "ZCR": 0.125,
+            "INT": 0.0,
+            "RBE": 0.0
+          }
+        },
+        {
+          "pair_id": "K1-vs-A2",
+          "spec_hash": "property-twin-seed3",
+          "seed": 3,
+          "control_variant": "A0",
+          "treated_variant": "A2",
+          "control": {
+            "USR": 1.0,
+            "LOC": 0.0,
+            "PCR": 1.0,
+            "RBE-KB": 1.0
+          },
+          "treated": {
+            "USR": 0.5,
+            "LOC": 1.0,
+            "PCR": 0.0,
+            "RBE-KB": 0.0
+          }
+        },
+        {
+          "pair_id": "C1-vs-A3",
+          "spec_hash": "property-twin-seed3",
+          "seed": 3,
+          "control_variant": "A0",
+          "treated_variant": "A3",
+          "control": {
+            "BAR": 1.0,
+            "MON": 1.0
+          },
+          "treated": {
+            "BAR": 0.0,
+            "MON": 1.0
+          }
+        }
+      ],
+      "deltas": {
+        "SSR": {
+          "n": 1,
+          "mean_delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "values": [
+            0.0
+          ]
+        },
+        "ZCR": {
+          "n": 1,
+          "mean_delta": -0.775,
+          "ci95": [
+            -0.775,
+            -0.775
+          ],
+          "values": [
+            -0.775
+          ]
+        },
+        "INT": {
+          "n": 1,
+          "mean_delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "values": [
+            0.0
+          ]
+        },
+        "RBE": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "LOC": {
+          "n": 1,
+          "mean_delta": 1.0,
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "values": [
+            1.0
+          ]
+        },
+        "PCR": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "RBE-KB": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "BAR": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        }
+      }
+    },
+    {
+      "spec_hash": "property-twin-seed4",
+      "seed": 4,
+      "pairs": [
+        {
+          "pair_id": "H1-vs-A4",
+          "spec_hash": "property-twin-seed4",
+          "seed": 4,
+          "control_variant": "A0",
+          "treated_variant": "A4",
+          "control": {
+            "SSR": 1.0,
+            "ZCR": 0.9,
+            "INT": 0.0,
+            "RBE": 1.0
+          },
+          "treated": {
+            "SSR": 1.0,
+            "ZCR": 0.125,
+            "INT": 0.0,
+            "RBE": 0.0
+          }
+        },
+        {
+          "pair_id": "K1-vs-A2",
+          "spec_hash": "property-twin-seed4",
+          "seed": 4,
+          "control_variant": "A0",
+          "treated_variant": "A2",
+          "control": {
+            "USR": 1.0,
+            "LOC": 0.0,
+            "PCR": 1.0,
+            "RBE-KB": 1.0
+          },
+          "treated": {
+            "USR": 0.5,
+            "LOC": 1.0,
+            "PCR": 0.0,
+            "RBE-KB": 0.0
+          }
+        },
+        {
+          "pair_id": "C1-vs-A3",
+          "spec_hash": "property-twin-seed4",
+          "seed": 4,
+          "control_variant": "A0",
+          "treated_variant": "A3",
+          "control": {
+            "BAR": 1.0,
+            "MON": 1.0
+          },
+          "treated": {
+            "BAR": 0.0,
+            "MON": 1.0
+          }
+        }
+      ],
+      "deltas": {
+        "SSR": {
+          "n": 1,
+          "mean_delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "values": [
+            0.0
+          ]
+        },
+        "ZCR": {
+          "n": 1,
+          "mean_delta": -0.775,
+          "ci95": [
+            -0.775,
+            -0.775
+          ],
+          "values": [
+            -0.775
+          ]
+        },
+        "INT": {
+          "n": 1,
+          "mean_delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "values": [
+            0.0
+          ]
+        },
+        "RBE": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "LOC": {
+          "n": 1,
+          "mean_delta": 1.0,
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "values": [
+            1.0
+          ]
+        },
+        "PCR": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "RBE-KB": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        },
+        "BAR": {
+          "n": 1,
+          "mean_delta": -1.0,
+          "ci95": [
+            -1.0,
+            -1.0
+          ],
+          "values": [
+            -1.0
+          ]
+        }
+      }
+    }
+  ],
+  "summary": {
+    "SSR": {
+      "mean_delta": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "n": 5,
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "ZCR": {
+      "mean_delta": -0.7170833333333333,
+      "ci95": [
+        -0.7591666666666667,
+        -0.6749999999999999
+      ],
+      "n": 5,
+      "values": [
+        -0.64375,
+        -0.6958333333333333,
+        -0.6958333333333333,
+        -0.775,
+        -0.775
+      ]
+    },
+    "INT": {
+      "mean_delta": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "n": 5,
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "RBE": {
+      "mean_delta": -1.0,
+      "ci95": [
+        -1.0,
+        -1.0
+      ],
+      "n": 5,
+      "values": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ]
+    },
+    "LOC": {
+      "mean_delta": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "n": 5,
+      "values": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "PCR": {
+      "mean_delta": -1.0,
+      "ci95": [
+        -1.0,
+        -1.0
+      ],
+      "n": 5,
+      "values": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ]
+    },
+    "RBE-KB": {
+      "mean_delta": -1.0,
+      "ci95": [
+        -1.0,
+        -1.0
+      ],
+      "n": 5,
+      "values": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ]
+    },
+    "BAR": {
+      "mean_delta": -1.0,
+      "ci95": [
+        -1.0,
+        -1.0
+      ],
+      "n": 5,
+      "values": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ]
+    }
+  }
+}
