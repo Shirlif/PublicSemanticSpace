@@ -138,11 +138,11 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 
 ### W1 完成定义（DoD）
 
-- [ ] git 有首次提交，`freeze.json` 存在且字段齐全（`isaac` 版本已填）
-- [ ] 双环境可用，Isaac headless 启动成功，显存基线已记录
-- [ ] `pss spec lint` 可跑，产出 hash
-- [ ] 一条 episode 的 bundle 可读，四个断言全过
-- [ ] `notes/p1_week1.md` 记录：显存、单条 episode 耗时、踩到的坑
+- [x] git 有首次提交，`freeze.json` 存在且字段齐全（`isaac` 版本已填）
+- [x] 双环境可用，Isaac headless 启动成功，显存基线已记录
+- [x] `pss spec lint` 可跑，产出 hash
+- [x] 一条 episode 的 bundle 可读，四个断言全过
+- [x] `notes/p1_week1.md` 记录：显存、单条 episode 耗时、踩到的坑
 
 **不过不进 W2。**
 
@@ -236,26 +236,26 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 ## 9. 任务清单
 
 ### P1（W1）
-- [ ] T01 `git init` + 首次提交
-- [ ] T02 `freeze.json` 骨架
-- [ ] T03 建 `isaac` conda 环境（Python 按 Isaac 要求）
-- [ ] T04 装 Isaac Sim，headless 跑通最小示例
-- [ ] T05 记录显存基线与启动耗时
-- [ ] T06 `pss/spec/schema.py` + `loader.py` + `cli.py`
-- [ ] T07 `specs/s1_occlusion.yaml`（最小版）
-- [ ] T08 `pss/isaac/scene_builder.py`（桌面 + 4 物体 + 相机）
-- [ ] T09 bundle 写入器（manifest + 4 张表）
-- [ ] T10 单条 episode 跑通 + 四个断言
+- [x] T01 `git init` + 首次提交
+- [x] T02 `freeze.json` 骨架
+- [x] T03 建 `isaac` conda 环境（Python 按 Isaac 要求）
+- [x] T04 装 Isaac Sim，headless 跑通最小示例
+- [x] T05 记录显存基线与启动耗时
+- [x] T06 `pss/spec/schema.py` + `loader.py` + `cli.py`
+- [x] T07 `specs/s1_occlusion.yaml`（最小版）
+- [x] T08 `pss/isaac/scene_builder.py`（桌面 + 4 物体 + 相机）
+- [x] T09 bundle 写入器（manifest + 4 张表）
+- [x] T10 单条 episode 跑通 + 四个断言
 
 ### P2（W2–W3）
-- [ ] T11 G1 加载（`base_fixed`，仅碰撞体）
-- [ ] T12 双频循环
-- [ ] T13 GT oracle 全字段
-- [ ] T14 ZMQ 双通道 + 进程隔离
-- [ ] T15 `occlusion_insert` 故障
-- [ ] T16 `pss/metrics/entity.py`
-- [ ] T17 `oracle` 检测档
-- [ ] T18 S1 首表（IDF1 ≥ 0.95）
+- [x] T11 G1 加载（`base_fixed`，仅碰撞体）
+- [x] T12 双频循环
+- [x] T13 GT oracle 全字段
+- [x] T14 ZMQ 双通道 + 进程隔离
+- [x] T15 `occlusion_insert` 故障
+- [x] T16 `pss/metrics/entity.py`
+- [x] T17 `oracle` 检测档
+- [x] T18 S1 首表（IDF1 ≥ 0.95）
 
 ### P3（W4–W5）
 - [ ] T19 GroundingDINO 接入（离线批）
