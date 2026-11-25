@@ -482,7 +482,7 @@ def _validate_cameras(
             errors,
             cam,
             path,
-            ("name", "mount", "pose", "fov_deg", "width", "height", "rate_hz"),
+            ("name", "mount", "pose", "fov_deg", "width", "height", "rate_hz", "motion"),
         )
         name = cam.get("name")
         if not isinstance(name, str) or not name:
@@ -510,6 +510,24 @@ def _validate_cameras(
                 _fail(errors, f"{path}.mount", "camera mount requires a robot section")
         if "pose" not in cam and "mount" not in cam:
             _fail(errors, path, "camera requires pose or mount")
+        motion = cam.get("motion")
+        if motion is not None:
+            if not isinstance(motion, list) or len(motion) < 2:
+                _fail(errors, f"{path}.motion", "must have at least 2 keyframes")
+            else:
+                for j, key in enumerate(motion):
+                    kp = f"{path}.motion[{j}]"
+                    if not isinstance(key, Mapping):
+                        _fail(errors, kp, "must be a mapping")
+                        continue
+                    if not (
+                        _is_number(key.get("t_s")) and float(key["t_s"]) >= 0
+                    ):
+                        _fail(errors, f"{kp}.t_s", "must be >= 0")
+                    if not _is_vec(key.get("pos"), 3):
+                        _fail(errors, f"{kp}.pos", "must be [x, y, z]")
+                    if "ori" in key and not _is_vec(key["ori"], 4):
+                        _fail(errors, f"{kp}.ori", "must be [w, x, y, z]")
 
 
 def _validate_robot(robot: Any, errors: list[str], warnings: list[str]) -> None:
@@ -897,6 +915,19 @@ def json_schema() -> dict[str, Any]:
                     "width": {"type": "integer", "minimum": 1},
                     "height": {"type": "integer", "minimum": 1},
                     "rate_hz": {"type": "number", "exclusiveMinimum": 0},
+                    "motion": {
+                        "type": "array",
+                        "minItems": 2,
+                        "items": {
+                            "type": "object",
+                            "required": ["t_s", "pos"],
+                            "properties": {
+                                "t_s": {"type": "number", "minimum": 0},
+                                "pos": vec(3),
+                                "ori": vec(4),
+                            },
+                        },
+                    },
                 },
                 "additionalProperties": False,
             },

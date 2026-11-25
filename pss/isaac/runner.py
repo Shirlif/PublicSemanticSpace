@@ -19,6 +19,7 @@ from typing import Any, Sequence
 
 from pss.spec import WorldSpec, load_spec
 from pss.relations import RelObject, compute_relations
+from .camera_motion import camera_pose
 
 from .bundle import write_bundle
 
@@ -263,6 +264,22 @@ def _set_asset_translate(stage: Any, prim_path: str, pos: list[float]) -> None:
     xformable.AddTranslateOp().Set(Gf.Vec3d(float(pos[0]), float(pos[1]), float(pos[2])))
 
 
+def _set_camera_xform(stage: Any, name: str, pose: Sequence[float]) -> None:
+    from pxr import Gf, Sdf, UsdGeom
+
+    prim = stage.GetPrimAtPath(f"/World/Cameras/{name}")
+    if not prim or not prim.IsValid():
+        return
+    for op in UsdGeom.Xformable(prim).GetOrderedXformOps():
+        if op.GetOpType() == UsdGeom.XformOp.TypeTranslate:
+            op.Set(Gf.Vec3d(float(pose[0]), float(pose[1]), float(pose[2])))
+        elif op.GetOpType() == UsdGeom.XformOp.TypeOrient and len(pose) >= 7:
+            if op.GetAttr().GetTypeName() == Sdf.ValueTypeNames.Quatd:
+                op.Set(Gf.Quatd(float(pose[3]), float(pose[4]), float(pose[5]), float(pose[6])))
+            else:
+                op.Set(Gf.Quatf(float(pose[3]), float(pose[4]), float(pose[5]), float(pose[6])))
+
+
 def _run_one(
     spec: WorldSpec,
     seed: int,
@@ -406,6 +423,8 @@ def _run_one(
 
     for step in range(total_steps):
         t_s = step * physics_dt
+        cam_pose = camera_pose(camera, t_s)
+        _set_camera_xform(stage, cam_name, cam_pose)
 
         for fault in fault_specs:
             if step != int(fault.get("at_step", -1)):

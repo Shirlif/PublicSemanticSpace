@@ -64,3 +64,10 @@
 4. 用 W1/S1 重跑一条带相机轨迹的 episode，确认图像视角变化；
 5. 把 S1/S2/S3/S6 的 spec 默认切到相机轨迹；
 6. 关闭 T28/T34 的腿策略依赖，轮式附表按需再开。
+
+## 实施状态（2026-11-25）
+
+- T44 已实现：`pss/isaac/camera_motion.py` + `pss/isaac/runner.py` 每物理帧插值并更新相机 prim。
+- 验证：`specs/s1_camera_motion.yaml` 1 episode，obs 中相机位置 51 个不同值，
+  x/y/z 范围 `[0, -0.20, 1.10] .. [0.25, 0, 1.30]`，GT 可见率 0.0–1.0。
+- 下一步：把 S1/S2/S3/S6 的正式 spec 切到相机轨迹；S4/S5 保持 `base_fixed`。

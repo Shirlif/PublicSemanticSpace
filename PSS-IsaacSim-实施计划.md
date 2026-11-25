@@ -265,7 +265,7 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [x] T16 `pss/metrics/entity.py`
 - [x] T17 `oracle` 检测档
 - [x] T18 S1 首表（IDF1 ≥ 0.95）
-- [ ] T44 `cameras[].motion`：spec schema + runner 相机轨迹插值（ADR-001 主平台）
+- [x] T44 `cameras[].motion`：spec schema + runner 相机轨迹插值（ADR-001 主平台）
 - [x] T45 ADR-001 平台决策记录（固定桌面 + 相机轨迹；人形腿移出关键路径）
 
 ### P3（W4–W5）
