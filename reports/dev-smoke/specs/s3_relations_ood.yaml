@@ -1,0 +1,334 @@
+spec_version: 1
+id: s3_relations_ood_v1
+task_family: tracking
+split: test
+notes:
+- 'S3: 8 base cubes + 2 stacked cubes; relation GT from GT poses.'
+- OOD combinations are declared for split reporting; PSS inference is geometric in
+  W6.
+- No robot and no images; this suite scores relations from tracked poses.
+seed_policy:
+  episode_seeds:
+  - 0
+  pose_sampling: fixed
+assets:
+  instances:
+  - id: obj_00
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.24
+    - -0.15
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: &id001
+    - 0.8
+    - 0.1
+    - 0.1
+    split: test
+  - id: obj_01
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.24
+    - 0.03
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: &id002
+    - 0.1
+    - 0.7
+    - 0.15
+    split: test
+  - id: obj_02
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.07999999999999999
+    - -0.15
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: &id003
+    - 0.1
+    - 0.25
+    - 0.8
+    split: test
+  - id: obj_03
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.07999999999999999
+    - 0.03
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: &id004
+    - 0.85
+    - 0.7
+    - 0.1
+    split: test
+  - id: obj_04
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.08000000000000002
+    - -0.15
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: *id001
+    split: test
+  - id: obj_05
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.08000000000000002
+    - 0.03
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: *id002
+    split: test
+  - id: obj_06
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.24
+    - -0.15
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: *id003
+    split: test
+  - id: obj_07
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.24
+    - 0.03
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: *id004
+    split: test
+  - id: top_00
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.03
+    - 0.03
+    - 0.03
+    mass_kg: 0.02
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.24
+    - 0.21
+    - 0.825
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.5
+    - 0.5
+    - 0.5
+    split: test
+  - id: top_01
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.03
+    - 0.03
+    - 0.03
+    mass_kg: 0.02
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.07999999999999999
+    - 0.21
+    - 0.825
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.5
+    - 0.5
+    - 0.5
+    split: test
+scene:
+  table:
+    size:
+    - 1.2
+    - 0.8
+    - 0.04
+    height_m: 0.75
+    friction: 0.7
+  workspace:
+    xy:
+    - - -0.3
+      - -0.25
+    - - 0.3
+      - 0.25
+    table_z: 0.77
+cameras:
+- name: overhead
+  pose:
+  - 0
+  - 0
+  - 1.3
+  - 1
+  - 0
+  - 0
+  - 0
+  fov_deg: 60
+  width: 640
+  height: 480
+  rate_hz: 10
+physics:
+  dt: 0.008333333333333333
+  substeps: 2
+  solver: TGS
+  contact_report:
+    enabled: true
+    max_contacts_per_pair: 8
+  determinism:
+    fixed_gpu: true
+    seed: 0
+task:
+  id: track_relations
+  initial_facts: []
+  goal_facts: []
+  time_limit_s: 5
+faults: []
+perception:
+  mode: offline
+  detector_tier: oracle
+  noise_profile: null
+relations_gt:
+  predicates:
+  - left_of
+  - right_of
+  - in_front_of
+  - behind
+  - on_top_of
+  - inside
+  - touching
+  - near
+  - above
+  - below
+  compute_from: gt_poses
+  tolerance_m: 0.02
+  ood_combinations:
+  - - on_top_of
+    - behind
+  - - touching
+    - left_of
+  - - above
+    - in_front_of
+metrics:
+  primary:
+  - relation_f1
+  - consistency_violation
+  leading: []
+  guardrail: []
+recording:
+  obs_rate_hz: 10
+  gt_rate_hz: 120
+  bundle_format: parquet
+  store_images: false

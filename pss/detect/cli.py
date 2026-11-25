@@ -60,6 +60,7 @@ def _cmd_detect(args: argparse.Namespace) -> int:
             box_threshold=args.box_threshold,
             text_threshold=args.text_threshold,
             max_frames=args.max_frames,
+            plane_z=None if args.depth_pose else args.plane_z,
         )
         path = write_groundingdino_detections(args.bundle, rows)
         weights = DEFAULT_MODEL_DIR / "model.safetensors"
@@ -73,6 +74,8 @@ def _cmd_detect(args: argparse.Namespace) -> int:
                 "prompt": args.prompt,
                 "box_threshold": args.box_threshold,
                 "text_threshold": args.text_threshold,
+                "pose_mode": "depth" if args.depth_pose else "plane",
+                "plane_z": None if args.depth_pose else args.plane_z,
                 "rows": len(rows),
             },
         )
@@ -132,6 +135,17 @@ def build_parser() -> argparse.ArgumentParser:
     detect.add_argument("--box-threshold", type=float, default=0.3)
     detect.add_argument("--text-threshold", type=float, default=0.25)
     detect.add_argument("--max-frames", type=int, default=None)
+    detect.add_argument(
+        "--plane-z",
+        type=float,
+        default=0.79,
+        help="tabletop plane for 3D backprojection (default 0.79)",
+    )
+    detect.add_argument(
+        "--depth-pose",
+        action="store_true",
+        help="use depth at bbox center instead of tabletop plane",
+    )
     detect.add_argument("--noise-profile", default=None, help="inline JSON noise profile")
     detect.add_argument("--seed", type=int, default=0)
     detect.set_defaults(func=_cmd_detect)

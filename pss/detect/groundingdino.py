@@ -73,7 +73,7 @@ def _backproject(
     fy = (height / 2.0) / tan_v
     local = (
         (u - width / 2.0) * depth_m / fx,
-        (v - height / 2.0) * depth_m / fy,
+        (height / 2.0 - v) * depth_m / fy,
         -depth_m,
     )
     q = (
@@ -86,6 +86,37 @@ def _backproject(
         camera_pose[0] + rotated[0],
         camera_pose[1] + rotated[1],
         camera_pose[2] + rotated[2],
+    ]
+
+
+def _backproject_plane(
+    u: float,
+    v: float,
+    camera_pose: list[float],
+    width: int,
+    height: int,
+    fov_deg: float,
+    plane_z: float,
+) -> list[float]:
+    """Intersect the pixel ray with a horizontal plane (tabletop objects)."""
+    tan_h = math.tan(math.radians(fov_deg) / 2.0)
+    tan_v = tan_h * (height / width)
+    fx = (width / 2.0) / tan_h
+    fy = (height / 2.0) / tan_v
+    local = ((u - width / 2.0) / fx, (height / 2.0 - v) / fy, -1.0)
+    q = (
+        (camera_pose[3], camera_pose[4], camera_pose[5], camera_pose[6])
+        if len(camera_pose) >= 7
+        else (1.0, 0.0, 0.0, 0.0)
+    )
+    direction = quat_rotate(q, local)
+    if abs(direction[2]) < 1e-9:
+        return [camera_pose[0], camera_pose[1], plane_z]
+    t = (plane_z - camera_pose[2]) / direction[2]
+    return [
+        camera_pose[0] + t * direction[0],
+        camera_pose[1] + t * direction[1],
+        plane_z,
     ]
 
 
@@ -190,6 +221,7 @@ def detect_bundle(
     box_threshold: float = 0.3,
     text_threshold: float = 0.25,
     max_frames: int | None = None,
+    plane_z: float | None = 0.79,
 ) -> list[dict[str, Any]]:
     root = Path(bundle_dir)
     obs = pd.read_parquet(root / "obs_frames.parquet")
@@ -235,8 +267,13 @@ def detect_bundle(
             u0, v0, u1, v1 = det["bbox_xyxy"]
             u = int((u0 + u1) / 2)
             v = int((v0 + v1) / 2)
-            depth_m = _depth_at(depth, u, v)
-            pos = _backproject(u, v, depth_m, camera_pose, width, height, fov)
+            if plane_z is not None:
+                pos = _backproject_plane(
+                    u, v, camera_pose, width, height, fov, plane_z
+                )
+            else:
+                depth_m = _depth_at(depth, u, v)
+                pos = _backproject(u, v, depth_m, camera_pose, width, height, fov)
             rows.append(
                 {
                     "step": int(frame["step"]),

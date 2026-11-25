@@ -1,0 +1,94 @@
+{
+  "suite": "s2_twins",
+  "created_utc": "2026-11-25T04:31:20Z",
+  "device_class": "dev",
+  "detector_tier": "frozen_real",
+  "caveat": "",
+  "spec_hashes": [
+    "sha256:3d49ce1bca786b2706c80cf76d7723c8d563c33d04c7b2351616913ea0bfdd18"
+  ],
+  "n_episodes": 1,
+  "seeds": [
+    0
+  ],
+  "metrics": {
+    "idf1": {
+      "mean": 0.8267008985879333,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.8267008985879333,
+      "max": 0.8267008985879333
+    },
+    "id_retention": {
+      "mean": 0.8655913978494624,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.8655913978494624,
+      "max": 0.8655913978494624
+    },
+    "id_switches": {
+      "mean": 0.5,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.5,
+      "max": 0.5
+    },
+    "duplicate_rate": {
+      "mean": 0.5,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.5,
+      "max": 0.5
+    },
+    "reappearance_rate": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "slot_purity": {
+      "mean": 0.8655913978494624,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.8655913978494624,
+      "max": 0.8655913978494624
+    },
+    "twin_ambiguity_rate": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "twin_mean_max_similarity": {
+      "mean": 0.8655821639394389,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.8655821639394389,
+      "max": 0.8655821639394389
+    }
+  },
+  "episodes": [
+    {
+      "idf1": 0.8267008985879333,
+      "id_retention": 0.8655913978494624,
+      "id_switches": 0.5,
+      "duplicate_rate": 0.5,
+      "reappearance_rate": 1.0,
+      "slot_purity": 0.8655913978494624,
+      "gt_detections": 372,
+      "pred_detections": 407,
+      "gt_instances": 4,
+      "pred_identities": 4,
+      "twin_ambiguity_rate": 0.0,
+      "twin_mean_max_similarity": 0.8655821639394389,
+      "episode_id": "s2_twins__seed00__oracle__full",
+      "seed": 0,
+      "bundle": "bundles\\dev\\s2_twins\\3d49ce1b\\seed0",
+      "spec_hash": "sha256:3d49ce1bca786b2706c80cf76d7723c8d563c33d04c7b2351616913ea0bfdd18",
+      "device_class": "dev",
+      "detector_tier": "frozen_real"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "tag": "dev-smoke",
+  "ok": true,
+  "suites": [
+    {
+      "suite": "s1_occlusion_noisy",
+      "device_class": "dev",
+      "ok": true,
+      "episodes": 1,
+      "mismatches": []
+    },
+    {
+      "suite": "s1_occlusion_oracle",
+      "device_class": "dev",
+      "ok": true,
+      "episodes": 1,
+      "mismatches": []
+    },
+    {
+      "suite": "s1_occlusion_real",
+      "device_class": "dev",
+      "ok": true,
+      "episodes": 1,
+      "mismatches": []
+    },
+    {
+      "suite": "s1_camera_oracle",
+      "device_class": "dev",
+      "ok": true,
+      "episodes": 1,
+      "mismatches": []
+    },
+    {
+      "suite": "s1_camera_real",
+      "device_class": "dev",
+      "ok": true,
+      "episodes": 1,
+      "mismatches": []
+    },
+    {
+      "suite": "s1_occlusion_20",
+      "device_class": "dev",
+      "ok": true,
+      "episodes": 5,
+      "mismatches": []
+    },
+    {
+      "suite": "s2_twins_oracle",
+      "device_class": "dev",
+      "ok": true,
+      "episodes": 1,
+      "mismatches": []
+    },
+    {
+      "suite": "s2_twins",
+      "device_class": "dev",
+      "ok": true,
+      "episodes": 1,
+      "mismatches": []
+    }
+  ]
+}

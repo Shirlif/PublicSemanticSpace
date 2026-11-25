@@ -1,0 +1,17 @@
+{
+  "suite": "s1_occlusion_oracle",
+  "episodes": 1,
+  "calls": 100,
+  "latency_ms": {
+    "p50": 0.14370000280905515,
+    "p95": 0.18702499801293015,
+    "mean": 0.14454200078034773,
+    "max": 0.22610000451095402
+  },
+  "entities_mean": 4.0,
+  "facts_mean": 0.0,
+  "expansions_mean": 0.0,
+  "memory_footprint_mb": null,
+  "tokens": 0,
+  "note": "no LLM in the replay; footprint not instrumented"
+}

@@ -1,6 +1,6 @@
 {
   "suite": "s2_twins",
-  "created_utc": "2026-11-25T02:57:16Z",
+  "created_utc": "2026-11-25T04:31:20Z",
   "device_class": "dev",
   "detector_tier": "frozen_real",
   "caveat": "",
@@ -13,32 +13,32 @@
   ],
   "metrics": {
     "idf1": {
-      "mean": 0.8189987163029525,
+      "mean": 0.8267008985879333,
       "std": 0.0,
       "ci95": 0.0,
-      "min": 0.8189987163029525,
-      "max": 0.8189987163029525
+      "min": 0.8267008985879333,
+      "max": 0.8267008985879333
     },
     "id_retention": {
-      "mean": 0.8575268817204301,
+      "mean": 0.8655913978494624,
       "std": 0.0,
       "ci95": 0.0,
-      "min": 0.8575268817204301,
-      "max": 0.8575268817204301
+      "min": 0.8655913978494624,
+      "max": 0.8655913978494624
     },
     "id_switches": {
-      "mean": 1.0,
+      "mean": 0.5,
       "std": 0.0,
       "ci95": 0.0,
-      "min": 1.0,
-      "max": 1.0
+      "min": 0.5,
+      "max": 0.5
     },
     "duplicate_rate": {
-      "mean": 0.6666666666666666,
+      "mean": 0.5,
       "std": 0.0,
       "ci95": 0.0,
-      "min": 0.6666666666666666,
-      "max": 0.6666666666666666
+      "min": 0.5,
+      "max": 0.5
     },
     "reappearance_rate": {
       "mean": 1.0,
@@ -48,11 +48,11 @@
       "max": 1.0
     },
     "slot_purity": {
-      "mean": 0.910394265232975,
+      "mean": 0.8655913978494624,
       "std": 0.0,
       "ci95": 0.0,
-      "min": 0.910394265232975,
-      "max": 0.910394265232975
+      "min": 0.8655913978494624,
+      "max": 0.8655913978494624
     },
     "twin_ambiguity_rate": {
       "mean": 0.0,
@@ -71,16 +71,16 @@
   },
   "episodes": [
     {
-      "idf1": 0.8189987163029525,
-      "id_retention": 0.8575268817204301,
-      "id_switches": 1.0,
-      "duplicate_rate": 0.6666666666666666,
+      "idf1": 0.8267008985879333,
+      "id_retention": 0.8655913978494624,
+      "id_switches": 0.5,
+      "duplicate_rate": 0.5,
       "reappearance_rate": 1.0,
-      "slot_purity": 0.910394265232975,
+      "slot_purity": 0.8655913978494624,
       "gt_detections": 372,
       "pred_detections": 407,
       "gt_instances": 4,
-      "pred_identities": 6,
+      "pred_identities": 4,
       "twin_ambiguity_rate": 0.0,
       "twin_mean_max_similarity": 0.8655821639394389,
       "episode_id": "s2_twins__seed00__oracle__full",

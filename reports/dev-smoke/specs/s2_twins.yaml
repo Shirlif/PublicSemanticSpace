@@ -1,0 +1,224 @@
+spec_version: 1
+id: s2_twins_v1
+task_family: tracking
+split: test
+notes:
+- 'S2: two twin groups; half of each group shares color/size (hard twins).'
+- twin_swap at step 300 swaps the two tg_a instances; PSS should abstain, not guess.
+- G1 omitted in S2 to keep the twin check cheap.
+seed_policy:
+  episode_seeds:
+  - 0
+  pose_sampling: fixed
+assets:
+  instances:
+  - id: twin_a_01
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.18
+    - -0.12
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: &id001
+    - 0.7
+    - 0.3
+    - 0.15
+    twin_group: tg_a
+    split: test
+  - id: twin_a_02
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.18
+    - -0.12
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: *id001
+    twin_group: tg_a
+    split: test
+  - id: twin_b_01
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.18
+    - 0.12
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: &id002
+    - 0.2
+    - 0.5
+    - 0.6
+    twin_group: tg_b
+    split: test
+  - id: twin_b_02
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.18
+    - 0.12
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color: *id002
+    twin_group: tg_b
+    split: test
+scene:
+  table:
+    size:
+    - 1.2
+    - 0.8
+    - 0.04
+    height_m: 0.75
+    friction: 0.7
+  workspace:
+    xy:
+    - - -0.3
+      - -0.25
+    - - 0.3
+      - 0.25
+    table_z: 0.77
+  occluders:
+  - name: occluder_board_01
+    size:
+    - 0.12
+    - 0.5
+    - 0.01
+    pose:
+    - -0.6
+    - 0.0
+    - 0.9
+    - 1
+    - 0
+    - 0
+    - 0
+    motion:
+    - t_s: 0.0
+      pos:
+      - -0.6
+      - 0.0
+      - 0.9
+    - t_s: 5.0
+      pos:
+      - 0.0
+      - 0.0
+      - 0.9
+    - t_s: 10.0
+      pos:
+      - 0.6
+      - 0.0
+      - 0.9
+cameras:
+- name: overhead
+  pose:
+  - 0
+  - 0
+  - 1.3
+  - 1
+  - 0
+  - 0
+  - 0
+  fov_deg: 60
+  width: 640
+  height: 480
+  rate_hz: 10
+physics:
+  dt: 0.008333333333333333
+  substeps: 2
+  solver: TGS
+  contact_report:
+    enabled: true
+    max_contacts_per_pair: 8
+  determinism:
+    fixed_gpu: true
+    seed: 0
+task:
+  id: track_twins
+  initial_facts: []
+  goal_facts: []
+  time_limit_s: 10
+faults:
+- at_step: 300
+  kind: twin_swap
+  params:
+    targets:
+    - twin_a_01
+    - twin_a_02
+perception:
+  mode: offline
+  detector_tier: oracle
+  noise_profile: null
+relations_gt:
+  predicates:
+  - left_of
+  - right_of
+  - in_front_of
+  - behind
+  - on_top_of
+  - inside
+  - touching
+  - near
+  - above
+  - below
+  compute_from: gt_poses
+  tolerance_m: 0.02
+metrics:
+  primary:
+  - duplicate_rate
+  - abstain_precision
+  - reappearance_rate
+  leading:
+  - slot_purity
+  guardrail: []
+recording:
+  obs_rate_hz: 10
+  gt_rate_hz: 120
+  bundle_format: parquet
+  store_images: false

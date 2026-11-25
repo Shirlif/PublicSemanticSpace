@@ -1,0 +1,78 @@
+{
+  "suite": "s1_camera_real",
+  "created_utc": "2026-11-25T04:29:20Z",
+  "device_class": "dev",
+  "detector_tier": "frozen_real",
+  "caveat": "",
+  "spec_hashes": [
+    "sha256:b4bb5f0ef7cfa22152e853a76ef3ac4e9ad500824a19cee7505cb411bf06dc5d"
+  ],
+  "n_episodes": 1,
+  "seeds": [
+    0
+  ],
+  "metrics": {
+    "idf1": {
+      "mean": 0.7406143344709898,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.7406143344709898,
+      "max": 0.7406143344709898
+    },
+    "id_retention": {
+      "mean": 0.8724586288416075,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.8724586288416075,
+      "max": 0.8724586288416075
+    },
+    "id_switches": {
+      "mean": 0.75,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.75,
+      "max": 0.75
+    },
+    "duplicate_rate": {
+      "mean": 0.4,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.4,
+      "max": 0.4
+    },
+    "reappearance_rate": {
+      "mean": 0.75,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.75,
+      "max": 0.75
+    },
+    "slot_purity": {
+      "mean": 0.9928571428571429,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.9928571428571429,
+      "max": 0.9928571428571429
+    }
+  },
+  "episodes": [
+    {
+      "idf1": 0.7406143344709898,
+      "id_retention": 0.8724586288416075,
+      "id_switches": 0.75,
+      "duplicate_rate": 0.4,
+      "reappearance_rate": 0.75,
+      "slot_purity": 0.9928571428571429,
+      "gt_detections": 301,
+      "pred_detections": 285,
+      "gt_instances": 4,
+      "pred_identities": 5,
+      "episode_id": "s1_camera_motion__seed00__oracle__full",
+      "seed": 0,
+      "bundle": "bundles\\dev\\s1_camera_real\\b4bb5f0e\\seed0",
+      "spec_hash": "sha256:b4bb5f0ef7cfa22152e853a76ef3ac4e9ad500824a19cee7505cb411bf06dc5d",
+      "device_class": "dev",
+      "detector_tier": "frozen_real"
+    }
+  ]
+}

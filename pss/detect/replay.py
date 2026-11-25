@@ -79,6 +79,36 @@ def _relation_config(bundle_dir: Path) -> tuple[list[str], float]:
     return [], 0.02
 
 
+def _real_runtime(*, audit: bool = False) -> PSSRuntime:
+    """Pose+appearance association for learned embeddings (frozen_real)."""
+    config = TrackerConfig(
+        gate_radius=0.25,
+        max_cost=1.0,
+        w_pose=0.6,
+        w_app=0.3,
+        w_time=0.1,
+        w_category=0.05,
+        metric=_AppearanceMetric(),
+        metric_max_cost=0.7,
+    )
+    graph = SceneGraph()
+    tracker = Tracker(config, graph)
+    entity_layer = EntityLayer(
+        graph=graph,
+        tracker=tracker,
+        use_default_relations=False,
+        use_default_active=False,
+    )
+    return PSSRuntime(
+        entity_layer=entity_layer,
+        audit=audit,
+        uncertainty_enabled=False,
+        use_default_relations=False,
+        use_default_active=False,
+        use_default_write=False,
+    )
+
+
 def _oracle_runtime(*, audit: bool = False) -> PSSRuntime:
     config = TrackerConfig(
         gate_radius=0.6,
@@ -132,7 +162,11 @@ def replay_bundle(
     identity_ids = sorted(str(v) for v in detections["emb_ref"].dropna().unique())
     index = {identity: i for i, identity in enumerate(identity_ids)}
 
-    runtime = _oracle_runtime()
+    runtime = (
+        _real_runtime()
+        if "emb" in detections.columns and detections["emb"].notna().any()
+        else _oracle_runtime()
+    )
 
     trace_rows: list[dict[str, Any]] = []
     pss_rows: list[dict[str, Any]] = []
