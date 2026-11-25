@@ -1,0 +1,38 @@
+{
+  "tag": "p7-official",
+  "date": "2026-11-25",
+  "code": {
+    "commit": "f94d0a9939afd7572bc9906eda756403312ce644"
+  },
+  "python": {
+    "pss": "3.13.7",
+    "isaac": "3.11.13"
+  },
+  "sim": {
+    "isaac_sim": "5.1.0.0",
+    "isaac_lab": "TBD",
+    "physx": "107.3.26",
+    "graphics_api": "D3D12",
+    "extra_args": [
+      "--/app/vulkan=false"
+    ]
+  },
+  "driver": "TBD",
+  "gpu": {
+    "dev": "RTX 4070 Laptop 8GB",
+    "official": "RTX 3090 Ti 24GB"
+  },
+  "detector": {
+    "pss": "TBD",
+    "weights_sha256": "TBD"
+  },
+  "env": {
+    "pss_python": "D:\\Python\\python.exe",
+    "isaac_venv": "D:\\isaac\\env",
+    "isaac_uv_cache": "D:\\isaac\\uvcache"
+  },
+  "notes": [
+    "TEMPLATE: fill on the 3090 Ti before T41. Do not use as a freeze until all TBD are filled.",
+    "Run scripts/check_environment.py --device official --freeze freeze/p7-official.json."
+  ]
+}

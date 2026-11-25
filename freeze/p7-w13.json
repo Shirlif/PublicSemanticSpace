@@ -1,0 +1,38 @@
+{
+  "tag": "p7-w13",
+  "date": "2026-11-25",
+  "code": {
+    "commit": "f94d0a9939afd7572bc9906eda756403312ce644"
+  },
+  "python": {
+    "pss": "3.13.7",
+    "isaac": "3.11.13"
+  },
+  "sim": {
+    "isaac_sim": "5.1.0.0",
+    "isaac_lab": "TBD",
+    "physx": "107.3.26",
+    "graphics_api": "D3D12",
+    "extra_args": [
+      "--/app/vulkan=false"
+    ]
+  },
+  "driver": "616.64",
+  "gpu": {
+    "dev": "RTX 4070 Laptop 8GB",
+    "official": "RTX 3090 Ti 24GB"
+  },
+  "detector": {
+    "pss": "TBD",
+    "weights_sha256": "TBD"
+  },
+  "env": {
+    "pss_python": "D:\\Python\\python.exe",
+    "isaac_venv": "D:\\isaac\\env",
+    "isaac_uv_cache": "D:\\isaac\\uvcache"
+  },
+  "notes": [
+    "P7 mechanisms complete on dev: A4 prereg, A9 recompute, A10 report.",
+    "T40/T41 official execution still requires the 3090 Ti machine."
+  ]
+}
