@@ -1,0 +1,305 @@
+{
+  "suite": "S4-PSS",
+  "tasks": {
+    "basic": {
+      "runs": 5,
+      "successes": 5,
+      "success_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 0,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_seed0.json"
+        },
+        {
+          "seed": 1,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_seed1.json"
+        },
+        {
+          "seed": 2,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_seed2.json"
+        },
+        {
+          "seed": 3,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_seed3.json"
+        },
+        {
+          "seed": 4,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_seed4.json"
+        }
+      ]
+    },
+    "relation": {
+      "runs": 5,
+      "successes": 5,
+      "success_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 0,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_relation_seed0.json"
+        },
+        {
+          "seed": 1,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_relation_seed1.json"
+        },
+        {
+          "seed": 2,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_relation_seed2.json"
+        },
+        {
+          "seed": 3,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_relation_seed3.json"
+        },
+        {
+          "seed": 4,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_relation_seed4.json"
+        }
+      ]
+    },
+    "memory": {
+      "runs": 5,
+      "successes": 3,
+      "success_rate": 0.6,
+      "episodes": [
+        {
+          "seed": 0,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_memory_seed0.json"
+        },
+        {
+          "seed": 1,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_memory_seed1.json"
+        },
+        {
+          "seed": 2,
+          "success": false,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:timeout"
+          ],
+          "file": "S4_pss_memory_seed2.json"
+        },
+        {
+          "seed": 3,
+          "success": true,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_memory_seed3.json"
+        },
+        {
+          "seed": 4,
+          "success": false,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:timeout"
+          ],
+          "file": "S4_pss_memory_seed4.json"
+        }
+      ]
+    },
+    "two_object": {
+      "runs": 5,
+      "successes": 5,
+      "success_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 0,
+          "success": true,
+          "actions": [
+            "reach:obj_0001:ok",
+            "grasp:obj_0001:ok",
+            "place:obj_0001->obj_0004:ok",
+            "reach:obj_0002:ok",
+            "grasp:obj_0002:ok",
+            "place:obj_0002->obj_0005:ok"
+          ],
+          "file": "S4_pss_two_seed0.json"
+        },
+        {
+          "seed": 1,
+          "success": true,
+          "actions": [
+            "reach:obj_0001:ok",
+            "grasp:obj_0001:ok",
+            "place:obj_0001->obj_0004:ok",
+            "reach:obj_0002:ok",
+            "grasp:obj_0002:ok",
+            "place:obj_0002->obj_0005:ok"
+          ],
+          "file": "S4_pss_two_seed1.json"
+        },
+        {
+          "seed": 2,
+          "success": true,
+          "actions": [
+            "reach:obj_0001:ok",
+            "grasp:obj_0001:ok",
+            "place:obj_0001->obj_0004:ok",
+            "reach:obj_0002:ok",
+            "grasp:obj_0002:ok",
+            "place:obj_0002->obj_0005:ok"
+          ],
+          "file": "S4_pss_two_seed2.json"
+        },
+        {
+          "seed": 3,
+          "success": true,
+          "actions": [
+            "reach:obj_0001:ok",
+            "grasp:obj_0001:ok",
+            "place:obj_0001->obj_0004:ok",
+            "reach:obj_0002:ok",
+            "grasp:obj_0002:ok",
+            "place:obj_0002->obj_0005:ok"
+          ],
+          "file": "S4_pss_two_seed3.json"
+        },
+        {
+          "seed": 4,
+          "success": true,
+          "actions": [
+            "reach:obj_0001:ok",
+            "grasp:obj_0001:ok",
+            "place:obj_0001->obj_0004:ok",
+            "reach:obj_0002:ok",
+            "grasp:obj_0002:ok",
+            "place:obj_0002->obj_0005:ok"
+          ],
+          "file": "S4_pss_two_seed4.json"
+        }
+      ]
+    },
+    "memory_no_memory": {
+      "runs": 5,
+      "successes": 0,
+      "success_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 0,
+          "success": false,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_memory_nomem_seed0.json"
+        },
+        {
+          "seed": 1,
+          "success": false,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_memory_nomem_seed1.json"
+        },
+        {
+          "seed": 2,
+          "success": false,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:timeout"
+          ],
+          "file": "S4_pss_memory_nomem_seed2.json"
+        },
+        {
+          "seed": 3,
+          "success": false,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:ok"
+          ],
+          "file": "S4_pss_memory_nomem_seed3.json"
+        },
+        {
+          "seed": 4,
+          "success": false,
+          "actions": [
+            "reach:ok",
+            "grasp:ok",
+            "place:timeout"
+          ],
+          "file": "S4_pss_memory_nomem_seed4.json"
+        }
+      ]
+    }
+  }
+}

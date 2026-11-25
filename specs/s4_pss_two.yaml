@@ -1,0 +1,240 @@
+spec_version: 1
+id: s4_pss_two_v1
+task_family: manipulation
+split: test
+notes:
+- 'S4-PSS two-object task: two cups, two bins, one reference bowl.'
+- The cup left of the bowl goes to the bin left of the bowl; the other cup goes right.
+- PSS must keep both cup identities across two pick-place cycles and re-observe after the first placement.
+- Sensor is Isaac GT boxes/poses plus a colour appearance feature; no GT ids are given to the runtime.
+seed_policy:
+  episode_seeds:
+  - 0
+  pose_sampling: fixed
+assets:
+  instances:
+  - id: cup_left
+    class: cup
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.08
+    - -0.2
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.8
+    - 0.15
+    - 0.1
+    split: test
+  - id: cup_right
+    class: cup
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.26
+    - -0.18
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.15
+    - 0.3
+    - 0.8
+    split: test
+  - id: bowl_ref
+    class: bowl
+    usd: builtin://cube
+    size_m:
+    - 0.06
+    - 0.06
+    - 0.04
+    mass_kg: 0.1
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.15
+    - -0.32
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.2
+    - 0.6
+    - 0.2
+    split: test
+  - id: bin_left
+    class: bin
+    usd: builtin://cube
+    size_m:
+    - 0.12
+    - 0.12
+    - 0.06
+    mass_kg: 1000.0
+    friction:
+      static: 0.9
+      dynamic: 0.8
+    restitution: 0.0
+    pose:
+    - 0.02
+    - -0.05
+    - 0.8
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.25
+    - 0.25
+    - 0.25
+    split: test
+  - id: bin_right
+    class: bin
+    usd: builtin://cube
+    size_m:
+    - 0.12
+    - 0.12
+    - 0.06
+    mass_kg: 1000.0
+    friction:
+      static: 0.9
+      dynamic: 0.8
+    restitution: 0.0
+    pose:
+    - 0.2
+    - -0.05
+    - 0.8
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.35
+    - 0.35
+    - 0.35
+    split: test
+scene:
+  table:
+    size:
+    - 1.2
+    - 0.8
+    - 0.04
+    height_m: 0.75
+    friction: 0.7
+  workspace:
+    xy:
+    - - -0.3
+      - -0.4
+    - - 0.3
+      - 0.2
+    table_z: 0.77
+cameras:
+- name: overhead
+  pose:
+  - 0
+  - 0
+  - 1.3
+  - 1
+  - 0
+  - 0
+  - 0
+  fov_deg: 60
+  width: 640
+  height: 480
+  rate_hz: 10
+robot:
+  model: unitree_g1
+  base_mode: base_fixed
+  usd: _external/isaac_assets/G1/g1.usd
+  prim_path: /World/Robot
+  variants:
+    Physics: SimplifiedPhysX
+    Sensor: None
+    left_hand: None
+    right_hand: None
+  pose:
+  - 0.0
+  - -0.42
+  - 0.77
+  - 0.70710678
+  - 0
+  - 0
+  - 0.70710678
+  visible: true
+  end_effector:
+    type: suction_proxy
+    max_width_m: 0.08
+  skill_library: skills_g1_v1
+physics:
+  dt: 0.008333333333333333
+  substeps: 2
+  solver: TGS
+  contact_report:
+    enabled: true
+    max_contacts_per_pair: 8
+  determinism:
+    fixed_gpu: true
+    seed: 0
+task:
+  id: pss_two_object
+  initial_facts: []
+  goal_facts: []
+  success_check:
+    type: fact_set
+    tolerance_m: 0.02
+  time_limit_s: 80
+faults: []
+perception:
+  mode: offline
+  detector_tier: oracle
+  noise_profile: null
+relations_gt:
+  predicates:
+  - left_of
+  - right_of
+  - in_front_of
+  - behind
+  - on_top_of
+  - inside
+  - touching
+  - near
+  - above
+  - below
+  compute_from: gt_poses
+  tolerance_m: 0.02
+metrics:
+  primary:
+  - execution_success
+  - id_retention
+  leading: []
+  guardrail: []
+recording:
+  obs_rate_hz: 10
+  gt_rate_hz: 120
+  bundle_format: parquet
+  store_images: false

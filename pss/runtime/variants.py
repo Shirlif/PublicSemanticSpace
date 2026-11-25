@@ -105,6 +105,30 @@ class FlatEntityLayer:
         return state
 
 
+class NoMemoryEntityLayer(EntityLayer):
+    """Memoryless entity layer: a track exists only while it is observed.
+
+    Any track that misses a frame is dropped immediately, so an object that
+    disappears behind an occluder and reappears is a new entity.  This is the
+    architecture-level ablation for the memory tasks (``--variant no_memory``).
+    """
+
+    def ingest(self, observations, frame: int) -> dict[str, Any]:
+        events = super().ingest(observations, frame)
+        for track in list(self.graph.tracks.values()):
+            if track.status != "active":
+                self.graph.remove(track.id)
+        return events
+
+    def sync(self, state: CognitiveState, active_ids: list[str] | None = None) -> CognitiveState:
+        state = super().sync(state, active_ids)
+        valid = set(self.graph.tracks)
+        for entity_id in list(state.entities):
+            if entity_id not in valid:
+                del state.entities[entity_id]
+        return state
+
+
 class NullRelationLayer:
     """No relation/fact store (no_relations / flat_context)."""
 
@@ -139,7 +163,7 @@ class NullRelationLayer:
         return "write"
 
 
-def _tracker(tier: str, graph: SceneGraph) -> Tracker:
+def _tracker(tier: str, graph: SceneGraph, *, memory: bool = True) -> Tracker:
     metric = AppearanceMetric()
     if tier == "oracle":
         config = TrackerConfig(
@@ -155,6 +179,8 @@ def _tracker(tier: str, graph: SceneGraph) -> Tracker:
             reid_app_min=0.5,
             reid_w_pose=0.0,
             reid_w_app=1.0,
+            reid_max_age=150 if memory else 0,
+            dormancy_missed=2 if memory else 1,
         )
     else:
         config = TrackerConfig(
@@ -166,6 +192,8 @@ def _tracker(tier: str, graph: SceneGraph) -> Tracker:
             w_category=0.05,
             metric=metric,
             metric_max_cost=0.7,
+            reid_max_age=150 if memory else 0,
+            dormancy_missed=2 if memory else 1,
         )
     return Tracker(config, graph)
 
@@ -176,6 +204,15 @@ def build_runtime(variant: str, *, tier: str = "oracle") -> PSSRuntime:
     flat = variant in ("no_entity", "flat_context")
     if flat:
         entity_layer = FlatEntityLayer()
+    elif variant == "no_memory":
+        graph = SceneGraph()
+        entity_layer = NoMemoryEntityLayer(
+            graph=graph,
+            tracker=_tracker(tier, graph, memory=False),
+            use_default_relations=False,
+            use_default_active=False,
+            active_capacity=4,
+        )
     else:
         graph = SceneGraph()
         entity_layer = EntityLayer(

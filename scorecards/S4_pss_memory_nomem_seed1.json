@@ -1,0 +1,49 @@
+{
+  "spec": "s4_pss_memory_v1",
+  "seed": 1,
+  "variant": "no_memory",
+  "plan_actions": [
+    "pick",
+    "place"
+  ],
+  "cup_before": "obj_0001",
+  "cup_after": "obj_0004",
+  "same_identity": false,
+  "goal": [
+    "obj_0004",
+    "in",
+    "obj_0003"
+  ],
+  "actions": [
+    {
+      "skill": "reach",
+      "status": "ok",
+      "detail": "err=0.0294"
+    },
+    {
+      "skill": "grasp",
+      "status": "ok",
+      "detail": "dist=0.025 suction"
+    },
+    {
+      "skill": "place",
+      "status": "ok",
+      "detail": ""
+    }
+  ],
+  "physical_success": true,
+  "actions_ok": true,
+  "task_success": false,
+  "cup_xyz": [
+    0.032,
+    -0.097,
+    0.85
+  ],
+  "bin_xyz": [
+    0.014,
+    -0.052,
+    0.8
+  ],
+  "steps": 769,
+  "wall_s": 1.37
+}

@@ -301,6 +301,8 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [x] T49 PSS 在环 Isaac 抓放任务（单 episode 成功，见 notes/s4_pss.md）
 - [x] T50 PSS 关系选目标抓放（left_of，成功）
 - [x] T51 PSS 遮挡+改位记忆抓放（same identity，成功）
+- [x] T52 PSS 物理任务 5-seed 套件 + `no_memory` 记忆消融（全 5/5 身份保持；消融 0/5；见 notes/s4_pss_suite.md）
+- [x] T53 PSS 双物体双箱任务（关系分配 + 两轮抓放 + 跨轮身份，5/5；见 notes/s4_pss_suite.md）
 
 ### P7（W13–W14）
 - [x] T39 预注册 A4

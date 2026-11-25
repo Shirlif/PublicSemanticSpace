@@ -24,6 +24,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", default="specs/s4_pss_pick_place.yaml")
     parser.add_argument("--out", default="scorecards/S4_pss.json")
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument(
+        "--variant",
+        default="full",
+        help="PSS runtime variant (e.g. full, no_relations); see pss/runtime/variants.py",
+    )
     parser.add_argument(
         "--selection",
         choices=("category", "relation_left_of"),
@@ -53,7 +59,7 @@ def main() -> int:
 
 
 def _observations(stage, assets):
-    from pss.isaac.runner import _world_pose
+    from pss.isaac.runner import _set_asset_translate, _world_pose
     from pss.memory.perception import Observation
 
     observations = []
@@ -79,7 +85,7 @@ def _run(app, args) -> int:
     from isaacsim.core.api import SimulationContext
     from isaacsim.core.prims import Articulation
 
-    from pss.isaac.runner import _world_pose
+    from pss.isaac.runner import _set_asset_translate, _world_pose
     from pss.isaac.scene_builder import build_scene
     from pss.isaac.skills import SkillExecutor
     from pss.runtime.operators import VersionedOperatorLibrary
@@ -94,6 +100,12 @@ def _run(app, args) -> int:
     context = omni.usd.get_context()
     context.open_stage(str(Path(build["cache_dir"]) / build["usd"]))
     stage = context.get_stage()
+    rng = np.random.default_rng(args.seed)
+    for inst in spec.assets:
+        pose = list(inst.get("pose", [0.0, 0.0, 0.0, 1, 0, 0, 0]))
+        pose[0] += float(rng.uniform(-0.015, 0.015))
+        pose[1] += float(rng.uniform(-0.015, 0.015))
+        _set_asset_translate(stage, f"/World/Assets/{inst['id']}", pose[:3])
     sim = SimulationContext(
         physics_dt=float(spec.physics["dt"]),
         rendering_dt=float(spec.physics["dt"]),
@@ -109,7 +121,7 @@ def _run(app, args) -> int:
     )
     executor.home(sim, 40)
     assets = {str(a["id"]): a for a in spec.assets}
-    runtime = build_runtime("full", tier="frozen_real")
+    runtime = build_runtime(args.variant, tier="frozen_real")
 
     # Let PSS ingest a few frames and build entity tracks.
     for frame in range(12):
@@ -224,6 +236,7 @@ def _run(app, args) -> int:
         and abs(cup_pos[1] - bin_pos[1]) < 0.09
         and 0.75 < cup_pos[2] < 0.90
     )
+    actions_ok = bool(actions) and all(a["status"] == "ok" for a in actions)
     report = {
         "spec": spec.id,
         "plan_actions": list(plan.actions),
@@ -234,8 +247,11 @@ def _run(app, args) -> int:
         "selection": args.selection,
         "selection_reason": selected_reason,
         "cup_prim": cup_prim,
+        "seed": args.seed,
+        "variant": args.variant,
         "actions": actions,
-        "task_success": success,
+        "actions_ok": actions_ok,
+        "task_success": bool(success and actions_ok),
         "cup_xyz": [round(float(v), 3) for v in cup_pos[:3]],
         "bin_xyz": [round(float(v), 3) for v in bin_pos[:3]],
         "steps": executor.steps,

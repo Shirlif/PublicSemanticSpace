@@ -1,0 +1,89 @@
+{
+  "spec": "s4_pss_two_v1",
+  "seed": 0,
+  "variant": "full",
+  "plan_actions": [
+    "pick|obj_0001",
+    "place|obj_0001|obj_0004",
+    "pick|obj_0002",
+    "place|obj_0002|obj_0005"
+  ],
+  "plan_confidence": 1.0,
+  "bowl_track": "obj_0003",
+  "assignments": {
+    "obj_0001": "obj_0004",
+    "obj_0002": "obj_0005"
+  },
+  "started_ids": {
+    "obj_0001": "obj_0001",
+    "obj_0002": "obj_0002"
+  },
+  "id_stable_after_first": true,
+  "actions": [
+    {
+      "skill": "reach:obj_0001",
+      "status": "ok",
+      "detail": "err=0.0123"
+    },
+    {
+      "skill": "grasp:obj_0001",
+      "status": "ok",
+      "detail": "dist=0.016 suction"
+    },
+    {
+      "skill": "place:obj_0001->obj_0004",
+      "status": "ok",
+      "detail": ""
+    },
+    {
+      "skill": "reach:obj_0002",
+      "status": "ok",
+      "detail": "err=0.0282"
+    },
+    {
+      "skill": "grasp:obj_0002",
+      "status": "ok",
+      "detail": "dist=0.032 suction"
+    },
+    {
+      "skill": "place:obj_0002->obj_0005",
+      "status": "ok",
+      "detail": ""
+    }
+  ],
+  "placements": {
+    "obj_0001": {
+      "bin": "obj_0004",
+      "cup_xyz": [
+        0.037,
+        -0.082,
+        0.85
+      ],
+      "bin_xyz": [
+        0.023,
+        -0.043,
+        0.8
+      ],
+      "ok": true
+    },
+    "obj_0002": {
+      "bin": "obj_0005",
+      "cup_xyz": [
+        0.198,
+        -0.07,
+        0.85
+      ],
+      "bin_xyz": [
+        0.201,
+        -0.037,
+        0.8
+      ],
+      "ok": true
+    }
+  },
+  "physical_success": true,
+  "actions_ok": true,
+  "task_success": true,
+  "steps": 427,
+  "wall_s": 1.63
+}

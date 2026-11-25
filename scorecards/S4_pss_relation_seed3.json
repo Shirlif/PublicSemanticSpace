@@ -1,0 +1,51 @@
+{
+  "spec": "s4_pss_relation_v1",
+  "plan_actions": [
+    "pick",
+    "place"
+  ],
+  "plan_confidence": 1.0,
+  "goal": [
+    "obj_0001",
+    "in",
+    "obj_0004"
+  ],
+  "cup_track": "obj_0001",
+  "bin_track": "obj_0004",
+  "selection": "relation_left_of",
+  "selection_reason": "left_of(obj_0003)",
+  "cup_prim": "/World/Assets/cup_left",
+  "seed": 3,
+  "variant": "full",
+  "actions": [
+    {
+      "skill": "reach",
+      "status": "ok",
+      "detail": "err=0.0216"
+    },
+    {
+      "skill": "grasp",
+      "status": "ok",
+      "detail": "dist=0.026 suction"
+    },
+    {
+      "skill": "place",
+      "status": "ok",
+      "detail": ""
+    }
+  ],
+  "actions_ok": true,
+  "task_success": true,
+  "cup_xyz": [
+    0.029,
+    -0.086,
+    0.85
+  ],
+  "bin_xyz": [
+    0.019,
+    -0.06,
+    0.8
+  ],
+  "steps": 286,
+  "wall_s": 2.24
+}

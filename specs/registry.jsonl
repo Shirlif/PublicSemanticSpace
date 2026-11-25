@@ -12,3 +12,4 @@
 {"linted_utc": "2026-11-25T05:36:36Z", "path": "specs/s4_pss_relation.yaml", "sha256": "sha256:987fc59daa40eba1e67078878598517adda7ac8b7aeb417fe8a2555f26b4ded6", "spec_id": "s4_pss_relation_v1", "spec_version": 1, "warnings": 0}
 {"linted_utc": "2026-11-25T05:38:50Z", "path": "specs/s4_pss_memory.yaml", "sha256": "sha256:df7fa2084cfd23ed69779dbc860083dbf43d3fcc2363b9eda36bcded448293cb", "spec_id": "s4_pss_memory_v1", "spec_version": 1, "warnings": 0}
 {"linted_utc": "2026-11-25T05:40:59Z", "path": "specs/s4_pss_memory.yaml", "sha256": "sha256:4c25ec9d992ad58958495dd921ee328cd9edbf62e928f208c40266e16f177179", "spec_id": "s4_pss_memory_v1", "spec_version": 1, "warnings": 0}
+{"linted_utc": "2026-11-25T06:24:26Z", "path": "specs/s4_pss_two.yaml", "sha256": "sha256:6ca42a24896b750d06a960ec1cbfa61f2bdcd10582962761c09d1596b0060627", "spec_id": "s4_pss_two_v1", "spec_version": 1, "warnings": 0}

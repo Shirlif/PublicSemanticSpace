@@ -24,6 +24,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", default="specs/s4_pss_memory.yaml")
     parser.add_argument("--out", default="scorecards/S4_pss_memory.json")
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument(
+        "--variant",
+        default="full",
+        help="PSS runtime variant (e.g. full, no_memory); see pss/runtime/variants.py",
+    )
     args = parser.parse_args()
     os.environ.setdefault("OMNI_KIT_ACCEPT_EULA", "YES")
     from isaacsim import SimulationApp
@@ -92,7 +98,7 @@ def _run(app, args) -> int:
     from isaacsim.core.api import SimulationContext
     from isaacsim.core.prims import Articulation
 
-    from pss.isaac.runner import _world_pose
+    from pss.isaac.runner import _set_asset_translate, _world_pose
     from pss.isaac.scene_builder import _add_cube, build_scene
     from pss.isaac.skills import SkillExecutor
     from pss.runtime.operators import VersionedOperatorLibrary
@@ -107,6 +113,12 @@ def _run(app, args) -> int:
     context = omni.usd.get_context()
     context.open_stage(str(Path(build["cache_dir"]) / build["usd"]))
     stage = context.get_stage()
+    rng = np.random.default_rng(args.seed)
+    for inst in spec.assets:
+        pose = list(inst.get("pose", [0.0, 0.0, 0.0, 1, 0, 0, 0]))
+        pose[0] += float(rng.uniform(-0.015, 0.015))
+        pose[1] += float(rng.uniform(-0.015, 0.015))
+        _set_asset_translate(stage, f"/World/Assets/{inst['id']}", pose[:3])
     sim = SimulationContext(
         physics_dt=float(spec.physics["dt"]),
         rendering_dt=float(spec.physics["dt"]),
@@ -122,7 +134,7 @@ def _run(app, args) -> int:
     )
     executor.home(sim, 40)
     assets = {str(a["id"]): a for a in spec.assets}
-    runtime = build_runtime("full", tier="frozen_real")
+    runtime = build_runtime(args.variant, tier="frozen_real")
 
     # Phase 1: observe the cup before occlusion.
     for frame in range(8):
@@ -153,9 +165,11 @@ def _run(app, args) -> int:
         runtime.ingest(_observations(stage, assets, hidden={"cup_01"}), frame)
         for _ in range(12):
             executor._step(sim)
-    from pss.isaac.runner import _set_asset_translate
-
-    _set_asset_translate(stage, "/World/Assets/cup_01", [0.24, -0.10, 0.79])
+    _set_asset_translate(
+        stage,
+        "/World/Assets/cup_01",
+        [float(cup_pose[0]) + 0.04, float(cup_pose[1]) + 0.08, 0.79],
+    )
     _set_asset_translate(stage, f"/World/Faults/{board_name}", [0.0, 0.0, -10.0])
     for _ in range(4):
         executor._step(sim)
@@ -235,8 +249,11 @@ def _run(app, args) -> int:
         and abs(cup_pos[1] - bin_pos[1]) < 0.09
         and 0.75 < cup_pos[2] < 0.90
     )
+    actions_ok = bool(actions) and all(a["status"] == "ok" for a in actions)
     report = {
         "spec": spec.id,
+        "seed": args.seed,
+        "variant": args.variant,
         "plan_actions": list(plan.actions),
         "cup_before": cup_before_id,
         "cup_after": cup_after.id,
@@ -244,7 +261,8 @@ def _run(app, args) -> int:
         "goal": [cup_after.id, "in", bin_track.id],
         "actions": actions,
         "physical_success": physical_success,
-        "task_success": bool(physical_success and same_identity),
+        "actions_ok": actions_ok,
+        "task_success": bool(physical_success and same_identity and actions_ok),
         "cup_xyz": [round(float(v), 3) for v in cup_pos[:3]],
         "bin_xyz": [round(float(v), 3) for v in bin_pos[:3]],
         "steps": executor.steps,

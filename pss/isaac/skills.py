@@ -76,11 +76,35 @@ class SkillExecutor:
         # Suction proxy: carry the grasped object kinematically with the hand.
         if self.carried:
             pos, quat = self.hand.get_world_poses()
-            for view in self.carried.values():
+            for path, view in self.carried.items():
                 try:
                     view.set_world_poses(pos, quat)
                 except Exception:
                     pass
+                # USD fallback: the RigidPrim view can silently fail after a
+                # physics reset; authoring the transform directly keeps the
+                # object attached in that case.
+                try:
+                    self._set_prim_pose(path, pos[0], quat[0])
+                except Exception:
+                    pass
+
+    @staticmethod
+    def _set_prim_pose(prim_path: str, pos, quat) -> None:
+        from pxr import Gf, Sdf, UsdGeom
+
+        stage = SkillExecutor._stage()
+        prim = stage.GetPrimAtPath(prim_path)
+        if not prim or not prim.IsValid():
+            return
+        for op in UsdGeom.Xformable(prim).GetOrderedXformOps():
+            if op.GetOpType() == UsdGeom.XformOp.TypeTranslate:
+                op.Set(Gf.Vec3d(float(pos[0]), float(pos[1]), float(pos[2])))
+            elif op.GetOpType() == UsdGeom.XformOp.TypeOrient:
+                if op.GetAttr().GetTypeName() == Sdf.ValueTypeNames.Quatd:
+                    op.Set(Gf.Quatd(float(quat[0]), float(quat[1]), float(quat[2]), float(quat[3])))
+                else:
+                    op.Set(Gf.Quatf(float(quat[0]), float(quat[1]), float(quat[2]), float(quat[3])))
 
     def _ik_tick(self, target: np.ndarray, sim, gain: float = 0.5, clip: float = 0.05) -> float:
         self._step(sim)
@@ -106,7 +130,7 @@ class SkillExecutor:
             self._step(sim)
         return SkillResult("home", "ok", steps)
 
-    def reach(self, target, sim, *, tolerance: float = 0.03, max_steps: int = 240) -> SkillResult:
+    def reach(self, target, sim, *, tolerance: float = 0.03, max_steps: int = 320) -> SkillResult:
         target = np.asarray(target, dtype=float)
         error = float("inf")
         for step in range(max_steps):
@@ -134,6 +158,11 @@ class SkillExecutor:
         self.attachments[object_prim_path] = "carried"
         for _ in range(5):
             self._step(sim)
+        carried_pos = self._prim_position(object_prim_path)
+        if carried_pos is None or float(np.linalg.norm(carried_pos - self._hand_position())) > 0.06:
+            self.carried.pop(object_prim_path, None)
+            self.attachments.pop(object_prim_path, None)
+            return SkillResult("grasp", "slipped", 5, "object did not follow hand")
         return SkillResult("grasp", "ok", 5, f"dist={distance:.3f} suction")
 
     def release(self, object_prim_path: str, sim) -> SkillResult:
@@ -146,6 +175,7 @@ class SkillExecutor:
         return SkillResult("release", "ok", 10)
 
     def place(self, target, object_prim_path: str, sim, *, tolerance: float = 0.04) -> SkillResult:
+        target = np.asarray(target, dtype=float)
         reached = self.reach(target, sim, tolerance=tolerance)
         if reached.status != "ok":
             return SkillResult("place", reached.status, reached.steps, reached.detail)
