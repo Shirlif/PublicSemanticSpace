@@ -1201,19 +1201,25 @@ metric
 
 ## 17. 与论文写作的映射
 
+> 基于当前 P0–P5 数据的完整论文映射（claim–evidence、图表、章节、Reviewer Q&A）见 `notes/PAPER_WRITING_MAP.md`。
+
 | 论文 claim | 支撑实验 | 图表 |
 |---|---|---|
-| CL1：共享语义空间是热插拔的接口契约 | H1、H2、H7、H 系列 ablation | 表 1、图 1 |
-| CL2：版本化 KB 支持原子热更新与回滚 | K1–K8、K ablation | 图 2、表 2 |
-| CL3：推理成本有硬上界且可优雅降级 | C1–C7、C ablation | 图 3、表 2 |
-| CL4：三条性质对专家质量不敏感 | 方差分解、TOST、Q0–Q4 曲线 | 表 1、表 4 |
+| CL1：contract-level hot-swap（不是零样本语义等价） | H1、H2、H3、H4、H5、H7、twin | 表 1、图 1、表 5 |
+| CL2：版本化 KB 支持原子热更新与回滚 | K1–K8、TMS Hypothesis、flat KB 负控制 | 图 2、表 2、表 3 |
+| CL3：推理成本有硬上界且可优雅降级 | C1–C7、C ablation、L2 bundle、S4-PSS | 图 3、表 2、表 6 |
+| CL4：property 指标对专家质量不敏感，capability 指标不是 | 方差分解、TOST、Q0–Q4 曲线 | 表 1、表 4、表 4b |
 | CL5：property test suite 可作为 benchmark | 负控制 N1–N8 | 表 3 |
+| CL6：共享空间是可校准接口，不是零样本坐标系 | 跨族 swap、k-shot 校准 | 表 2、校准表 |
 
 **不要写的 claim**：
 
 - “PSS 比 LLM/VLM 更准” —— 本计划不测 capability SOTA。
-- “PSS 在真实世界可靠” —— L2 只是小规模。
+- “PSS 在真实世界可靠” —— L2 只是小规模，且 S4-PSS 用 oracle GT boxes。
 - “非 LLM 一定更好” —— 这是设计选择，不是本实验结论。
+- “零样本公共空间” —— 跨族零样本失败；ZCR 是 capability，不是 property。
+- “端到端真实感知外部效度” —— L2 只到 interface-level；H/K 未在 L2 执行。
+- “架构主导能力” —— ZCR 的 ANOVA 架构份额被 A4/A5 控制放大；VR≈1.8。
 
 ---
 

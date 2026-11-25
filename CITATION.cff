@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+title: "Public Semantic Space (PSS): A Contract-Level Modular Architecture for Embodied AI"
+abstract: >-
+  PSS is a contract-level modular architecture for embodied AI. It provides a
+  public semantic space as an interface for hot-swappable sensory experts, a
+  versioned knowledge runtime with TMS-style justifications, and bounded
+  inference with graceful degradation. The repository includes property-level
+  evaluation suites (L0/L1/L2), negative controls, and a results report. It does
+  not claim zero-shot semantic compatibility across expert families: the shared
+  space is a calibratable interface, not a universal coordinate system.
+authors:
+  - family-names: "Qi"
+    given-names: "Jiahe"
+    alias: "齐嘉禾"
+    affiliation: "Independent Researcher"
+    orcid: "https://orcid.org/0009-0001-8379-631X"
+    email: "qijiaheX@126.com"
+    website: "https://github.com/Shirlif"
+repository-code: "https://github.com/Shirlif/PublicSemanticSpace"
+url: "https://github.com/Shirlif/PublicSemanticSpace"
+license: Apache-2.0
+version: 0.1.0
+date-released: 2026-11-25
+keywords:
+  - modular architecture
+  - hot-swap
+  - knowledge update
+  - truth maintenance
+  - bounded inference
+  - embodied AI
+  - public semantic space
