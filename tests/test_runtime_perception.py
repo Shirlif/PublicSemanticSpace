@@ -4,10 +4,24 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from pss.encoders.data import load_index
 from pss.runtime import CognitiveState, PSSRuntime, UncertaintyService
 from pss.runtime.perception import PerceptionConfig, PerceptionService
 from pss.sim.dataset import load_sample
+
+DATA_DIR = Path("data/tracking_bench_v2")
+EXPERT_DIR = Path("checkpoints/category_pretrain_experts")
+
+requires_experts = pytest.mark.skipif(
+    not all((EXPERT_DIR / name).exists() for name in ("vision.pt", "tactile.pt")),
+    reason="category pretrain checkpoints not available",
+)
+requires_data = pytest.mark.skipif(
+    not (DATA_DIR / "index.json").exists(),
+    reason="tracking_bench_v2 dataset not available",
+)
 
 
 def _sample():
@@ -16,6 +30,7 @@ def _sample():
     return entry, load_sample(Path("data/tracking_bench_v2") / entry["path"])
 
 
+@requires_experts
 def test_perception_default_is_dinov2_with_calibration():
     service = PerceptionService(device="cpu")
     desc = service.describe()
@@ -26,6 +41,7 @@ def test_perception_default_is_dinov2_with_calibration():
     assert desc["reliability"]
 
 
+@requires_experts
 def test_perception_fallback_when_projection_missing():
     service = PerceptionService(
         config=PerceptionConfig(
@@ -49,6 +65,8 @@ def test_uncertainty_flags_low_modality_reliability():
     assert report.modality_reliability["tactile"] == 0.0
 
 
+@requires_experts
+@requires_data
 def test_runtime_ingest_sample_with_perception():
     _, sample = _sample()
     service = PerceptionService(device="cpu")
