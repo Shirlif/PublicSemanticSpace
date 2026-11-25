@@ -114,6 +114,12 @@ def score_suite(
         "created_utc": _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "device_class": episodes[0]["device_class"],
         "detector_tier": sorted(tiers)[0] if len(tiers) == 1 else sorted(tiers),
+        "caveat": (
+            "oracle tier is a calibration upper bound (perfect GT identity/pose); "
+            "it is not capability evidence"
+            if "oracle" in tiers
+            else ""
+        ),
         "spec_hashes": sorted(specs),
         "n_episodes": len(episodes),
         "seeds": sorted(int(ep["seed"]) for ep in episodes),
@@ -136,10 +142,16 @@ def write_scorecard(report: dict[str, Any], out_dir: str | Path) -> tuple[Path, 
         f"- detector_tier: `{report['detector_tier']}`",
         f"- episodes: {report['n_episodes']}  seeds: {report['seeds']}",
         f"- spec hashes: {', '.join('`' + h + '`' for h in report['spec_hashes'])}",
-        "",
-        "| metric | mean | std | 95% CI | min | max |",
-        "|---|---|---|---|---|---|",
     ]
+    if report.get("caveat"):
+        lines.append(f"- caveat: {report['caveat']}")
+    lines.extend(
+        [
+            "",
+            "| metric | mean | std | 95% CI | min | max |",
+            "|---|---|---|---|---|---|",
+        ]
+    )
     for name, stats in report["metrics"].items():
         lines.append(
             f"| {name} | {stats['mean']:.4f} | {stats['std']:.4f} | "

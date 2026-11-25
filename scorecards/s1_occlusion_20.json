@@ -1,8 +1,9 @@
 {
   "suite": "s1_occlusion_20",
-  "created_utc": "2026-11-25T02:32:47Z",
+  "created_utc": "2026-11-25T02:37:26Z",
   "device_class": "dev",
   "detector_tier": "oracle",
+  "caveat": "oracle tier is a calibration upper bound (perfect GT identity/pose); it is not capability evidence",
   "spec_hashes": [
     "sha256:18c18c5e10faaee4bde1b3d5da53a49b06ddf663cd80ef22934b126a4c5d05af"
   ],
