@@ -121,7 +121,7 @@ def _set_occluders(stage: Any, spec: WorldSpec, t_s: float) -> dict[str, list[fl
         if motion:
             pose[0:3] = _interp_motion(motion, t_s)
         prim = stage.GetPrimAtPath(f"/World/Occluders/{name}")
-        if prim and prim.IsValid() and not motion:
+        if prim and prim.IsValid():
             xformable = UsdGeom.Xformable(prim)
             for op in xformable.GetOrderedXformOps():
                 if op.GetOpType() == UsdGeom.XformOp.TypeTranslate:
@@ -440,6 +440,23 @@ def _run_one(
                 if first is not None and second is not None:
                     _set_asset_translate(stage, asset_paths[targets[0]], second[0:3])
                     _set_asset_translate(stage, asset_paths[targets[1]], first[0:3])
+                faults_injected += 1
+                fault_events.append(
+                    {
+                        "t_s": t_s,
+                        "kind": "fault_injected",
+                        "source": "fault_engine",
+                        "detail_json": json.dumps({"kind": kind, **params}),
+                    }
+                )
+                continue
+            if kind in ("object_relocate", "object_remove"):
+                target = str(params.get("target"))
+                pose = params.get("pose") or [0.0, 0.0, -1.0]
+                if target in asset_paths:
+                    _set_asset_translate(
+                        stage, asset_paths[target], [float(v) for v in pose[:3]]
+                    )
                 faults_injected += 1
                 fault_events.append(
                     {

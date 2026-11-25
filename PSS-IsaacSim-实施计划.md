@@ -297,6 +297,7 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [x] T38 S8 成本
 - [x] T46 9 变体 preliminary 消融（S1/S6，dev）
 - [x] T47 B1/B2 外部基线（S1 oracle/real/camera）
+- [x] T48 S1-hard 真实场景对比（结果 FAIL，见 notes/s1_hard.md）
 
 ### P7（W13–W14）
 - [x] T39 预注册 A4

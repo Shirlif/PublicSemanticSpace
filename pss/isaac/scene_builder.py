@@ -22,7 +22,7 @@ from pxr import Gf, Sdf, Usd, UsdGeom, UsdLux, UsdPhysics, UsdShade
 
 from pss.spec import WorldSpec
 
-BUILDER_VERSION = "1.0"
+BUILDER_VERSION = "1.1"
 
 
 def default_cache_dir() -> Path:
@@ -345,18 +345,10 @@ def build_scene(
         )
         motion = occ.get("motion")
         if motion:
-            translate = None
-            xformable = UsdGeom.Xformable(cube.GetPrim())
-            for op in xformable.GetOrderedXformOps():
-                if op.GetOpType() == UsdGeom.XformOp.TypeTranslate:
-                    translate = op
-                    break
-            if translate is None:
-                translate = xformable.AddTranslateOp()
-            for key in motion:
-                t_s = float(key["t_s"])
-                pos = [float(v) for v in key["pos"]]
-                translate.Set(Gf.Vec3d(*pos), Usd.TimeCode(t_s * stage.GetTimeCodesPerSecond()))
+            # Motion is applied by the runner at every physics step.  Do not
+            # author USD time samples: physics-only steps do not advance the
+            # timeline, and renderer/GT would then disagree about the board.
+            pass
         cube.GetPrim().SetCustomDataByKey("pss_occluder", True)
 
     # --- lights --------------------------------------------------------

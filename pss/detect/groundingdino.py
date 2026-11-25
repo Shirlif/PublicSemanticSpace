@@ -120,6 +120,32 @@ def _backproject_plane(
     ]
 
 
+def _nms(boxes: np.ndarray, scores: np.ndarray, iou_threshold: float = 0.5) -> list[int]:
+    order = np.argsort(-scores)
+    keep: list[int] = []
+    while order.size:
+        i = int(order[0])
+        keep.append(i)
+        if order.size == 1:
+            break
+        rest = order[1:]
+        xx1 = np.maximum(boxes[i, 0], boxes[rest, 0])
+        yy1 = np.maximum(boxes[i, 1], boxes[rest, 1])
+        xx2 = np.minimum(boxes[i, 2], boxes[rest, 2])
+        yy2 = np.minimum(boxes[i, 3], boxes[rest, 3])
+        w = np.maximum(0.0, xx2 - xx1)
+        h = np.maximum(0.0, yy2 - yy1)
+        inter = w * h
+        area_i = max(1e-9, (boxes[i, 2] - boxes[i, 0]) * (boxes[i, 3] - boxes[i, 1]))
+        area_r = np.maximum(
+            1e-9,
+            (boxes[rest, 2] - boxes[rest, 0]) * (boxes[rest, 3] - boxes[rest, 1]),
+        )
+        iou = inter / (area_i + area_r - inter)
+        order = rest[iou <= iou_threshold]
+    return keep
+
+
 def _depth_at(depth: np.ndarray | None, u: int, v: int, radius: int = 2) -> float:
     if depth is None:
         return 0.5
@@ -167,6 +193,7 @@ class GroundingDinoDetector:
         *,
         box_threshold: float = 0.3,
         text_threshold: float = 0.25,
+        nms_iou: float = 0.5,
     ) -> list[dict[str, Any]]:
         inputs = self.processor(images=image, text=prompt, return_tensors="pt").to(
             self.device
@@ -189,7 +216,7 @@ class GroundingDinoDetector:
                 target_sizes=[image.size[::-1]],
             )[0]
 
-        detections = []
+        candidates = []
         width, height = image.size
         labels = results.get("text_labels", results.get("labels"))
         for box, score, label in zip(
@@ -202,16 +229,25 @@ class GroundingDinoDetector:
             u1, v1 = min(float(width), u1), min(float(height), v1)
             if u1 - u0 < 2 or v1 - v0 < 2:
                 continue
-            crop = image.crop((int(u0), int(v0), int(u1), int(v1)))
-            detections.append(
+            candidates.append(
                 {
                     "bbox_xyxy": [u0, v0, u1, v1],
                     "score": float(score),
                     "class_pred": str(label).strip().lower(),
-                    "emb": self.embed(crop),
                 }
             )
-        return detections
+
+        if candidates and nms_iou > 0:
+            boxes = np.asarray([c["bbox_xyxy"] for c in candidates], dtype=float)
+            scores = np.asarray([c["score"] for c in candidates], dtype=float)
+            keep = _nms(boxes, scores, iou_threshold=nms_iou)
+            candidates = [candidates[i] for i in keep]
+
+        for candidate in candidates:
+            u0, v0, u1, v1 = candidate["bbox_xyxy"]
+            crop = image.crop((int(u0), int(v0), int(u1), int(v1)))
+            candidate["emb"] = self.embed(crop)
+        return candidates
 
 
 def detect_bundle(
@@ -222,6 +258,7 @@ def detect_bundle(
     text_threshold: float = 0.25,
     max_frames: int | None = None,
     plane_z: float | None = 0.79,
+    nms_iou: float = 0.5,
 ) -> list[dict[str, Any]]:
     root = Path(bundle_dir)
     obs = pd.read_parquet(root / "obs_frames.parquet")
@@ -261,7 +298,11 @@ def detect_bundle(
         camera_pose = [float(v) for v in frame["camera_pose"]]
         for det_index, det in enumerate(
             detector.detect(
-                image, prompt, box_threshold=box_threshold, text_threshold=text_threshold
+                image,
+                prompt,
+                box_threshold=box_threshold,
+                text_threshold=text_threshold,
+                nms_iou=nms_iou,
             )
         ):
             u0, v0, u1, v1 = det["bbox_xyxy"]

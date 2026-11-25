@@ -1,5 +1,8 @@
 # S1 外部基线对比（B1 文本状态 / B2 SORT-lite）
 
+> **警告（2026-11-25）**：修复“遮挡板时间采样不推进”之前生成的 real 图像档
+> 图像与 GT 不一致，旧数值作废。当前可信的 real 硬场景结论见 `notes/s1_hard.md`。
+
 > 日期：2026-11-25
 > 数据：`s1_occlusion_20`（20 cubes, 5 seeds, oracle）、`s1_occlusion_real`（4 cubes, 1 seed）、
 > `s1_camera_real`（4 cubes + 相机轨迹, 1 seed）

@@ -1,0 +1,466 @@
+spec_version: 1
+id: s1_hard_v1
+task_family: tracking
+split: test
+notes:
+- 'S1-Hard: 8 normal + 2 twin pairs, real detector, camera translation,'
+- a 4 s central occlusion, and two mid-episode object relocations.
+- Designed to break position-only trackers; B1/B2 should degrade, PSS is tested, not
+  assumed.
+seed_policy:
+  episode_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  pose_sampling: latin_hypercube
+assets:
+  instances:
+  - id: cube_00
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.24
+    - -0.15
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.8
+    - 0.1
+    - 0.1
+    split: test
+  - id: cube_01
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.24
+    - 0.03
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.1
+    - 0.7
+    - 0.15
+    split: test
+  - id: cube_02
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.07999999999999999
+    - -0.15
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.1
+    - 0.25
+    - 0.8
+    split: test
+  - id: cube_03
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.07999999999999999
+    - 0.03
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.85
+    - 0.7
+    - 0.1
+    split: test
+  - id: cube_04
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.08000000000000002
+    - -0.15
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.6
+    - 0.2
+    - 0.7
+    split: test
+  - id: cube_05
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.08000000000000002
+    - 0.03
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.9
+    - 0.45
+    - 0.05
+    split: test
+  - id: cube_06
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.24
+    - -0.15
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.1
+    - 0.6
+    - 0.7
+    split: test
+  - id: cube_07
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.24
+    - 0.03
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.8
+    - 0.4
+    - 0.55
+    split: test
+  - id: twin_0_0
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.045
+    - 0.045
+    - 0.045
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.24
+    - 0.03
+    - 0.7925
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.55
+    - 0.35
+    - 0.2
+    twin_group: tg_0
+    split: test
+  - id: twin_0_1
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.045
+    - 0.045
+    - 0.045
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.24
+    - 0.15
+    - 0.7925
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.55
+    - 0.35
+    - 0.2
+    twin_group: tg_0
+    split: test
+  - id: twin_1_0
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.045
+    - 0.045
+    - 0.045
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.24
+    - 0.03
+    - 0.7925
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.2
+    - 0.55
+    - 0.45
+    twin_group: tg_1
+    split: test
+  - id: twin_1_1
+    class: cube
+    usd: builtin://cube
+    size_m:
+    - 0.045
+    - 0.045
+    - 0.045
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.24
+    - 0.15
+    - 0.7925
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.2
+    - 0.55
+    - 0.45
+    twin_group: tg_1
+    split: test
+scene:
+  table:
+    size:
+    - 1.2
+    - 0.8
+    - 0.04
+    height_m: 0.75
+    friction: 0.7
+  workspace:
+    xy:
+    - - -0.3
+      - -0.25
+    - - 0.3
+      - 0.25
+    table_z: 0.77
+  occluders:
+  - name: occluder_board_01
+    size:
+    - 0.6
+    - 0.5
+    - 0.01
+    pose:
+    - -0.8
+    - 0.0
+    - 0.95
+    - 1
+    - 0
+    - 0
+    - 0
+    motion:
+    - t_s: 0.0
+      pos:
+      - -0.8
+      - 0.0
+      - 0.95
+    - t_s: 3.0
+      pos:
+      - 0.0
+      - 0.0
+      - 0.95
+    - t_s: 7.0
+      pos:
+      - 0.0
+      - 0.0
+      - 0.95
+    - t_s: 10.0
+      pos:
+      - 0.8
+      - 0.0
+      - 0.95
+cameras:
+- name: overhead
+  pose:
+  - 0
+  - 0
+  - 1.35
+  - 1
+  - 0
+  - 0
+  - 0
+  fov_deg: 65
+  width: 640
+  height: 480
+  rate_hz: 10
+  motion:
+  - t_s: 0.0
+    pos:
+    - 0.0
+    - 0.0
+    - 1.35
+  - t_s: 5.0
+    pos:
+    - 0.3
+    - -0.3
+    - 1.25
+  - t_s: 10.0
+    pos:
+    - 0.0
+    - 0.0
+    - 1.35
+physics:
+  dt: 0.008333333333333333
+  substeps: 2
+  solver: TGS
+  contact_report:
+    enabled: true
+    max_contacts_per_pair: 8
+  determinism:
+    fixed_gpu: true
+    seed: 0
+task:
+  id: track_hard
+  initial_facts: []
+  goal_facts: []
+  time_limit_s: 10
+faults:
+- at_step: 300
+  kind: object_relocate
+  params:
+    target: cube_00
+    pose:
+    - 0.24
+    - -0.15
+    - 0.79
+- at_step: 700
+  kind: object_relocate
+  params:
+    target: cube_05
+    pose:
+    - -0.24
+    - 0.18
+    - 0.79
+perception:
+  mode: offline
+  detector_tier: oracle
+  noise_profile: null
+relations_gt:
+  predicates:
+  - left_of
+  - right_of
+  - in_front_of
+  - behind
+  - on_top_of
+  - inside
+  - touching
+  - near
+  - above
+  - below
+  compute_from: gt_poses
+  tolerance_m: 0.02
+metrics:
+  primary:
+  - idf1
+  - id_retention
+  - reappearance_rate
+  - duplicate_rate
+  leading: []
+  guardrail: []
+recording:
+  obs_rate_hz: 10
+  gt_rate_hz: 120
+  bundle_format: parquet
+  store_images: false

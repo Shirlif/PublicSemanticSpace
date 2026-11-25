@@ -61,6 +61,7 @@ def _cmd_detect(args: argparse.Namespace) -> int:
             text_threshold=args.text_threshold,
             max_frames=args.max_frames,
             plane_z=None if args.depth_pose else args.plane_z,
+            nms_iou=args.nms_iou,
         )
         path = write_groundingdino_detections(args.bundle, rows)
         weights = DEFAULT_MODEL_DIR / "model.safetensors"
@@ -74,6 +75,7 @@ def _cmd_detect(args: argparse.Namespace) -> int:
                 "prompt": args.prompt,
                 "box_threshold": args.box_threshold,
                 "text_threshold": args.text_threshold,
+                "nms_iou": args.nms_iou,
                 "pose_mode": "depth" if args.depth_pose else "plane",
                 "plane_z": None if args.depth_pose else args.plane_z,
                 "rows": len(rows),
@@ -134,6 +136,7 @@ def build_parser() -> argparse.ArgumentParser:
     detect.add_argument("--prompt", default=None)
     detect.add_argument("--box-threshold", type=float, default=0.3)
     detect.add_argument("--text-threshold", type=float, default=0.25)
+    detect.add_argument("--nms-iou", type=float, default=0.5)
     detect.add_argument("--max-frames", type=int, default=None)
     detect.add_argument(
         "--plane-z",
