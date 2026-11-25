@@ -56,3 +56,23 @@
 3. 加长时记忆：中途把 cup 移到别处/遮挡，PSS 仍能找到并放入 bin；
 4. 加故障：grasp_slip / object_relocate / camera_dropout，测恢复；
 5. 跑 3–5 seeds，报成功率，而不是单条 true。
+
+
+## 加难度任务（2026-11-25）
+
+### 关系选目标
+
+- 场景：两个 cup + 一个 bowl + bin；目标“bowl 左边的 cup”。
+- PSS 用 `left_of` 在 track 上选目标：`selection_reason = left_of(obj_0003)`。
+- 选中 `cup_left`，plan `pick -> place`，reach/grasp/place 全 ok。
+- **task_success = true**（scorecards/S4_pss_relation.*）。
+
+### 遮挡 + 改位记忆
+
+- 场景：cup 被遮挡 2 s，遮挡期间被挪到 (0.24,-0.10)，然后重新出现。
+- PSS 在遮挡前记录 `cup_before = obj_0001`，遮挡期间不喂 cup 观测，改位后重新出现。
+- PSS 重识别为同一个 track：`same_identity = true`，然后完成 `pick -> place`。
+- **task_success = true**（scorecards/S4_pss_memory.*）。
+
+这证明 PSS 不只是“看得见时抓一下”：它能在遮挡 + 物理改位后保持同一实体、
+更新位置、重新规划并完成物理放置。

@@ -1,0 +1,189 @@
+spec_version: 1
+id: s4_pss_memory_v1
+task_family: manipulation
+split: test
+notes:
+- 'S4-PSS memory: cup is occluded for 2 s and relocated while hidden.'
+- PSS must keep the same track identity, update its position when revealed, then pick/place.
+- Sensor is Isaac GT boxes/poses filtered by analytic visibility; no GT ids for association.
+seed_policy:
+  episode_seeds:
+  - 0
+  pose_sampling: fixed
+assets:
+  instances:
+  - id: cup_01
+    class: cup
+    usd: builtin://cube
+    size_m:
+    - 0.04
+    - 0.04
+    - 0.04
+    mass_kg: 0.05
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - 0.2
+    - -0.18
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.8
+    - 0.15
+    - 0.1
+    split: test
+  - id: bowl_01
+    class: bowl
+    usd: builtin://cube
+    size_m:
+    - 0.06
+    - 0.06
+    - 0.04
+    mass_kg: 0.1
+    friction:
+      static: 0.8
+      dynamic: 0.6
+    restitution: 0.05
+    pose:
+    - -0.15
+    - -0.1
+    - 0.79
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.2
+    - 0.3
+    - 0.7
+    split: test
+  - id: bin_a
+    class: bin
+    usd: builtin://cube
+    size_m:
+    - 0.14
+    - 0.14
+    - 0.06
+    mass_kg: 1000.0
+    friction:
+      static: 0.9
+      dynamic: 0.8
+    restitution: 0.0
+    pose:
+    - 0.02
+    - -0.05
+    - 0.8
+    - 1
+    - 0
+    - 0
+    - 0
+    color:
+    - 0.25
+    - 0.25
+    - 0.25
+    split: test
+scene:
+  table:
+    size:
+    - 1.2
+    - 0.8
+    - 0.04
+    height_m: 0.75
+    friction: 0.7
+  workspace:
+    xy:
+    - - -0.3
+      - -0.25
+    - - 0.3
+      - 0.25
+    table_z: 0.77
+cameras:
+- name: overhead
+  pose:
+  - 0
+  - 0
+  - 1.3
+  - 1
+  - 0
+  - 0
+  - 0
+  fov_deg: 60
+  width: 640
+  height: 480
+  rate_hz: 10
+robot:
+  model: unitree_g1
+  base_mode: base_fixed
+  usd: _external/isaac_assets/G1/g1.usd
+  prim_path: /World/Robot
+  variants:
+    Physics: SimplifiedPhysX
+    Sensor: None
+    left_hand: None
+    right_hand: None
+  pose:
+  - 0.0
+  - -0.42
+  - 0.77
+  - 0.70710678
+  - 0
+  - 0
+  - 0.70710678
+  visible: true
+  end_effector:
+    type: suction_proxy
+    max_width_m: 0.08
+  skill_library: skills_g1_v1
+physics:
+  dt: 0.008333333333333333
+  substeps: 2
+  solver: TGS
+  contact_report:
+    enabled: true
+    max_contacts_per_pair: 8
+  determinism:
+    fixed_gpu: true
+    seed: 0
+task:
+  id: pss_memory_pick
+  initial_facts: []
+  goal_facts: []
+  success_check:
+    type: fact_set
+    tolerance_m: 0.02
+  time_limit_s: 40
+faults: []
+perception:
+  mode: offline
+  detector_tier: oracle
+  noise_profile: null
+relations_gt:
+  predicates:
+  - left_of
+  - right_of
+  - in_front_of
+  - behind
+  - on_top_of
+  - inside
+  - touching
+  - near
+  - above
+  - below
+  compute_from: gt_poses
+  tolerance_m: 0.02
+metrics:
+  primary:
+  - execution_success
+  - id_retention
+  leading: []
+  guardrail: []
+recording:
+  obs_rate_hz: 10
+  gt_rate_hz: 120
+  bundle_format: parquet
+  store_images: false

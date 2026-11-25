@@ -24,6 +24,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", default="specs/s4_pss_pick_place.yaml")
     parser.add_argument("--out", default="scorecards/S4_pss.json")
+    parser.add_argument(
+        "--selection",
+        choices=("category", "relation_left_of"),
+        default="category",
+        help="how PSS picks the cup: category only, or cup left of the bowl",
+    )
     args = parser.parse_args()
     os.environ.setdefault("OMNI_KIT_ACCEPT_EULA", "YES")
 
@@ -112,13 +118,52 @@ def _run(app, args) -> int:
             executor._step(sim)
 
     tracks = list(runtime.entities.graph.tracks.values())
-    cup = next((t for t in tracks if t.category == "cup"), None)
+    cups = [t for t in tracks if t.category == "cup"]
     bin_track = next((t for t in tracks if t.category == "bin"), None)
+    selected_reason = "category"
+    cup = None
+    if args.selection == "relation_left_of":
+        from pss.relations import RelObject, relation_holds
+
+        bowl = next((t for t in tracks if t.category == "bowl"), None)
+        if bowl is not None:
+            for candidate in sorted(cups, key=lambda t: float(t.pos[0])):
+                if relation_holds(
+                    RelObject(candidate.id, candidate.pos, [0.04, 0.04, 0.04]),
+                    "left_of",
+                    RelObject(bowl.id, bowl.pos, [0.06, 0.06, 0.04]),
+                    tolerance_m=0.02,
+                ):
+                    cup = candidate
+                    selected_reason = f"left_of({bowl.id})"
+                    break
+    elif cups:
+        cup = cups[0]
     if cup is None or bin_track is None:
-        report = {"task_success": False, "reason": "PSS did not form cup/bin tracks",
+        report = {"task_success": False, "reason": "PSS did not select cup/bin tracks",
                   "tracks": [(t.id, t.category) for t in tracks]}
         Path(args.out).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         print(json.dumps(report))
+        sim.stop()
+        return 1
+
+    def nearest_asset(class_name: str, pos):
+        best = None
+        best_dist = 1e9
+        for aid, inst in assets.items():
+            if str(inst["class"]) != class_name:
+                continue
+            world = _world_pose(stage, f"/World/Assets/{aid}") or [0, 0, 0]
+            distance = float(np.linalg.norm(np.asarray(world[0:3]) - np.asarray(pos[0:3])))
+            if distance < best_dist:
+                best, best_dist = aid, distance
+        return f"/World/Assets/{best}" if best else None
+
+    cup_prim = nearest_asset("cup", cup.pos)
+    bin_prim = nearest_asset("bin", bin_track.pos)
+    if cup_prim is None or bin_prim is None:
+        report = {"task_success": False, "reason": "no physical prim for selected tracks"}
+        Path(args.out).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         sim.stop()
         return 1
 
@@ -146,7 +191,6 @@ def _run(app, args) -> int:
     runtime.planner = RuntimePlanner(library)
     plan = runtime.plan(goal.id)
 
-    cup_prim = "/World/Assets/cup_01"
     actions = []
     wall_start = time.time()
     for action_name in plan.actions:
@@ -174,7 +218,7 @@ def _run(app, args) -> int:
         executor._step(sim)
 
     cup_pos = _world_pose(stage, cup_prim) or [0, 0, 0, 1, 0, 0, 0]
-    bin_pos = _world_pose(stage, "/World/Assets/bin_a") or [0, 0, 0, 1, 0, 0, 0]
+    bin_pos = _world_pose(stage, bin_prim) or [0, 0, 0, 1, 0, 0, 0]
     success = bool(
         abs(cup_pos[0] - bin_pos[0]) < 0.09
         and abs(cup_pos[1] - bin_pos[1]) < 0.09
@@ -187,6 +231,9 @@ def _run(app, args) -> int:
         "goal": [cup.id, "in", bin_track.id],
         "cup_track": cup.id,
         "bin_track": bin_track.id,
+        "selection": args.selection,
+        "selection_reason": selected_reason,
+        "cup_prim": cup_prim,
         "actions": actions,
         "task_success": success,
         "cup_xyz": [round(float(v), 3) for v in cup_pos[:3]],
