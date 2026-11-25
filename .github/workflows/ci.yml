@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[sim,eval]"
           pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install scikit-learn scipy cryptography opencv-python-headless pyzmq pytest
+          pip install scikit-learn scipy cryptography opencv-python-headless pyzmq hypothesis pytest
       - name: Tests
         run: python -m pytest
       - name: Binding benchmark (quick)
