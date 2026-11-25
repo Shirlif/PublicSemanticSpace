@@ -96,31 +96,47 @@
 
 ## 4. 图表计划
 
-| 编号 | 内容 | 数据来源 | 状态 |
-|---|---|---|---|
-| 表 1 | Binding × 遮挡条件（occlusion_v3 / tracking_v2 / near-identical / P1b） | 工作总结 §2.4、§2.10 | 需整理 |
-| 图 1 | ID retention 与公平归因 delta（PSS vs transformer） | 工作总结 §2.10 | 需整理 |
-| 表 2 | Relation F1 × 模态在场/缺失；P5b 手写/学习/transformer | 五优先级 §3.2 | 需整理 |
-| 图 2 | Relation F1 vs 缺失模态（no-shortcut 图） | 五优先级 §3.2 | 需整理 |
-| 表 3 | active-set 精度 vs 候选数；P4 计算 scaling；长历史负结果 | 五优先级 §3.3、工作总结 §1 | 需整理 |
-| 图 3 | 计算量 vs N（PSS active-set vs token/历史） | 工作总结 §1 | 需整理 |
-| 表 1b | Entity audit × seeds + 3 负控制 | `reports/claim_gaps/entity_audit/` | 已有 |
-| 表 1c | Binding 信号分解（tactile / vision / graph / state） | `reports/claim_gaps/tactile_binding/` | 已有 |
-| 表 2b | Hybrid relation × 噪声档（geo / learned / hybrid_diag） | `reports/claim_gaps/hybrid_relations/` | 已有 |
-| 表 3b | Query-conditioned fact active set（hot / old / query） | `reports/claim_gaps/fact_active/` | 已有 |
-| 表 4 | Property × Expert quality（SSR/INT/RBE/RCR；ZCR 移出主表） | §15.1 | 已有 |
-| 图 4 | 不变性图：property 平坦 vs ZCR 下降 | `figures/fig1_invariance.png` | 已有（重命名） |
-| 表 5 | Twin 配对差（5 seeds，15 对） | `scorecards/property/twins.md` | 已有 |
-| 表 6 | KB 状态与 TMS 性质（K1–K8、Hypothesis） | §15、Hypothesis 报告 | 需整理 |
-| 图 5 | KB 状态与回滚 | `figures/fig2_kb_state.png` | 已有（重命名） |
-| 图 6 | 预算-质量曲线 | `figures/fig3_budget_quality.png` | 已有（重命名） |
-| 表 7 | Ablation matrix（A0–A6；A7/A8 n/a） | §15.5 | 已有 |
-| 表 8 | 负控制 N1–N8 | §15.6 | 已有 |
-| 表 9 | Calibration cost（k vs ZCR） | `l1_seed0.md` 校准节 | 已有 |
-| 表 10 | L2 fresh Isaac S4-PSS（5 seeds） | `scorecards/property/l2_isaac.md` | 已有 |
-| 补充 | expert/run manifest（sha256、git、env） | `scorecards/property/expert_manifest.json`、`run_manifest.json` | 已有 |
+> 图片由 `scripts/make_paper_figures.py` 从 `reports/claim_gaps/` 与 `eval/results/` 生成，PDF/PNG 在 `paper/figures/`。LaTeX 骨架见 `paper/main.tex`。
 
-**建议**：表 4 只保留 property 指标；ZCR 移到“Capability diagnostics”小表（表 4b 或补充）。
+### 4.1 图
+
+| 编号 | 内容 | 文件 | 状态 |
+|---|---|---|---|
+| 图 1 | 架构图（专家 → 投影 → 认知运行时 → 输出） | TikZ in `paper/main.tex` | 已有 |
+| 图 2 | Property 不变性：SSR/INT/RBE 平坦 vs ZCR 下降 | `paper/figures/fig1_invariance.png` | 已有 |
+| 图 3 | 绑定信号分解：graph+tactile / tactile zero / vision zero / simple / text proxy | `paper/figures/fig_binding_signal.pdf` | 已有 |
+| 图 4 | Fair attribution：base vs +tactile，Δ +0.128 → +0.012 | `paper/figures/fig_fair_attribution.pdf` | 已有 |
+| 图 5 | Typed relations：F1 × 模态；hybrid under noise | `paper/figures/fig_relations.pdf` | 已有 |
+| 图 6 | Active-set 计算（log-log）+ query-conditioned fact | `paper/figures/fig_memory_compute.pdf` | 已有 |
+| 图 7 | 检测噪声 + L2 bundle replay | `paper/figures/fig_detection_l2.pdf` | 已有 |
+| 图 8 | 跨族校准 + 重训成本 | `paper/figures/fig_families_retrain.pdf` | 已有 |
+| 图 9 | 模态冲突 + 开放集拒识 | `paper/figures/fig_conflict_openset.pdf` | 已有 |
+| 图 10 | 空间消融 + RAG vs active set | `paper/figures/fig_space_rag.pdf` | 已有 |
+| 图 11 | KB 状态与回滚 | `paper/figures/fig2_kb_state.png` | 已有 |
+| 图 12 | 预算-质量曲线 | `paper/figures/fig3_budget_quality.png` | 已有 |
+
+### 4.2 表
+
+| 编号 | 内容 | 状态 |
+|---|---|---|
+| 表 1 | Property vs capability（定义、专家依赖、用途） | 已有（`paper/main.tex`） |
+| 表 2 | Contract × Q0–Q4（SSR/ZCR/INT/RBE） | 已有 |
+| 表 3 | Binding ablation（E2） | 已有 |
+| 表 4 | Relation F1（clean / tactile removed） | 已有 |
+| 表 5 | Hybrid under noise（E3） | 已有 |
+| 表 6 | Active-set / memory / RAG（E4/E13/P4） | 已有 |
+| 表 7 | Cross-family calibration（E11） | 已有 |
+| 表 8 | Retraining cost（E6/E6b/E6c） | 已有 |
+| 表 9 | L2 bundle replay + S4 variants（E12/E18） | 已有 |
+| 表 10 | Negative controls N1–N8 | 已有 |
+| 表 11 | Claim–evidence map（appendix） | 已有 |
+| 补充 | expert/run manifest（sha256、git、env） | 已有 |
+
+**建议**：
+- 图 5–10 是双面板，`main.tex` 里用单栏 `figure`；如果投双栏 venue，改成 `figure*`。
+- 表 2 的 ZCR 仍留在表中，但用脚注标明它是 capability；主表只保留 property 指标。
+- 图 1 是 TikZ，不依赖外部图片；如果 venue 要求位图，可导出 300 dpi PNG。
+
 
 ---
 
