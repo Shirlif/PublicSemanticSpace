@@ -40,6 +40,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
         variant=args.variant,
         cache_dir=args.cache_dir,
         force=args.force,
+        bus=args.bus,
+        obs_addr=args.obs_addr,
+        gt_addr=args.gt_addr,
     )
     return 0
 
@@ -80,6 +83,9 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--variant", default="full")
     run.add_argument("--cache-dir", help="override ~/.cache/pss_usd")
     run.add_argument("--force", action="store_true")
+    run.add_argument("--bus", action="store_true", help="publish obs/gt on ZMQ PUB sockets")
+    run.add_argument("--obs-addr", default="tcp://127.0.0.1:5555")
+    run.add_argument("--gt-addr", default="tcp://127.0.0.1:5556")
     run.set_defaults(func=_cmd_run)
 
     verify = sub.add_parser("verify", help="read-back checks for one bundle (D5)")

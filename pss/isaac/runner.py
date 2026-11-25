@@ -8,6 +8,8 @@ Usage (through the top-level CLI)::
 from __future__ import annotations
 
 import importlib.metadata
+import json
+import math
 import os
 import shutil
 import subprocess
@@ -136,14 +138,20 @@ def _world_pose(stage: Any, prim_path: str) -> list[float] | None:
     matrix = UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(Usd.TimeCode.Default())
     t = matrix.ExtractTranslation()
     q = matrix.ExtractRotationQuat()
+    real = float(q.GetReal())
+    imag = [float(v) for v in q.GetImaginary()]
+    norm = math.sqrt(real * real + sum(v * v for v in imag))
+    if norm > 1e-12:
+        real = real / norm
+        imag = [v / norm for v in imag]
     return [
         float(t[0]),
         float(t[1]),
         float(t[2]),
-        float(q.GetReal()),
-        float(q.GetImaginary()[0]),
-        float(q.GetImaginary()[1]),
-        float(q.GetImaginary()[2]),
+        real,
+        imag[0],
+        imag[1],
+        imag[2],
     ]
 
 
@@ -163,6 +171,97 @@ def _bbox(pose: Sequence[float], size: Sequence[float]) -> tuple[list[float], li
     return mins, maxs, flat
 
 
+def _asset_contacts(
+    poses: dict[str, list[float]],
+    assets: dict[str, Any],
+    *,
+    table_top: float,
+    tolerance: float = 0.003,
+) -> dict[str, dict[str, Any]]:
+    """W2 analytic contact GT for support and box-box touching.
+
+    Real contact sensors land with S4/S5.  For rigid boxes on a table this is
+    exact enough to exercise the GT schema and the contact-dependent metrics.
+    """
+    boxes: dict[str, tuple[list[float], list[float]]] = {}
+    for aid, inst in assets.items():
+        mins, maxs, _ = _bbox(poses[aid], inst.get("size_m", [0.04, 0.04, 0.04]))
+        boxes[aid] = (mins, maxs)
+
+    out: dict[str, dict[str, Any]] = {
+        aid: {"in_contact_with": [], "contact_points": [], "net_force_n": 0.0}
+        for aid in assets
+    }
+    for aid, (mins, maxs) in boxes.items():
+        mass = float(assets[aid].get("mass_kg") or 0.0)
+        if mins[2] <= table_top + tolerance:
+            out[aid]["in_contact_with"].append("table")
+            out[aid]["contact_points"].append("table")
+            out[aid]["net_force_n"] += mass * 9.81
+        for other, (omins, omaxs) in boxes.items():
+            if other == aid:
+                continue
+            overlap = all(
+                mins[i] <= omaxs[i] + tolerance and omins[i] <= maxs[i] + tolerance
+                for i in range(3)
+            )
+            if overlap:
+                out[aid]["in_contact_with"].append(other)
+                out[aid]["contact_points"].append(other)
+    return out
+
+
+def _flat(value: Any) -> list[float]:
+    try:
+        array = value.detach().cpu().numpy() if hasattr(value, "detach") else value
+        import numpy as np
+
+        return np.asarray(array, dtype=float).reshape(-1).tolist()
+    except Exception:
+        return []
+
+
+def _sample_layout(spec: WorldSpec, seed: int, table_top: float) -> dict[str, list[float]]:
+    """Stratified per-seed placement inside the spec workspace."""
+    policy = spec.raw.get("seed_policy", {}).get("pose_sampling", "fixed")
+    if policy == "fixed":
+        return {}
+    import numpy as np
+
+    workspace = spec.scene.get("workspace", {}).get("xy", [[-0.3, -0.25], [0.3, 0.25]])
+    (x0, y0), (x1, y1) = workspace
+    assets = list(spec.assets)
+    n = len(assets)
+    nx = max(1, int(math.ceil(math.sqrt(n))))
+    ny = max(1, int(math.ceil(n / nx)))
+    cells = [(i, j) for i in range(nx) for j in range(ny)]
+    rng = np.random.default_rng(seed)
+    rng.shuffle(cells)
+    layout: dict[str, list[float]] = {}
+    for inst, (i, j) in zip(assets, cells):
+        cell_w = (x1 - x0) / nx
+        cell_h = (y1 - y0) / ny
+        cx = x0 + (i + float(rng.uniform(0.15, 0.85))) * cell_w
+        cy = y0 + (j + float(rng.uniform(0.15, 0.85))) * cell_h
+        size_z = float(inst.get("size_m", [0.04, 0.04, 0.04])[2])
+        layout[str(inst["id"])] = [cx, cy, table_top + size_z / 2.0]
+    return layout
+
+
+def _set_asset_translate(stage: Any, prim_path: str, pos: list[float]) -> None:
+    from pxr import Gf, UsdGeom
+
+    prim = stage.GetPrimAtPath(prim_path)
+    if not prim or not prim.IsValid():
+        return
+    xformable = UsdGeom.Xformable(prim)
+    for op in xformable.GetOrderedXformOps():
+        if op.GetOpType() == UsdGeom.XformOp.TypeTranslate:
+            op.Set(Gf.Vec3d(float(pos[0]), float(pos[1]), float(pos[2])))
+            return
+    xformable.AddTranslateOp().Set(Gf.Vec3d(float(pos[0]), float(pos[1]), float(pos[2])))
+
+
 def _run_one(
     spec: WorldSpec,
     seed: int,
@@ -173,6 +272,9 @@ def _run_one(
     variant: str,
     cache_dir: Path | None,
     force: bool,
+    bus: bool = False,
+    obs_addr: str = "tcp://127.0.0.1:5555",
+    gt_addr: str = "tcp://127.0.0.1:5556",
 ) -> Path:
     from .scene_builder import build_scene
 
@@ -210,6 +312,17 @@ def _run_one(
     fov = float(camera.get("fov_deg", 60.0))
     aspect = float(camera["width"]) / float(camera["height"])
 
+    table_cfg = spec.scene.get("table", {})
+    table_size = [float(v) for v in table_cfg.get("size", [1.2, 0.8, 0.04])]
+    table_top = float(table_cfg.get("height_m", 0.75)) + table_size[2] / 2.0
+
+    asset_rows = {str(a["id"]): a for a in spec.assets}
+    asset_paths = {aid: f"/World/Assets/{aid}" for aid in asset_rows}
+
+    layout = _sample_layout(spec, seed, table_top)
+    for aid, pos in layout.items():
+        _set_asset_translate(stage, asset_paths[aid], pos)
+
     sim = SimulationContext(
         physics_dt=physics_dt,
         rendering_dt=physics_dt,
@@ -219,17 +332,103 @@ def _run_one(
     wall_start = time.time()
     sim.play()
 
+    publisher = None
+    if bus:
+        from .bus import BusPublisher
+
+        publisher = BusPublisher(obs_addr, gt_addr)
+        print(f"[bus] obs={obs_addr} gt={gt_addr}")
+
     from .visibility import Box, compute_visibility
 
-    asset_rows = {str(a["id"]): a for a in spec.assets}
-    asset_paths = {aid: f"/World/Assets/{aid}" for aid in asset_rows}
+    fault_specs = sorted(spec.faults, key=lambda f: int(f.get("at_step", 0)))
+    active_faults: dict[str, dict[str, Any]] = {}
+    fault_events: list[dict[str, Any]] = []
+    if layout:
+        fault_events.append(
+            {
+                "t_s": 0.0,
+                "kind": "layout_sampled",
+                "source": "runner",
+                "detail_json": json.dumps(layout),
+            }
+        )
+    faults_injected = 0
+
+    robot_view = None
+    robot_prim_path = None
+    if spec.robot:
+        robot_prim_path = str(spec.robot.get("prim_path", "/World/Robot"))
+        try:
+            from isaacsim.core.prims import Articulation
+
+            robot_view = Articulation(robot_prim_path)
+            robot_view.initialize()
+        except Exception as exc:  # articulation metadata is optional in W2
+            print(f"[warn] articulation view init failed: {exc}")
+
     gt_rows: list[dict[str, Any]] = []
     obs_rows: list[dict[str, Any]] = []
+    robot_rows: list[dict[str, Any]] = []
     last_visibility: dict[str, dict[str, object]] = {}
     last_occluder_poses: dict[str, list[float]] = {}
 
     for step in range(total_steps):
         t_s = step * physics_dt
+
+        for fault in fault_specs:
+            if step != int(fault.get("at_step", -1)):
+                continue
+            kind = str(fault.get("kind"))
+            params = dict(fault.get("params") or {})
+            if kind != "occlusion_insert":
+                raise NotImplementedError(f"fault kind not implemented in W2: {kind}")
+            name = str(params.get("occluder", f"occluder_{step}"))
+            region = params.get("region", [0.0, 0.0])
+            pose = list(params.get("pose") or [float(region[0]), float(region[1]), 0.90, 1, 0, 0, 0])
+            size = list(params.get("size", [0.25, 0.25, 0.01]))
+            from .scene_builder import _add_cube
+
+            _add_cube(
+                stage,
+                f"/World/Faults/{name}",
+                tuple(float(v) for v in size),
+                pose,
+                color=(0.08, 0.08, 0.08),
+                rigid=False,
+            )
+            duration = int(params.get("duration_steps", 120))
+            active_faults[name] = {
+                "pose": pose,
+                "size": size,
+                "end": step + duration,
+            }
+            faults_injected += 1
+            fault_events.append(
+                {
+                    "t_s": t_s,
+                    "kind": "fault_injected",
+                    "source": "fault_engine",
+                    "detail_json": json.dumps({"kind": kind, "name": name, **params}),
+                }
+            )
+
+        for name, fault in list(active_faults.items()):
+            if step >= int(fault["end"]):
+                try:
+                    stage.RemovePrim(f"/World/Faults/{name}")
+                except Exception:
+                    pass
+                active_faults.pop(name, None)
+                fault_events.append(
+                    {
+                        "t_s": t_s,
+                        "kind": "fault_removed",
+                        "source": "fault_engine",
+                        "detail_json": json.dumps({"name": name}),
+                    }
+                )
+
         last_occluder_poses = _set_occluders(stage, spec, t_s)
 
         poses: dict[str, list[float]] = {}
@@ -258,6 +457,14 @@ def _run_one(
                         size=occ["size"],
                     )
                 )
+            for name, fault in active_faults.items():
+                boxes.append(
+                    Box(
+                        name=f"fault:{name}",
+                        pose=fault["pose"],
+                        size=fault["size"],
+                    )
+                )
             last_visibility = compute_visibility(
                 boxes, cam_pose, fov_deg=fov, aspect=aspect, per_axis=3
             )
@@ -273,10 +480,26 @@ def _run_one(
                     "camera_pose": cam_pose,
                 }
             )
+            if publisher is not None:
+                publisher.publish_obs(
+                    {
+                        "kind": "obs",
+                        "step": step,
+                        "t_s": t_s,
+                        "camera": cam_name,
+                        "camera_pose": cam_pose,
+                        "width": int(camera["width"]),
+                        "height": int(camera["height"]),
+                        "fov_deg": fov,
+                    }
+                )
+
+        contacts = _asset_contacts(poses, asset_rows, table_top=table_top)
 
         for aid, inst in asset_rows.items():
             pose = poses[aid]
             vis = last_visibility.get(aid, {})
+            contact = contacts.get(aid, {})
             bbox_min, bbox_max, bbox_flat = _bbox(
                 pose, inst.get("size_m", [0.04, 0.04, 0.04])
             )
@@ -295,9 +518,9 @@ def _run_one(
                     "visibility_ratio": float(vis.get("visibility_ratio", 0.0)),
                     "occluded_by": list(vis.get("occluded_by", [])),
                     "occluder_of": list(vis.get("occluder_of", [])),
-                    "contact_points": [],
-                    "net_force_n": 0.0,
-                    "in_contact_with": [],
+                    "contact_points": list(contact.get("contact_points", [])),
+                    "net_force_n": float(contact.get("net_force_n", 0.0)),
+                    "in_contact_with": list(contact.get("in_contact_with", [])),
                     "grasped_by": None,
                     "q": [],
                     "qd": [],
@@ -306,7 +529,53 @@ def _run_one(
                 }
             )
 
+        if publisher is not None:
+            publisher.publish_gt(
+                {
+                    "kind": "gt",
+                    "step": step,
+                    "t_s": t_s,
+                    "instances": [
+                        {
+                            "instance_id": aid,
+                            "class": str(inst["class"]),
+                            "pose_xyz": poses[aid][0:3],
+                            "pose_quat": poses[aid][3:7],
+                            "visibility_ratio": float(
+                                last_visibility.get(aid, {}).get("visibility_ratio", 0.0)
+                            ),
+                            "occluded_by": list(
+                                last_visibility.get(aid, {}).get("occluded_by", [])
+                            ),
+                        }
+                        for aid, inst in asset_rows.items()
+                    ],
+                }
+            )
+
         sim.step(render=False)
+
+        if robot_view is not None:
+            try:
+                q = _flat(robot_view.get_joint_positions())
+                qd = _flat(robot_view.get_joint_velocities())
+                tau = _flat(robot_view.get_applied_joint_efforts())
+            except Exception:
+                q, qd, tau = [], [], []
+            base = _world_pose(stage, robot_prim_path) if robot_prim_path else None
+            robot_rows.append(
+                {
+                    "physics_step": step,
+                    "t_s": t_s,
+                    "base_pose": base or [],
+                    "q": q,
+                    "qd": qd,
+                    "tau": tau,
+                }
+            )
+
+    if publisher is not None:
+        publisher.close()
 
     sim_time = float(sim.current_time)
     # ``SimulationContext.play()`` performs two internal physics updates before
@@ -344,7 +613,7 @@ def _run_one(
     episode_id = f"{suite}__seed{seed:02d}__{spec.perception.get('detector_tier', 'oracle')}__{variant}"
     markers = [
         {"t_s": 0.0, "kind": "sim_start", "source": "runner", "detail_json": "{}"},
-        {"t_s": wall_s, "kind": "sim_end", "source": "runner", "detail_json": "{}"},
+        {"t_s": sim_time, "kind": "sim_end", "source": "runner", "detail_json": "{}"},
     ]
     write_bundle(
         bundle_dir,
@@ -357,10 +626,12 @@ def _run_one(
         tables={
             "obs_frames": obs_rows,
             "gt": gt_rows,
-            "events": markers,
+            "robot_state": robot_rows,
+            "events": [markers[0], *fault_events, markers[1]],
         },
         variant=variant,
         detector_tier=str(spec.perception.get("detector_tier", "oracle")),
+        faults_injected=faults_injected,
         outcome={
             "task_success": None,
             "steps": total_steps,
@@ -383,6 +654,9 @@ def run(
     variant: str = "full",
     cache_dir: str | Path | None = None,
     force: bool = False,
+    bus: bool = False,
+    obs_addr: str = "tcp://127.0.0.1:5555",
+    gt_addr: str = "tcp://127.0.0.1:5556",
 ) -> list[Path]:
     if device not in ("dev", "official"):
         raise ValueError("device must be 'dev' or 'official'")
@@ -416,6 +690,9 @@ def run(
                     variant=variant,
                     cache_dir=cache,
                     force=force,
+                    bus=bus,
+                    obs_addr=obs_addr,
+                    gt_addr=gt_addr,
                 )
             )
     except BaseException:

@@ -23,6 +23,9 @@ def _help() -> str:
         "groups:\n"
         "  spec   lint world specs, write specs/registry.jsonl, export JSON Schema\n"
         "  sim    build USD scenes, run episodes, verify bundles (Isaac Sim)\n"
+        "  detect write oracle detections for a bundle\n"
+        "  replay run PSS over detections and write entity_trace/pss_trace\n"
+        "  score  aggregate bundle traces into scorecards\n"
     )
 
 
@@ -44,6 +47,14 @@ def main(argv: list[str] | None = None) -> int:
         from pss.isaac.cli import main as sim_main
 
         return sim_main(rest)
+    if group in ("detect", "replay"):
+        from pss.detect.cli import main as detect_main
+
+        return detect_main([group, *rest])
+    if group == "score":
+        from pss.metrics.cli import main as score_main
+
+        return score_main(rest)
     print(f"unknown command group {group!r}\n", file=sys.stderr)
     print(_help(), file=sys.stderr)
     return 2

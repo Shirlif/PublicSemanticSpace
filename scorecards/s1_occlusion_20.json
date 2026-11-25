@@ -1,0 +1,153 @@
+{
+  "suite": "s1_occlusion_20",
+  "created_utc": "2026-11-25T02:32:47Z",
+  "device_class": "dev",
+  "detector_tier": "oracle",
+  "spec_hashes": [
+    "sha256:18c18c5e10faaee4bde1b3d5da53a49b06ddf663cd80ef22934b126a4c5d05af"
+  ],
+  "n_episodes": 5,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "metrics": {
+    "idf1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "id_retention": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "id_switches": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "duplicate_rate": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "reappearance_rate": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "slot_purity": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    }
+  },
+  "episodes": [
+    {
+      "idf1": 1.0,
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "duplicate_rate": 0.0,
+      "reappearance_rate": 1.0,
+      "slot_purity": 1.0,
+      "gt_detections": 1764,
+      "pred_detections": 1764,
+      "gt_instances": 20,
+      "pred_identities": 20,
+      "episode_id": "s1_occlusion_20__seed00__oracle__full",
+      "seed": 0,
+      "bundle": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed0",
+      "spec_hash": "sha256:18c18c5e10faaee4bde1b3d5da53a49b06ddf663cd80ef22934b126a4c5d05af",
+      "device_class": "dev",
+      "detector_tier": "oracle"
+    },
+    {
+      "idf1": 1.0,
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "duplicate_rate": 0.0,
+      "reappearance_rate": 1.0,
+      "slot_purity": 1.0,
+      "gt_detections": 1768,
+      "pred_detections": 1768,
+      "gt_instances": 20,
+      "pred_identities": 20,
+      "episode_id": "s1_occlusion_20__seed01__oracle__full",
+      "seed": 1,
+      "bundle": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed1",
+      "spec_hash": "sha256:18c18c5e10faaee4bde1b3d5da53a49b06ddf663cd80ef22934b126a4c5d05af",
+      "device_class": "dev",
+      "detector_tier": "oracle"
+    },
+    {
+      "idf1": 1.0,
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "duplicate_rate": 0.0,
+      "reappearance_rate": 1.0,
+      "slot_purity": 1.0,
+      "gt_detections": 1773,
+      "pred_detections": 1773,
+      "gt_instances": 20,
+      "pred_identities": 20,
+      "episode_id": "s1_occlusion_20__seed02__oracle__full",
+      "seed": 2,
+      "bundle": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed2",
+      "spec_hash": "sha256:18c18c5e10faaee4bde1b3d5da53a49b06ddf663cd80ef22934b126a4c5d05af",
+      "device_class": "dev",
+      "detector_tier": "oracle"
+    },
+    {
+      "idf1": 1.0,
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "duplicate_rate": 0.0,
+      "reappearance_rate": 1.0,
+      "slot_purity": 1.0,
+      "gt_detections": 1766,
+      "pred_detections": 1766,
+      "gt_instances": 20,
+      "pred_identities": 20,
+      "episode_id": "s1_occlusion_20__seed03__oracle__full",
+      "seed": 3,
+      "bundle": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed3",
+      "spec_hash": "sha256:18c18c5e10faaee4bde1b3d5da53a49b06ddf663cd80ef22934b126a4c5d05af",
+      "device_class": "dev",
+      "detector_tier": "oracle"
+    },
+    {
+      "idf1": 1.0,
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "duplicate_rate": 0.0,
+      "reappearance_rate": 1.0,
+      "slot_purity": 1.0,
+      "gt_detections": 1766,
+      "pred_detections": 1766,
+      "gt_instances": 20,
+      "pred_identities": 20,
+      "episode_id": "s1_occlusion_20__seed04__oracle__full",
+      "seed": 4,
+      "bundle": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed4",
+      "spec_hash": "sha256:18c18c5e10faaee4bde1b3d5da53a49b06ddf663cd80ef22934b126a4c5d05af",
+      "device_class": "dev",
+      "detector_tier": "oracle"
+    }
+  ]
+}

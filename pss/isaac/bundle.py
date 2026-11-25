@@ -105,10 +105,32 @@ TRACE_SCHEMA = pa.schema(
     ]
 )
 
+ROBOT_STATE_SCHEMA = pa.schema(
+    [
+        ("physics_step", pa.int64()),
+        ("t_s", pa.float64()),
+        ("base_pose", pa.list_(pa.float64())),
+        ("q", pa.list_(pa.float64())),
+        ("qd", pa.list_(pa.float64())),
+        ("tau", pa.list_(pa.float64())),
+    ]
+)
+
+ENTITY_TRACE_SCHEMA = pa.schema(
+    [
+        ("step", pa.int64()),
+        ("t_s", pa.float64()),
+        ("gt_id", pa.string()),
+        ("pred_id", pa.string()),
+    ]
+)
+
 TABLES: dict[str, tuple[str, pa.Schema]] = {
     "obs_frames": ("obs_frames.parquet", OBS_SCHEMA),
     "obs_detections": ("obs_detections.parquet", DETECTIONS_SCHEMA),
     "gt": ("gt.parquet", GT_SCHEMA),
+    "robot_state": ("robot_state.parquet", ROBOT_STATE_SCHEMA),
+    "entity_trace": ("entity_trace.parquet", ENTITY_TRACE_SCHEMA),
     "actions": ("actions.parquet", ACTIONS_SCHEMA),
     "events": ("events.parquet", EVENTS_SCHEMA),
     "pss_trace": ("pss_trace.parquet", TRACE_SCHEMA),
@@ -135,6 +157,7 @@ def write_bundle(
     detector_tier: str = "oracle",
     outcome: Mapping[str, Any] | None = None,
     events: Iterable[Mapping[str, Any]] | None = None,
+    faults_injected: int = 0,
 ) -> dict[str, Any]:
     """Write manifest + six parquet tables.  Missing tables are written empty."""
     root = Path(out_dir)
@@ -165,7 +188,8 @@ def write_bundle(
         "counts": {
             "obs_frames": counts["obs_frames"],
             "gt_frames": counts["gt"],
-            "faults_injected": 0,
+            "robot_frames": counts.get("robot_state", 0),
+            "faults_injected": int(faults_injected),
             "replans": 0,
         },
         "files": files,
