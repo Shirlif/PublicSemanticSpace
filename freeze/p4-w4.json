@@ -1,0 +1,40 @@
+{
+  "tag": "p4-w4",
+  "date": "2026-11-25",
+  "code": {
+    "commit": "b8c91e674a70a8073e12265bfb6a99f272d04b40"
+  },
+  "python": {
+    "pss": "3.13.7",
+    "isaac": "3.11.13"
+  },
+  "sim": {
+    "isaac_sim": "5.1.0.0",
+    "isaac_lab": "TBD",
+    "physx": "107.3.26",
+    "graphics_api": "D3D12",
+    "extra_args": [
+      "--/app/vulkan=false"
+    ]
+  },
+  "driver": "616.64",
+  "gpu": {
+    "dev": "RTX 4070 Laptop 8GB",
+    "official": "RTX 3090 Ti 24GB"
+  },
+  "detector": {
+    "pss": "IDEA-Research/grounding-dino-tiny",
+    "weights_sha256": "sha256:1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3",
+    "embedding": "facebook/dinov2-small"
+  },
+  "env": {
+    "pss_python": "D:\\Python\\python.exe",
+    "isaac_venv": "D:\\isaac\\env",
+    "isaac_uv_cache": "D:\\isaac\\uvcache"
+  },
+  "notes": [
+    "W4-W5 T19-T23 complete on dev (4-cube S1 tiers; S2 twins).",
+    "abstain_precision not implemented; twin_swap exposes duplicate rate 0.667.",
+    "official 20-cube x 5-seed tier tables remain for W13-W14."
+  ]
+}
