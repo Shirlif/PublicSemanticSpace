@@ -1,7 +1,6 @@
-# S4_mobile 附表（阻塞）
+# S4_mobile 附表（平台决策：不做人形腿）
 
-- 状态：**未跑**。
-- 原因：Isaac Lab 5.1 官方 Policies 列表中没有 Unitree G1 的 locomotion checkpoint；
-  当前 `freeze.json` 的 `locomotion_policy = none`。
-- `SkillExecutor.walk_to` 返回 `unsupported`；`base_mobile` 不做任何数字。
-- 需要：安装/获取 G1 行走策略（RSL-RL / Isaac Lab checkpoint），冻结版本后再开附表。
+- 状态：**按 ADR-001 取消**，不是阻塞。
+- 原因：评测目标是 PSS 的空间感知/空间记忆，不是人形运动控制；人形腿策略是混杂变量。
+- 感知/记忆的视角变化由 `cameras[].motion` 固定；执行层只跑 `base_fixed` 上肢。
+- 如确需房间级移动：另加 `wheeled_differential` 附表（差速底座 + 运动学控制器），不接 RL。

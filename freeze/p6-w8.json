@@ -34,13 +34,15 @@
   "notes": [
     "W8-W10 T29-T33 complete on dev: IK skills, suction proxy, S4 1.0, S5 0.900.",
     "T28 walking policy and T34 base_mobile blocked: no G1 locomotion checkpoint.",
-    "S4/S5 are scripted baselines, not PSS-in-the-loop."
+    "S4/S5 are scripted baselines, not PSS-in-the-loop.",
+    "ADR-001: humanoid legs removed from critical path; camera motion in spec."
   ],
   "robot": {
     "model": "unitree_g1",
     "base_mode": "base_fixed",
-    "locomotion_policy": "none",
+    "locomotion_policy": "not_applicable",
     "end_effector": "suction_proxy",
-    "skill_library": "skills_g1_v1"
+    "skill_library": "skills_g1_v1",
+    "platform": "fixed_table + scripted_camera (perception) / base_fixed G1 (manipulation)"
   }
 }

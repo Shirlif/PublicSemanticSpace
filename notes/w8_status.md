@@ -3,12 +3,12 @@
 > 开始：2026-11-25
 > 状态：T29/T30/T31/T32/T33 完成（dev 脚本基线）；T28/T34 受阻，如实记录。
 
-## T28 G1 全身 + 行走策略：**部分完成**
+## T28 G1 全身 + 行走策略：**按 ADR-001 关闭（不做）**
 
 - G1 全身（200 prims）可加载、可关节控制；右臂 7 DoF IK 到桌面目标误差 ~1.3 cm。
-- **行走策略未安装**：Isaac Lab 2.3.2 的官方 Policies 列表里没有 G1 locomotion
-  checkpoint；`freeze.json` 的 `locomotion_policy` 记 `none`。
-- 因此只跑 `base_fixed`；`base_mobile` 留空。
+- **ADR-001：人形腿行走移出关键路径**，不再寻找/训练 G1 locomotion checkpoint；
+  `freeze.json` 的 `locomotion_policy` 记 `not_applicable`。
+- 感知/记忆的视角变化改由 `cameras[].motion` 提供；执行层只跑 `base_fixed`。
 
 ## T29 技能库（`pss/isaac/skills.py`）
 
@@ -55,14 +55,14 @@
 数值见文件；注意这不是 PSS recovery，camera_dropout/base_disturb/path_blocked
 在 base_fixed 脚本策略下只是事件注入。
 
-## T34 base_mobile 附表：**阻塞**
+## T34 wheeled_differential 附表：**可选，未做**
 
-无 locomotion policy，`walk_to` 返回 `unsupported`；`scorecards/S4_mobile.md`
-只写阻塞原因，不编数字。
+按 ADR-001 不接人形腿；如确需房间级移动，另加轮式差速底座附表，不依赖 RL。
+`scorecards/S4_mobile.md` 只写平台决策，不编数字。
 
 ## 必须如实说明
 
-1. T28 的行走、T34 的 mobile 附表没做——缺 G1 locomotion checkpoint。
+1. T28 的行走、T34 的人形 mobile 附表按 ADR-001 取消；轮式附表可选未做。
 2. T30 没有平行夹爪，用吸盘代理；S4 成功不能当作夹爪能力证据。
 3. T31/T33 是**脚本基线**，PSS 不在执行回路；不能当作 PSS 执行/恢复能力。
 4. S4 的 bin 是实心 pad，`in` 是足迹近似；不是真正的容器。

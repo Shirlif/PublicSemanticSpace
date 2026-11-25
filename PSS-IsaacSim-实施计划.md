@@ -5,6 +5,11 @@
 > 原则：**每周只交付一个可验收物；验收不过不进下一周。**
 > 用法：按 §2 的周计划推进，按 §7 的任务清单勾选；任何偏离写进 `notes/`。
 
+> **ADR-001（2026-11-25，平台决策）**：评测目标是 PSS 的空间感知与空间记忆，不是人形运动控制。
+> 感知/记忆主平台改为 **固定桌面 + 脚本化相机轨迹**；G1 仅做 `base_fixed` 上肢操作；
+> 人形腿行走策略从关键路径移除，T28/T34 取消，改为相机轨迹与可选轮式附表。
+> 详见 `notes/ADR-001-platform.md`。
+
 ---
 
 ## 0. 起点盘点
@@ -35,7 +40,7 @@
 | W2–W3 | 实体层竖切（S1） | A3 | S1 的 `oracle` 档 IDF1 表 |
 | W4–W5 | 真实检测 + 孪生（S2） | A6 | 三档分数表 |
 | W6–W7 | 关系与 OOD（S3） | A7 | per-predicate F1 + consistency |
-| W8–W10 | 人形执行层（S4/S5） | A5 | 执行成功率 + 10 类 recovery |
+| W8–W10 | 固定基座执行层（S4/S5） | A5 | 执行成功率 + 10 类 recovery（`base_fixed` 主表） |
 | W11–W12 | 记忆与成本（S6/S7/S8） | A7 | rollback exactness = 1.0 |
 | W13–W14 | official 跑测 | A4–A10 | 完整 scorecard + `reports/<tag>/` |
 
@@ -192,19 +197,23 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 
 ---
 
-## 6. 第 8–10 周：人形执行层（S4/S5）
+## 6. 第 8–10 周：固定基座执行层（S4/S5）
+
+> ADR-001：不做人形腿行走。感知/记忆的视角变化由 `cameras[].motion` 提供；
+> 执行层只做 `base_fixed` 上肢。需要房间级移动时，另开轮式差速附表。
 
 | 任务 | 产出 |
 |---|---|
-| G1 全身 + 行走策略冻结 | `freeze.json` 补 `locomotion_policy` |
-| 技能库 `skills_g1_v1` | `pss/isaac/skills.py` |
-| 平行夹爪抓取 | 抓取成功率 ≥ 0.9 |
-| S4 闭环 | `scorecards/S4.md` |
-| 故障引擎 10 类 | `pss/isaac/faults.py` |
-| S5 | `scorecards/S5.md`（按类分报） |
-| `base_mobile` 附表 | `scorecards/S4_mobile.md` |
+| G1 全身资产 + `base_fixed` 上肢 | `freeze.json` 补 `locomotion_policy: not_applicable` |
+| 技能库 `skills_g1_v1` | `pss/isaac/skills.py`（reach/grasp/place/release） |
+| 平行夹爪/吸盘代理 | 抓取成功率 ≥ 0.9；代理必须标注 |
+| S4 闭环（脚本基线→PSS 接入） | `scorecards/S4.md` |
+| 故障引擎 10 类 | `pss/isaac/faults.py`（camera/base/path 标注事件级） |
+| S5 | `scorecards/S5.md`（按类分报，`base_fixed` 单表） |
+| 轮式附表（可选） | `scorecards/S4_mobile.md`：差速底座，无 RL 策略 |
 
-**DoD**：无故障时 `base_fixed` execution success ≥ 0.8；10 类故障各有 recovery 数字。
+**DoD**：无故障时 `base_fixed` execution success ≥ 0.8；10 类故障各有 recovery 数字；
+`base_disturb` / `path_blocked` 在主表只记事件，轮式附表另行物理注入。
 
 ---
 
@@ -256,6 +265,8 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [x] T16 `pss/metrics/entity.py`
 - [x] T17 `oracle` 检测档
 - [x] T18 S1 首表（IDF1 ≥ 0.95）
+- [ ] T44 `cameras[].motion`：spec schema + runner 相机轨迹插值（ADR-001 主平台）
+- [x] T45 ADR-001 平台决策记录（固定桌面 + 相机轨迹；人形腿移出关键路径）
 
 ### P3（W4–W5）
 - [x] T19 GroundingDINO 接入（离线批）
@@ -271,13 +282,13 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [x] T27 S3 表
 
 ### P5（W8–W10）
-- [ ] T28 G1 全身 + 行走策略冻结（部分：全身/IK 完成，无 G1 locomotion checkpoint）
+- [x] T28 G1 全身资产 + `base_fixed` 上肢（ADR-001：`locomotion_policy: not_applicable`）
 - [x] T29 技能库
-- [x] T30 平行夹爪抓取
-- [x] T31 S4 闭环
+- [x] T30 平行夹爪抓取 / 吸盘代理（资产无平行夹爪，报表标 `suction_proxy`）
+- [x] T31 S4 闭环（脚本基线；PSS planner 接入是下一步）
 - [x] T32 故障引擎 10 类
 - [x] T33 S5 表
-- [ ] T34 `base_mobile` 附表（阻塞：无 locomotion policy）
+- [ ] T34 `wheeled_differential` 附表（可选，未做；不再依赖 G1 locomotion）
 
 ### P6（W11–W12）
 - [ ] T35 S6 多 episode 记忆
@@ -301,6 +312,7 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 | W3 结束 `oracle` IDF1 < 0.95 | 停，查 GT 与指标实现，不许调 PSS |
 | W5 结束 `real` 与 `oracle` 差距 < 0.1 | 停，怀疑检测器未真正接入 |
 | W10 结束抓取成功率 < 0.8 | 停，换抓取方案（吸盘/简化夹爪），不硬调 |
+| 任务开始依赖人形腿行走策略 | 停，按 ADR-001 改固定基座/相机轨迹，不接 RL 腿策略 |
 | 任何一周 DoD 未过 | 本周任务顺延，不顺延后续周 |
 | 任一锚点回退 | 其后锚点全部重置 |
 

@@ -5,6 +5,14 @@
 > 原则：**把评测做成与仿真器解耦的测量仪器；Isaac 是可替换的物理后端，不是评测本身。**
 > 目的：回答“哪些指标在 Isaac 上测、怎么测、测得可不可信”，而不是给仿真器做集成验收。
 
+> **ADR-001（2026-11-25，平台决策）**：本评测验证的是 PSS 在**空间感知与空间记忆**上的
+> 优势，不是人形运动控制。因此：
+> 1. 感知/记忆主平台 = **固定桌面 + 脚本化相机轨迹**；视角变化由 spec 中的相机运动固定，
+>    可 hash、可复现，不引入行走控制器方差。
+> 2. 操作套件（S4/S5）= **固定基座 G1 上肢**，不使用人形腿；`walk_to/turn` 不在主表。
+> 3. 人形行走策略从关键路径移除；如确需房间级移动，只加轮式差速底座附表，不接 RL 腿策略。
+> 4. 详细决策与影响见 `notes/ADR-001-platform.md`。
+
 ---
 
 ## 0. 一句话
@@ -23,6 +31,7 @@
 | P2 | **episode bundle 是评测原子。** 仿真只产 bundle，指标全部离线算 | 换种子/消融要重跑仿真，3–5 seeds 做不起 |
 | P3 | **世界用声明式 spec 描述，编译成 USD，带 hash。** | 报表无法追溯，场景 bug 被误读成架构结论 |
 | P4 | **两层成本。** Isaac = 高保真层；MuJoCo = 快速层（消融/多种子/CI） | 9 变体 × 5 种子全上 Isaac，工期与显存都不允许 |
+| P5 | **底层运动控制是受控常量，不是被测对象。** 感知/记忆用固定桌面 + 脚本相机轨迹；操作只用固定基座上肢 | 行走/平衡方差淹没 PSS 差异，结论不可归因 |
 
 > P4 不是“最小改造”的妥协，而是成本决策：文档 §4.2 要求 9 个消融变体、§4.4 要求 3–5 seeds，
 > 在 8 GB 显存上全量跑 Isaac 不成立。两层共享同一份指标代码与 bundle 格式，数字才可比。
@@ -111,16 +120,25 @@ scene:
 
 cameras:
   - {name: wrist, mount: robot.end_effector, fov_deg: 70, width: 640, height: 480, rate_hz: 10}
-  - {name: overhead, pose: {pos: [0.0, 0.0, 1.30], ori: [1, 0, 0, 0]},
-     fov_deg: 55, width: 640, height: 480, rate_hz: 10}
+  - name: overhead
+    pose: {pos: [0.0, 0.0, 1.30], ori: [1, 0, 0, 0]}
+    fov_deg: 55
+    width: 640
+    height: 480
+    rate_hz: 10
+    # ADR-001：感知/记忆主平台的视角变化由相机轨迹固定，编译进 spec hash。
+    motion:
+      - {t_s: 0.0,  pos: [0.0, 0.0, 1.30]}
+      - {t_s: 5.0,  pos: [0.25, -0.20, 1.10]}
+      - {t_s: 10.0, pos: [0.0, 0.0, 1.30]}
 
 robot:
-  model: unitree_g1                     # 29 DoF，Isaac Lab 官方资产；见 §3.3
-  base_mode: base_fixed                 # base_fixed | base_mobile
-  locomotion_policy: g1_loco_v1         # base_mobile 时必填且版本冻结
+  model: unitree_g1                     # 仅 base_fixed 上肢；见 §3.3
+  base_mode: base_fixed                 # base_fixed（主表）| wheeled_differential（可选附表）
+  locomotion_policy: not_applicable     # ADR-001：不使用人形腿行走
   arms_controller: {type: osc, rate_hz: 200}
-  end_effector: {type: parallel_jaw, max_width_m: 0.08}   # 主线；Dex3 仅 S5 压力套件
-  skill_library: skills_g1_v1           # reach/grasp/place/handover/walk_to/turn
+  end_effector: {type: parallel_jaw, max_width_m: 0.08}   # 主线；不可得时用 suction_proxy 并标注
+  skill_library: skills_g1_v1           # reach/grasp/place/release；walk_to/turn 仅轮式附表
   workspace_limits_m: [[-0.4, -0.4, 0.70], [0.4, 0.4, 1.30]]
 
 physics:
@@ -173,6 +191,8 @@ recording:
 - `split` 必须是**资产实例级**，同类别的不同实例可分属 train/test；杜绝同资产泄漏（对应文档 §4.3）。
 - `relations_gt.compute_from` 只允许 GT 来源；PSS 侧的关系必须从感知位姿算，两者信息源不同才构成有效对比。
 - `perception.detector_tier` 与 `detector.revision` 是主变量，任何报表必须显式标注。
+- `cameras[].motion` 是感知/记忆主平台的**唯一视角变化来源**；轨迹进 spec hash，运行期按时间插值，不重新编译 USD。
+- `robot.base_mode` 主表只允许 `base_fixed`；`wheeled_differential` 只用于可选附表，且不得与人形腿策略混用。
 
 ### 3.2 Isaac 侧执行循环
 
@@ -188,45 +208,54 @@ recording:
 
 世界构建：`world_spec → USD` 一次性编译，缓存到 `~/.cache/pss_usd/<spec_hash>/`；只变更位姿的采样在运行期做，不重新编译。
 
-### 3.3 人形机器人执行层
+### 3.3 执行层（固定基座；ADR-001）
 
-#### 选型：Unitree G1
+> **平台决策（ADR-001）**：本评测的主对象是空间感知与空间记忆，不是人形运动控制。
+> G1 只作为 **base_fixed 上肢操作平台**；人形腿行走策略移出关键路径。
+> 感知/记忆套件（S1/S2/S3/S6）不需要机器人，视角变化由 `cameras[].motion` 固定。
+
+#### 选型：Unitree G1 上肢（base_fixed）
 
 | 项 | 决定 |
 |---|---|
-| 平台 | Unitree G1（29 DoF），Isaac Lab 官方资产 + 预训练行走 checkpoint |
-| 末端 | 主线**平行夹爪**；Dex3 灵巧手只做 S5 的压力套件 |
-| 控制 | 上肢 OSC；下肢行走策略冻结且版本锁定 |
-| 基座 | `base_fixed` 与 `base_mobile` 两模式，分开报 |
+| 平台 | Unitree G1 29 DoF USD，仅 `base_fixed` 上肢；不做行走 |
+| 末端 | 主线平行夹爪；资产不可得时用 **suction_proxy**，报表必须标注 |
+| 控制 | 上肢 IK/OSC；基座每步 pin 到固定位姿 |
+| 基座 | `base_fixed` 主表；`wheeled_differential` 仅可选附表 |
 
-为什么是 G1：Isaac Lab 有官方 USD 与预训练 locomotion 策略，社区资产、遥操作数据和故障注入经验最全，29 DoF 在 8 GB 上还能跑 2–4 个并行场景。其他候选都不如它省事：H1 上肢弱，GR-1 资产链路浅，OP3 没有操作能力。
+为什么仍用 G1 上肢：Isaac Sim 有官方 USD、29 DoF 关节和碰撞体，足以做抓取-放置与故障注入；
+但**不引入行走策略**，因为平衡控制是混杂变量，且官方没有 29-DoF 预训练 G1 行走 checkpoint。
 
-#### 为什么主线用平行夹爪
+#### 为什么主线用平行夹爪 / 吸盘代理
 
-多指灵巧抓取在仿真里成功率低、方差大。评测主体是认知层，底层抓取不可靠会让“执行失败”无法归因到 PSS。所以：
+多指灵巧抓取在仿真里成功率低、方差大。评测主体是认知层，底层抓取不可靠会让“执行失败”
+无法归因到 PSS。所以：
 
 - 主线：平行夹爪 + 接触式抓取，目标成功率 ≥ 0.9；
+- 资产没有平行夹爪时：用吸盘代理，报表标 `suction_proxy`，不作为夹爪能力证据；
 - Dex3：单列压力套件，只报相对增量，不进主表。
 
-#### 基座两模式（方法学关键）
+#### 基座模式（方法学关键）
 
 | 模式 | 实现 | 用途 | 报表 |
 |---|---|---|---|
-| `base_fixed` | 基座焊死，只动上肢 | 消除平衡控制这个混杂因素 | 主表 |
-| `base_mobile` | 冻结行走策略 + 上肢 OSC | 检验 loco-manipulation 下的规划与恢复 | 附表和 S5 专项 |
+| `base_fixed` | 基座焊死，只动上肢 | 消除平衡控制这个混杂因素 | **主表** |
+| `wheeled_differential` | 差速轮 + 运动学控制器 | 房间级移动附表；无 RL 策略 | 可选附表 |
+| ~~人形腿 `base_mobile`~~ | ~~冻结行走策略~~ | **ADR-001 取消** | 不报 |
 
-**必须分开报。** 人形摔倒导致的失败不是 PSS 失败；混在一张表里，任何结论都会被平衡控制器的方差淹没。这也符合文档 §4.1 的 capability-controlled 原则：消融只变 PSS，底层执行能力在两种模式下都必须恒定。
+**必须分开报。** 人形摔倒/轮式打滑导致的失败不是 PSS 失败；混在一张表里，任何结论都会被
+底层控制器的方差淹没。这也符合 capability-controlled 原则：消融只变 PSS，底层执行能力必须恒定。
 
 #### 技能抽象
 
 PSS 不直接输出关节指令，而是输出技能序列：
 
 ```
-reach(target) | grasp(obj) | place(obj, region) | handover(agent)
-| walk_to(region) | turn(angle) | release()
+reach(target) | grasp(obj) | place(obj, region) | release()
+| wheel_to(region) | turn(angle)        # 仅 wheeled_differential 附表
 ```
 
-每个技能由冻结的低层实现执行，返回 `status ∈ {ok, timeout, slipped, collision, unreachable}`。这样：
+每个技能由冻结的低层实现执行，返回 `status ∈ {ok, timeout, slipped, collision, unreachable, unsupported}`。这样：
 
 - `execution success` 衡量“技能序列是否达成目标”，不是“控制器调得好不好”；
 - 技能失败可按类型计入 recovery，而不是笼统一个“失败”；
@@ -387,12 +416,12 @@ S1/S2/S3/S6 是**离线套件**：仿真只跑一次，9 个消融变体共享�
 
 | 套件 | 场景 | 主指标 | 对应 | spec 规模（official） |
 |---|---|---|---|---|
-| **S1 遮挡 Re-ID** | G1 手臂/遮挡板扫过桌面，N≈20 物体 | IDF1、retention、switches、duplicate、reappearance | 指标 §3.2 P0-1 | 40 episodes × 5 seeds |
-| **S2 孪生与弃权** | `twin_group` 资产对 | duplicate rate、abstain precision、risk-coverage | 指标 §3.2 §3.6 | 30 episodes × 5 seeds |
-| **S3 关系 OOD** | 训练谓词 / 未见组合 | per-predicate F1、consistency violation、组合 OOD | 指标 §3.3 P0-3 | 60 episodes × 5 seeds |
+| **S1 遮挡 Re-ID** | 固定桌面 + 脚本相机轨迹 + 遮挡板扫过，N≈20 物体 | IDF1、retention、switches、duplicate、reappearance | 指标 §3.2 P0-1 | 40 episodes × 5 seeds |
+| **S2 孪生与弃权** | `twin_group` 资产对；相机轨迹制造视角变化 | duplicate rate、abstain precision、risk-coverage | 指标 §3.2 §3.6 | 30 episodes × 5 seeds |
+| **S3 关系 OOD** | 训练谓词 / 未见组合；相机轨迹改变视角 | per-predicate F1、consistency violation、组合 OOD | 指标 §3.3 P0-3 | 60 episodes × 5 seeds |
 | **S4 闭环操作** | G1 `base_fixed` 抓取-放置，目标以事实集表示 | task success、valid plan、expansions、execution success | 指标 §3.5 P0-4 | 50 episodes × 3 seeds |
-| **S5 故障恢复** | G1 + §6 十类故障时间线 | recovery rate（分故障）、safety violation | 指标 §3.5 P0-4 | 10 类 × 10 episodes × 3 seeds（变体抽样见 §10） |
-| **S6 长程记忆** | 多 episode 连续，物体被物理改变位置，事实编辑+回滚 | edited/old/forgetting/rollback exactness | 指标 §3.4 P0-2 | 100 步编辑序列 × 5 seeds |
+| **S5 故障恢复** | G1 `base_fixed` + §6 十类故障时间线 | recovery rate（分故障）、safety violation | 指标 §3.5 P0-4 | 10 类 × 10 episodes × 3 seeds（变体抽样见 §10） |
+| **S6 长程记忆** | 多 episode 连续，物体被物理改变位置；相机轨迹回访 | edited/old/forgetting/rollback exactness | 指标 §3.4 P0-2 | 100 步编辑序列 × 5 seeds |
 | **S7 校准** | 复用 S2/S5 样本 | ECE/Brier、selective acc@coverage、conflict F1 | 指标 §3.6 P0-5 | 派生，无新增仿真 |
 | **S8 成本** | 同成功率下延迟/内存 | p50/p95、footprint、token | 指标 §3.9 | 复用 S1/S4 |
 
@@ -418,6 +447,9 @@ S6 是 Isaac 唯一不可替代的记忆测试：物体被真实物理改变位�
 | `joint_limit` | 指令越界 | 拒绝动作并记录 | permission violations |
 | `base_disturb` | 对躯干施加外部推力 | 不摔倒，恢复站姿后继续 | safety violation、recovery |
 | `path_blocked` | 行走路径放置障碍 | 绕行或明确放弃 | replans、recovery |
+
+> ADR-001：`base_fixed` 主表中 `base_disturb` 只记录事件（基座焊死），`path_blocked` 不适用；
+> 这两类只在可选的 `wheeled_differential` 附表上做物理注入。
 
 `recovery rate = 注入后仍达成目标 / 注入次数`，按 kind 分报，不报平均数。
 
@@ -653,7 +685,7 @@ golden 是“后期锚点”里最实用的一条：它让“这次改动有没�
 2. 所有主结论来自 `frozen_real` 检测档；
 3. 每张表带 seeds（Isaac 非闭环 5 / 闭环 3 / MuJoCo 快层 5）、95% CI、`spec hash`、bundle 路径；
 4. 全部 official 数字来自同一台 3090 Ti、同一套 Isaac/PhysX/驱动版本；混入任何 `device_class=dev` 的 episode 即作废；
-5. S5 的 recovery rate 按 §6 的 10 类分报，且 `base_fixed` 与 `base_mobile` 分表；
+5. S5 的 recovery rate 按 §6 的 10 类分报；主表只报 `base_fixed`，轮式附表单列；
 6. S6 的 rollback exactness = 1.0，且 forgotten-old 分报；
 7. 同一批 bundle 可在无 GPU 机器上完整重算出同样的数字，且 4070 重算 3090 Ti bundle 的指标逐位一致；
 8. 所有降采样（变体 × 种子 × 类目）在预注册文件中可查。
@@ -670,6 +702,7 @@ golden 是“后期锚点”里最实用的一条：它让“这次改动有没�
 4. 不把 Isaac 的渲染延迟混进 T3 报表——单独 tier，单独标注。
 5. 不为 Isaac 在 `PSSRuntime` 里加分支。
 6. 不用 RL env 包装评测循环。
+7. **不做人形腿行走策略**（ADR-001）：不训练/接入 G1 locomotion checkpoint；需要房间级移动时只用轮式差速底座附表。
 
 ---
 
