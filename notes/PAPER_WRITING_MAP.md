@@ -44,8 +44,8 @@
 - **C1（认知状态）**：显式实体层（持久 ID/生命周期/属性/置信度/provenance），支持 `witness()` / `retract()` / `revise()`；**新增 entity-audit property**：provenance 完整性、retraction 正确性、rollback 精确性、rebind 身份、tamper 检出全部 1.00（E1，5 seeds；三个负控制按预期失败）。持久性在 70 帧遮挡 benchmark 上 ID retention 0.989 vs 无状态代理 0.500（E2）；但信号分解是 tactile +0.117、graph/state +0.072、vision +0.028——**状态层提供机制，tactile 提供主要信号**。不写“re-ID 精度更高”（公平归因 +0.012）。
 - **C2（typed 关系）**：spatial/semantic/tactile 三类关系头；分布内 F1 0.957/0.996/0.970，缺 tactile 时 tactile 掉到 0.483（无捷径）。**hybrid 有条件成立**（E3）：learned 头只在训练覆盖的“双轴清晰”区做校准；对齐/held-out 轴必须由精确几何接管。噪声 0.15 下 hybrid_diag 0.857 vs 几何 dead-zone 0.828；把 learned 用在未训练的对齐轴上会掉到 0.503。**不写“学习关系替代几何”**。
 - **C3（active-set 记忆）**：observation-conditioned active-set：k=1 + fallback 以 ~1.2 个候选从 0.972 追平 1.000；P4 计算 N=200 6.4x、N=1000 23.6x（未达 10x 门槛）。**长历史 fact 的旧负结果已定位为 query-conditioning 缺失**（E4）：加入 query 条件后 k=4 下 hot 0.237 / 旧 learned 0.241 → query_recency 1.000 / learned_query 1.000；但简单 query-recency 规则追平 learned，所以 claim 是“接口必须 query-conditioned”，不是“学习打分更好”。
-- **C4（契约前提）**：异构感官专家可在同一认知层下组合：准入契约（modality/version/dim/encode/health）、原子热插拔 + 路由 + 非干扰 + 精确回滚、版本化 KB（原子/局部/传播/冲突检测/回滚/审计）、有界推理（BAR=1.00、MON=1.00、DCR=1.00）。property 指标跨 Q0–Q4 不变。**这是 C1–C3 可组合的工程前提，不是全文主论点。**
-- **C5（评测协议）**：property-level evaluation——expert quality 作为控制变量、twin 配对、N1–N8 负控制、TOST、two-way ANOVA、预注册；目的是把架构效应从专家质量里分离。**这是 C1–C4 的验证协议，不单独作为“我们提出了一种新评测方法”的论点**；若要独立成贡献，拆成 benchmark/methods 论文，并把 suite 跑到非 PSS baseline 上。
+- **C4（契约前提）**：异构感官专家可在同一认知层下组合：准入契约（modality/version/dim/encode/health）、原子热插拔 + 路由 + 非干扰 + 精确回滚、版本化 KB（原子/局部/传播/冲突检测/回滚/审计）、有界推理（BAR=1.00、MON=1.00、DCR=1.00）。property 指标跨 Q0–Q4 不变；**contract-free baseline 在 8 项契约指标上全 0（E5）**；dim 128/256/512 与 1000 facts 下契约不变（E8）；TMS 已接到生产 `MultiSourceFactStore`（E10）。**这是 C1–C3 可组合的工程前提，不是全文主论点。**
+- **C5（评测协议）**：property-level evaluation——expert quality 作为控制变量、twin 配对、N1–N8 负控制、TOST、two-way ANOVA、预注册；目的是把架构效应从专家质量里分离。**E5 加了 contract-free baseline，证明 suite 不是定制试卷（8 项契约指标全 0）**；但仍不单独作为“新评测方法”的论点。若要独立成贡献，拆成 benchmark/methods 论文，并补一个竞争性非 PSS baseline（当前是 contract-free，不是能力基线）。
 - **C6（边界/负结果）**：共享空间是**可校准接口**：未校准跨族专家不通（vision 0.20 / tactile 0.067，chance 0.167），校准后 vision k=1 → 1.00，tactile 受专家本身限制（test acc ≈ 0.245）；L2 仅 S4-PSS + oracle boxes；无真机。
 
 > 如果期刊/会议只允许 4 条，把 C5 并进 §4 Evaluation Protocol、C6 放进 Discussion。
@@ -275,25 +275,40 @@ cognitive runtime; entity binding; typed relations; active-set memory; modular a
 
 ## 10. 还需要补什么（提升论文价值）
 
-0. **把 property suite 跑到非 PSS baseline**：证明测量协议不是定制试卷；否则 C5 只能作为协议，不能作为独立方法贡献。
-1. **A5 真实 retrain-all**：当前是 oracle 上界；审稿人会问“retrain-all 到底多贵”。
-2. **L2 覆盖认知层**：在 Isaac 上做遮挡绑定、运行中 swap、任务中更新、冲突弃权。
-3. **非 oracle 检测器**：GroundingDINO/noisy 检测，证明状态层在感知噪声下仍成立。
-4. **关系层 held-out 消融**：**已完成（E3）**。hybrid 只在 learned 训练覆盖的“双轴清晰”区成立；对齐/held-out 轴由精确几何接管。下一步是把同样的消融搬到感知噪声 + 非网格布局上。
-5. **长历史 fact active-set**：**已完成（E4）**。旧负结果定位为 query-conditioning 缺失；query 条件下 k=4 从 0.237 到 1.000，但简单 query-recency 规则即可追平。下一步是覆盖率损失与多 query 混合。
-6. **更多专家族**：SqueezeNet、DINOv2、WT-MM，验证契约是否普遍。
-7. **真机小规模**：WT-MM/LeRobot，证明不是纯仿真。
-8. **tactile 改进或明确降级**：架构无法修复弱触觉；要么换专家，要么标记低可靠模态。
-9. **scale 证据**：D=128→512、专家数、原型数、事实数。
-10. **TMS 接入生产 `MultiSourceFactStore`**：目前是独立模块。
-11. **全因子/更多 seeds**：当前是缩减设计；L1 只有 3 seeds。
+> 状态截至 2026-11-26。结果见 `reports/claim_gaps/FOLLOWUPS.md`；设计见 `notes/CLAIM_GAP_EXPERIMENTS.md`。
+
+| # | 项目 | 状态 | 结果 | 仍缺 |
+|---:|---|---|---|---|
+| 0 | property suite 跑非 PSS baseline | **完成（E5）** | PSS 9 项契约指标通过；contract-free baseline 在 SRR/RBE/RCR/PCR/AUD/RBE-KB/BAR/MON 上全 0；INT 0.667 | 不是竞争性架构，只是敏感性控制 |
+| 1 | A5 真实 retrain-all | **完成（E6/E6b/E6c）** | 冻结专家 + 重建 prototype 0.964（3.2 ms）；仅重训投影 0.979（13.5 s）；5ep 专家全量重训 0.943（29 s）；30ep 专家全量重训 0.969（38 s） | 30ep 专家仍不如“冻结专家 + 仅重训投影”；没有质量理由重训专家 |
+| 2 | L2 覆盖认知层 | **部分（E12 + S4 variants）** | valid-bundle replay：full 1.000 / no_memory 0.827 / no_entity 0.270（19/33 bundles）；S4 `full`/`no_memory` 3/3，`no_relations` 0/3 | 运行中 swap、任务中 KB 更新、冲突弃权仍需 perception-driven L2 harness |
+| 3 | 非 oracle 检测器 | **完成（E7）** | oracle 0.989 → 20% miss 0.871 → 30% miss 0.697 | 未接 GroundingDINO 权重；是检测噪声注入 |
+| 4 | 关系层 held-out 消融 | **完成（E3）** | hybrid_diag 0.857 vs geo_tau 0.828 @ noise 0.15 | 非网格布局 + 感知噪声未测 |
+| 5 | 长历史 fact active-set | **完成（E4）** | query 条件下 k=4 0.241 → 1.000；简单规则追平 learned | 多 query + coverage loss 未测 |
+| 6 | 更多专家族 | **完成（E11，3 族）** | zero-shot 0.186；k=1 0.936；tactile 仍 0.067–0.100 | DINOv2/SqueezeNet/WT-MM 因投影宽度不兼容未接 |
+| 7 | 真机 | **N/A** | 环境无机器人 | 需要硬件 |
+| 8 | tactile 改进或降级 | **完成（E15）** | tactile_zero fixed 0.979；vision_shuffle abstain 0.083/1.000 | 未换更强触觉专家；E6/E11 显示 tactile 仍弱 |
+| 9 | scale | **完成（E8）** | dim 128/256/512 不变；1000 facts update 52.9 ms、rollback 1；500/2000 bounded | 专家数/原型数未单独扫 |
+| 10 | TMS 接生产 store | **完成（E10）** | K3/K4/K5/AUD/source-retract 全 1.00；`TMSFactStore` 包装 `MultiSourceFactStore` | 未替换全部调用点 |
+| 10b | runtime 权限/审计 | **完成（E17）** | read_only 拒绝 5 项、admin 拒绝 0；拒绝动作全部入审计 | 未做真机权限 |
+| 11 | 全因子/更多 seeds | **完成（E9）** | L0 10 seeds 契约不变；L1 5 seeds SSR/RBE/INT/RCR=1.0 | 全因子未跑 |
+
+### 新补的两条（不在原列表）
+
+- **C3 RAG baseline（E13）**：exact-RAG 准确率 1.000，但 p50 1.38 ms vs PSS 0.0003 ms；learned-RAG 在合成流上检索受限（0.375），只作为下界。C3 的成本比较不再只有 transformer 基线。
+- **semantic-space ablation（E14）**：closed-set 0.969 在三变体不变；cross-modal R@1 0.510（trained）vs 0.115（random）。结论要写成“per-modality 投影提供跨模态对齐”，不是“提升闭集精度”。
+
+### 仍不建议写
+
+- 真机可靠性、DINOv2/SqueezeNet 跨族、L2 运行中 H/K、全因子交互。
+- “retrain-all 很贵”改成“不需要 retrain-all”：prototype rebuild 3 ms/0.964，仅重训投影 13.5 s/0.979，30ep 专家全量重训 38 s/0.969。重训专家既不更快也不更好。
 
 ---
 
 ## 11. 一页纸总结
 
 - **写什么**：显式认知状态层（绑定/关系/记忆/审计）+ 契约前提（热插拔/版本化 KB/有界推理）+ property 协议 + 可校准接口边界。
-- **不写什么**：re-ID 精度优势、零样本公共空间、学习关系替代几何、学习打分优于简单规则、SOTA、真机可靠、大规模。
-- **最强证据**：实体审计全 1.00 + 3 负控制、70 帧绑定 0.989 vs 0.500、关系 F1 0.957–0.996、hybrid_diag 0.857 vs geo_tau 0.828、active-set 1.2 候选追平、query-conditioned fact 1.000、开放集 0.958、契约 property 不变、N1–N8、S4-PSS 5/5。
-- **最有价值的负结果**：公平归因 +0.012、朴素 hybrid（learned 用于对齐轴）0.503、learned 关系 0.532、旧 fact active-set 0.241（已定位为 query-conditioning 缺失）、tactile 0.245。
+- **不写什么**：re-ID 精度优势、零样本公共空间、学习关系替代几何、学习打分优于简单规则、per-modality 提升闭集精度、retrain-all 必要、SOTA、真机可靠、大规模。
+- **最强证据**：实体审计全 1.00 + 3 负控制、70 帧绑定 0.989 vs 0.500、关系 F1 0.957–0.996、hybrid_diag 0.857 vs geo_tau 0.828、active-set 1.2 候选追平、query-conditioned fact 1.000、开放集 0.958、契约 property 不变、N1–N8、S4-PSS 5/5、contract-free baseline 在 8 项契约指标上全 0、L2 valid all-bundle 1.000/0.827/0.270（19/33）、S4 `no_relations` 0/3、30% 检测丢失下 0.697、dim 128/256/512 不变、TMS 生产 store 全 1.00、exact-RAG 1.38 ms vs PSS 0.0003 ms、3 族 k=1 0.936、30ep 全量重训 38 s/0.969 vs 冻结+仅重训投影 13.5 s/0.979。
+- **最有价值的负结果**：公平归因 +0.012、朴素 hybrid（learned 用于对齐轴）0.503、learned 关系 0.532、旧 fact active-set 0.241（已定位为 query-conditioning 缺失）、tactile 0.245、1-shot ridge 0.922 < frozen+alt prototypes 0.964、closed-set 在 sum/random 变体下仍 0.969（对齐只体现在 cross-modal R@1 0.510 vs 0.115）、S4 `no_memory`/`no_entity` 仍 3/3（该 L2 任务不测记忆）。
 - **论文定位**：不是“又一个非 LLM 大模型”，而是“感知之上的显式认知状态层 + 可分离测量”。

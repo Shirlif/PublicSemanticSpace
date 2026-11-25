@@ -1,0 +1,84 @@
+{
+  "seed": 4,
+  "swap": {
+    "metrics": {
+      "SSR_L1": 1.0,
+      "ZCR_L1": 0.66875,
+      "ZCR_same_modality_L1": 0.875,
+      "ZCR_ratio_Q1": 1.003584229390681,
+      "ZCR_ratio_mean": 1.051373954599761,
+      "INT_L1": 0.0,
+      "RBE_L1": 1.0,
+      "RCR_L1": 1.0,
+      "swap_latency_ms_L1": 0.12468000641092658
+    },
+    "per_level": {
+      "Q0": {
+        "accuracy_target": 1.0,
+        "zcr": 0.96875,
+        "zcr_ratio": 0.96875,
+        "swap_success": true,
+        "swap_latency_ms": 0.11419999646022916,
+        "rollback": 1.0,
+        "int": 0.0,
+        "dt": 0.0
+      },
+      "Q1": {
+        "accuracy_target": 0.9,
+        "zcr": 0.875,
+        "zcr_ratio": 1.003584229390681,
+        "swap_success": true,
+        "swap_latency_ms": 0.11669998639263213,
+        "rollback": 1.0,
+        "int": 0.0,
+        "dt": 0.0
+      },
+      "Q2": {
+        "accuracy_target": 0.75,
+        "zcr": 0.78125,
+        "zcr_ratio": 1.075268817204301,
+        "swap_success": true,
+        "swap_latency_ms": 0.1303000026382506,
+        "rollback": 1.0,
+        "int": 0.0,
+        "dt": 0.0
+      },
+      "Q3": {
+        "accuracy_target": 0.55,
+        "zcr": 0.5729166666666666,
+        "zcr_ratio": 1.075268817204301,
+        "swap_success": true,
+        "swap_latency_ms": 0.15600002370774746,
+        "rollback": 1.0,
+        "int": 0.0,
+        "dt": 0.0
+      },
+      "Q4": {
+        "accuracy_target": 0.0,
+        "zcr": 0.14583333333333334,
+        "zcr_ratio": 145833333.33333334,
+        "swap_success": true,
+        "swap_latency_ms": 0.10620002285577357,
+        "rollback": 1.0,
+        "int": 0.0,
+        "dt": 0.0
+      }
+    },
+    "metadata": {
+      "data_dir": "data/expert_v1",
+      "expert_dir": "checkpoints\\expert_v1",
+      "projection_dir": "checkpoints\\projection_v1",
+      "prototype_dir": "checkpoints\\prototypes_v1",
+      "n_samples": 96,
+      "classes": [
+        "block",
+        "bottle",
+        "box",
+        "cup",
+        "plate",
+        "toy_fruit"
+      ],
+      "device": "cuda"
+    }
+  }
+}

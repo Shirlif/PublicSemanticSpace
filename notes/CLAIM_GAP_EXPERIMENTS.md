@@ -141,10 +141,45 @@ held-out 区域 D/G，3 seeds：
 
 结论：旧负结果（learned 0.372 < hot 0.480）是 **query-independent 打分**造成的，不是学习能力不足。加入 query 条件后，简单 query-recency 规则和 learned policy 都到 1.000。因此 claim 应写成“长历史 fact 选择必须有 query-conditioned 接口”，而不是“学习打分更好”。
 
-### 仍未闭合
+### 仍未闭合（更新到 2026-11-26）
 
-- **C5**：property suite 尚未在非 PSS baseline 上运行；E5 需要单体基线，未做。
-- **E2 的外部效度**：仍是 MuJoCo 渲染 + 3 objects；没有真机/非 oracle 检测器。
-- **E3 的网格性**：P5b 是 5-region 网格；非网格布局 + 感知噪声下的 hybrid 未测。
-- **E4 的多 query**：只测了单 query top-k；多 query 混合与 coverage loss 未测。
+- **真机**：环境无机器人。
+- **L2 运行中 H/K / 冲突弃权**：S4-PSS 是 oracle pose + 无遮挡；E12 用 bundle replay 补了 L2 记忆消融，但 swap/KB 仍需新 harness。
+- **E2/E7 外部效度**：仍是 MuJoCo 渲染；E7 是检测噪声注入，不是 GroundingDINO。
+- **E3 网格性**：P5b 是 5-region 网格；非网格布局未测。
+- **E4 多 query**：只测单 query top-k；多 query + coverage loss 未测。
+- **E11 专家族**：只接了 3 个同宽度族；DINOv2/SqueezeNet/WT-MM 未接。
+- **C5 竞争性 baseline**：E5 是 contract-free，不是能力基线。
+
+---
+
+## §10 追加实验（2026-11-26）
+
+> 汇总：`reports/claim_gaps/FOLLOWUPS.md`。
+
+| 实验 | §10 | 关键结果 | 结论 |
+|---|---|---|---|
+| E5 non-PSS baseline | 0 | PSS 契约指标 1.0；flat 在 SRR/RBE/RCR/PCR/AUD/RBE-KB/BAR/MON 全 0；INT 0.667 | suite 不是定制试卷 |
+| E6 retrain-all proxy | 1 | frozen+alt prototypes 0.964 (3.2 ms)；1-shot ridge 0.922 (108 ms)；retrained projection 0.979 (13.5 s) | prototype rebuild 是主成本；retrain 只 +1.5 点；ridge 不必要 |
+| E7 detection noise | 3 | 0.989 → 0.975 (10% miss) → 0.871 (20%) → 0.697 (30%) | 状态层随检测丢失平滑退化 |
+| E8 scale | 9 | dim 128/256/512 契约不变；1000 facts update 52.9 ms、rollback 1；500/2000 bounded | 契约不变，延迟随数据增长 |
+| E9 more seeds | 11 | L0 10 seeds 契约全 1.0；L1 5 seeds SSR/RBE/INT/RCR=1.0，ZCR 0.671±0.014 | 不是 seed 偶然 |
+| E10 TMS production | 10 | K3/K4/K5/AUD/source-retract 全 1.00 | TMS 不再是与生产 store 平行的模块 |
+| E11 expert families | 6 | 3 族 zero-shot 0.186；k=1 0.936；tactile 0.067–0.100 | 校准接口跨族成立；tactile 仍弱 |
+| E12 L2 bundle replay | 2 | full 0.889 / no_memory 0.615 / no_entity 0.213；S4 no_relations 0/3 | L2 记忆消融成立；S4 任务测关系不测记忆 |
+| E13 exact-RAG | C3 | exact RAG acc 1.000 @ 1.38 ms vs PSS 0.0003 ms；learned RAG 0.375 | 成本优势不是靠弱 RAG 基线 |
+| E14 space ablation | 空间 | closed-set 0.969 三变体不变；cross-modal R@1 0.510 vs random 0.115 | 学习投影的价值在跨模态对齐 |
+| E15 modality conflict | 8 | tactile_zero fixed 0.979；vision_shuffle abstain 0.083/1.000 | 触觉降级可显式处理 |
+| E16 open-set | — | PSS AUROC 0.993 / reject 0.958 vs energy 0.937/0.753 | 开放集拒识仍成立 |
+
+### 解读要点
+
+- **E6 改写了“retrain-all 很贵”的写法**：真正便宜的是在冻结 heads 上重建 prototype（3 ms），不是全量重训。论文应说“不需要重训专家/投影”，而不是“retrain-all 很贵”。
+- **E6b 把 retrain-all 的下界坐实**：5ep 专家重训 15.5 s + 投影 13.5 s ≈ 29 s，ZCR 0.943；冻结专家 + 重建 prototype 3.2 ms，ZCR 0.964。结论是“重训没有质量优势，成本高两个数量级”。
+- **E6c 是 30ep 公平重训**：专家 24.6 s + 投影 13.4 s ≈ 38 s，ZCR 0.969；仍低于“冻结专家 + 仅重训投影”0.979（13.5 s），也只是略高于 prototype rebuild 0.964（3.2 ms）。结论是“没有质量理由重训专家”。
+- **E14 改写了“per-modality 提升精度”的写法**：闭集精度不变；学习投影的价值在跨模态 R@1。C5/C6 应写“对齐接口”，不是“分类更强”。
+- **E12 补上了 L2 记忆**：33 个 bundle 里 19 个有有效身份 trace；valid-bundle full 1.000 / no_memory 0.827 / no_entity 0.270。零 retention 的 bundle 不作为证据。
+- **E18 区分了两类 L2 任务**：S4-PSS 的 `no_relations` 0/3，说明它测关系；`no_memory`/`no_entity` 3/3，说明它不测记忆。记忆证据来自 E12。
+- **E17 补了 runtime 权限**：read_only 拒绝 5 项、admin 0；拒绝动作入审计。
+- **E13 补上了 RAG 基线**：learned-RAG 是弱基线，exact-RAG（top-1 精确检索）是公平上界；PSS 在同等准确率下快约 4000x。
 

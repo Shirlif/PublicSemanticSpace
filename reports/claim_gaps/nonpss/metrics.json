@@ -1,0 +1,216 @@
+{
+  "seeds": 3,
+  "dim": 128,
+  "rows": [
+    {
+      "seed": 0,
+      "pss": {
+        "SSR": 1.0,
+        "SRR": 1.0,
+        "INT": 0.0,
+        "RBE": 1.0,
+        "RCR": 1.0,
+        "USR": 1.0,
+        "LOC": 0.0,
+        "PCR": 1.0,
+        "AUD": 1.0,
+        "RBE-KB": 1.0,
+        "BAR": 1.0,
+        "MON": 1.0
+      },
+      "flat": {
+        "SSR": 1.0,
+        "SRR": 0.0,
+        "INT": 1.0,
+        "RBE": 0.0,
+        "RCR": 0.0,
+        "USR": 1.0,
+        "LOC": 0.0,
+        "PCR": 0.0,
+        "AUD": 0.0,
+        "RBE-KB": 0.0,
+        "BAR": 0.0,
+        "MON": 0.0
+      }
+    },
+    {
+      "seed": 1,
+      "pss": {
+        "SSR": 1.0,
+        "SRR": 1.0,
+        "INT": 0.0,
+        "RBE": 1.0,
+        "RCR": 1.0,
+        "USR": 1.0,
+        "LOC": 0.0,
+        "PCR": 1.0,
+        "AUD": 1.0,
+        "RBE-KB": 1.0,
+        "BAR": 1.0,
+        "MON": 1.0
+      },
+      "flat": {
+        "SSR": 1.0,
+        "SRR": 0.0,
+        "INT": 1.0,
+        "RBE": 0.0,
+        "RCR": 0.0,
+        "USR": 1.0,
+        "LOC": 0.0,
+        "PCR": 0.0,
+        "AUD": 0.0,
+        "RBE-KB": 0.0,
+        "BAR": 0.0,
+        "MON": 0.0
+      }
+    },
+    {
+      "seed": 2,
+      "pss": {
+        "SSR": 1.0,
+        "SRR": 1.0,
+        "INT": 0.0,
+        "RBE": 1.0,
+        "RCR": 1.0,
+        "USR": 1.0,
+        "LOC": 0.0,
+        "PCR": 1.0,
+        "AUD": 1.0,
+        "RBE-KB": 1.0,
+        "BAR": 1.0,
+        "MON": 1.0
+      },
+      "flat": {
+        "SSR": 1.0,
+        "SRR": 0.0,
+        "INT": 0.0,
+        "RBE": 0.0,
+        "RCR": 0.0,
+        "USR": 1.0,
+        "LOC": 0.0,
+        "PCR": 0.0,
+        "AUD": 0.0,
+        "RBE-KB": 0.0,
+        "BAR": 0.0,
+        "MON": 0.0
+      }
+    }
+  ],
+  "summary": {
+    "pss": {
+      "SSR": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "SRR": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "INT": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "RBE": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "RCR": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "USR": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "LOC": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "PCR": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "AUD": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "RBE-KB": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "BAR": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "MON": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    },
+    "flat": {
+      "SSR": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "SRR": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "INT": {
+        "mean": 0.6666666666666666,
+        "std": 0.4714045207910317
+      },
+      "RBE": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "RCR": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "USR": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "LOC": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "PCR": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "AUD": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "RBE-KB": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "BAR": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "MON": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    }
+  },
+  "separated": {
+    "SSR": false,
+    "SRR": true,
+    "INT": true,
+    "RBE": true,
+    "RCR": true,
+    "USR": true,
+    "LOC": true,
+    "PCR": true,
+    "AUD": true,
+    "RBE-KB": true,
+    "BAR": true,
+    "MON": true
+  },
+  "generated": "2026-11-25 15:35:13 UTC"
+}

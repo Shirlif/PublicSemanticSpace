@@ -56,6 +56,7 @@ def _render(payloads: dict[str, dict | None]) -> str:
         "",
         f"> generated: {now}",
         "> design: `notes/CLAIM_GAP_EXPERIMENTS.md`",
+        "> §10 follow-ups: `reports/claim_gaps/FOLLOWUPS.md`",
         "",
         "## Verdict table",
         "",

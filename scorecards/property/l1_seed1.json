@@ -10,7 +10,7 @@
       "INT_L1": 0.0,
       "RBE_L1": 1.0,
       "RCR_L1": 1.0,
-      "swap_latency_ms_L1": 0.2851600031135604
+      "swap_latency_ms_L1": 0.11394000612199306
     },
     "per_level": {
       "Q0": {
@@ -18,7 +18,7 @@
         "zcr": 0.96875,
         "zcr_ratio": 0.96875,
         "swap_success": true,
-        "swap_latency_ms": 0.2555000100983307,
+        "swap_latency_ms": 0.0934000127017498,
         "rollback": 1.0,
         "int": 0.0,
         "dt": 0.0
@@ -28,7 +28,7 @@
         "zcr": 0.8958333333333334,
         "zcr_ratio": 1.027479091995221,
         "swap_success": true,
-        "swap_latency_ms": 0.3209999995306134,
+        "swap_latency_ms": 0.11130000348202884,
         "rollback": 1.0,
         "int": 0.0,
         "dt": 0.0
@@ -38,7 +38,7 @@
         "zcr": 0.7708333333333334,
         "zcr_ratio": 1.060931899641577,
         "swap_success": true,
-        "swap_latency_ms": 0.2961999998660758,
+        "swap_latency_ms": 0.14409999130293727,
         "rollback": 1.0,
         "int": 0.0,
         "dt": 0.0
@@ -48,7 +48,7 @@
         "zcr": 0.6458333333333334,
         "zcr_ratio": 1.2121212121212122,
         "swap_success": true,
-        "swap_latency_ms": 0.262400004430674,
+        "swap_latency_ms": 0.09560000034980476,
         "rollback": 1.0,
         "int": 0.0,
         "dt": 0.0
@@ -58,7 +58,7 @@
         "zcr": 0.14583333333333334,
         "zcr_ratio": 145833333.33333334,
         "swap_success": true,
-        "swap_latency_ms": 0.29070000164210796,
+        "swap_latency_ms": 0.12530002277344465,
         "rollback": 1.0,
         "int": 0.0,
         "dt": 0.0
@@ -79,55 +79,6 @@
         "toy_fruit"
       ],
       "device": "cuda"
-    }
-  },
-  "family": {
-    "alt_data": "data/category_pretrain",
-    "alt_experts": "checkpoints\\category_pretrain_experts",
-    "n_samples": 60,
-    "common_classes": [
-      "block",
-      "bottle",
-      "box",
-      "cup",
-      "plate",
-      "toy_fruit"
-    ],
-    "per_class_counts": {
-      "cup": 12,
-      "plate": 12,
-      "bottle": 12,
-      "box": 12,
-      "block": 12
-    },
-    "ZCR_vision": 0.2,
-    "ZCR_tactile": 0.06666666666666667,
-    "chance": 0.16666666666666666
-  },
-  "calibration": {
-    "alt_data": "data/category_pretrain",
-    "alt_experts": "checkpoints\\category_pretrain_experts",
-    "n_test": 60,
-    "ks": [
-      0,
-      1,
-      5,
-      20
-    ],
-    "chance": 0.16666666666666666,
-    "per_modality": {
-      "vision": {
-        "0": 0.2,
-        "1": 1.0,
-        "5": 0.95,
-        "20": 1.0
-      },
-      "tactile": {
-        "0": 0.06666666666666667,
-        "1": 0.4,
-        "5": 0.31666666666666665,
-        "20": 0.3333333333333333
-      }
     }
   }
 }

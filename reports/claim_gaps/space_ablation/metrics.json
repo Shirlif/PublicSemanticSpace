@@ -1,0 +1,26 @@
+{
+  "data_dir": "data/expert_v1",
+  "expert_dir": "checkpoints/expert_v1",
+  "projection_dir": "checkpoints/projection_v1",
+  "prototype_dir": "checkpoints/prototypes_v1",
+  "split": "test",
+  "n_train": 96,
+  "n_test": 96,
+  "classes": [
+    "block",
+    "bottle",
+    "box",
+    "cup",
+    "plate",
+    "toy_fruit"
+  ],
+  "ablations": {
+    "full_accuracy": 0.96875,
+    "trained_vision_tactile_r1": 0.5104166666666666,
+    "cross_modal_sum_accuracy": 0.96875,
+    "random_projection_accuracy": 0.96875,
+    "random_projection_vision_tactile_r1": 0.11458333333333333
+  },
+  "chance": 0.16666666666666666,
+  "generated": "2026-11-25 16:20:02 UTC"
+}

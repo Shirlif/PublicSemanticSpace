@@ -1,0 +1,54 @@
+{
+  "top_k": 4,
+  "seeds": 1,
+  "epochs": 100,
+  "rows": [
+    {
+      "history": 10,
+      "full_accuracy": 0.234375,
+      "rag_accuracy": 0.4921875,
+      "exact_rag_accuracy": 1.0,
+      "full_p50_ms": 2.1004000154789537,
+      "rag_p50_ms": 1.586500002304092,
+      "exact_rag_p50_ms": 1.29640000523068,
+      "exact_rag_p95_ms": 1.3759600115008652
+    },
+    {
+      "history": 100,
+      "full_accuracy": 0.0859375,
+      "rag_accuracy": 0.3984375,
+      "exact_rag_accuracy": 1.0,
+      "full_p50_ms": 2.043600019533187,
+      "rag_p50_ms": 1.6140000079758465,
+      "exact_rag_p50_ms": 1.3590000162366778,
+      "exact_rag_p95_ms": 1.6185599961318076
+    },
+    {
+      "history": 500,
+      "full_accuracy": 0.0390625,
+      "rag_accuracy": 0.359375,
+      "exact_rag_accuracy": 1.0,
+      "full_p50_ms": 3.9622000185772777,
+      "rag_p50_ms": 1.7890000017359853,
+      "exact_rag_p50_ms": 1.4438999933190644,
+      "exact_rag_p95_ms": 1.481480005895719
+    },
+    {
+      "history": 1000,
+      "full_accuracy": 0.078125,
+      "rag_accuracy": 0.375,
+      "exact_rag_accuracy": 1.0,
+      "full_p50_ms": 9.902399993734434,
+      "rag_p50_ms": 1.7717000155244023,
+      "exact_rag_p50_ms": 1.3796999992337078,
+      "exact_rag_p95_ms": 1.4490800152998418
+    }
+  ],
+  "pss": {
+    "accuracy": 1.0,
+    "p50_ms": 0.0003,
+    "p95_ms": 0.0014,
+    "active_k": 8
+  },
+  "generated": "2026-11-25 16:13:49 UTC"
+}

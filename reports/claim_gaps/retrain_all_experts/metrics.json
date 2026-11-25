@@ -1,0 +1,35 @@
+{
+  "alt_data": "data/category_pretrain",
+  "alt_experts": "eval/results/_retrain_experts_5ep",
+  "n_train": 1152,
+  "n_test": 192,
+  "classes": 16,
+  "chance": 0.0625,
+  "methods": {
+    "frozen_heads_alt_prototypes": {
+      "vision": 0.921875,
+      "tactile": 0.16145833333333334
+    },
+    "k1_calibration_alt_prototypes": {
+      "vision": 0.765625,
+      "tactile": 0.140625
+    },
+    "retrained_projection_prototypes": {
+      "vision": 0.9427083333333334,
+      "tactile": 0.18229166666666666
+    }
+  },
+  "cost": {
+    "prototype_build_ms": 4.367199988337234,
+    "k1_calibration_ms": {
+      "vision": 106.96820000885054,
+      "tactile": 103.71900000609457
+    },
+    "retrain_projection_s": 13.501114500017138,
+    "expert_train_s": 15.5,
+    "retrain_total_s": 29.001114500017138,
+    "retrain_epochs": 10
+  },
+  "note": "Retrains projection heads + prototypes only; frozen expert encoders are not retrained, so this is a lower bound on retrain-all cost. The frozen condition rebuilds prototypes on the target family, so it is not the base-bank zero-shot condition (that is the E11 family swap).",
+  "generated": "2026-11-25 16:30:30 UTC"
+}

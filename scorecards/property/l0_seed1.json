@@ -15,14 +15,14 @@
         "RCR": 1.0,
         "SRR": 1.0,
         "old_module_retained": 1.0,
-        "swap_latency_ms": 0.12556000147014856
+        "swap_latency_ms": 0.14163999585434794
       },
       "details": {
         "per_level": {
           "Q0": {
             "swap_success": true,
             "zcr": 1.0,
-            "swap_latency_ms": 0.2086000022245571,
+            "swap_latency_ms": 0.2601000014692545,
             "rollback_exact": 1.0,
             "measured": {
               "n": 200,
@@ -34,7 +34,7 @@
           "Q1": {
             "swap_success": true,
             "zcr": 0.9,
-            "swap_latency_ms": 0.12139999307692051,
+            "swap_latency_ms": 0.14399999054148793,
             "rollback_exact": 1.0,
             "measured": {
               "n": 200,
@@ -46,7 +46,7 @@
           "Q2": {
             "swap_success": true,
             "zcr": 0.75,
-            "swap_latency_ms": 0.09610000415705144,
+            "swap_latency_ms": 0.08899997919797897,
             "rollback_exact": 1.0,
             "measured": {
               "n": 200,
@@ -58,7 +58,7 @@
           "Q3": {
             "swap_success": true,
             "zcr": 0.55,
-            "swap_latency_ms": 0.10350000229664147,
+            "swap_latency_ms": 0.1097000204026699,
             "rollback_exact": 1.0,
             "measured": {
               "n": 200,
@@ -70,7 +70,7 @@
           "Q4": {
             "swap_success": true,
             "zcr": 0.12,
-            "swap_latency_ms": 0.09820000559557229,
+            "swap_latency_ms": 0.10539998766034842,
             "rollback_exact": 1.0,
             "measured": {
               "n": 200,
@@ -136,8 +136,8 @@
       "metrics": {
         "BAR": 1.0,
         "MON": 1.0,
-        "p95_ms": 0.20641999144572765,
-        "p99_ms": 0.20696399093139917,
+        "p95_ms": 0.21477999980561435,
+        "p99_ms": 0.21791600505821407,
         "DCR": 1.0,
         "CAT": 0.0,
         "WCB": 0.0,
@@ -150,63 +150,63 @@
             "success": false,
             "nodes": 1,
             "within_budget": true,
-            "latency_ms": 0.0050000089686363935
+            "latency_ms": 0.006000016583129764
           },
           {
             "budget": 2,
             "success": false,
             "nodes": 2,
             "within_budget": true,
-            "latency_ms": 0.01720000000204891
+            "latency_ms": 0.0171000137925148
           },
           {
             "budget": 3,
             "success": false,
             "nodes": 3,
             "within_budget": true,
-            "latency_ms": 0.022599997464567423
+            "latency_ms": 0.017700018361210823
           },
           {
             "budget": 5,
             "success": false,
             "nodes": 5,
             "within_budget": true,
-            "latency_ms": 0.02720000338740647
+            "latency_ms": 0.024599983589723706
           },
           {
             "budget": 8,
             "success": false,
             "nodes": 8,
             "within_budget": true,
-            "latency_ms": 0.04199999966658652
+            "latency_ms": 0.040099985199049115
           },
           {
             "budget": 12,
             "success": false,
             "nodes": 12,
             "within_budget": true,
-            "latency_ms": 0.05499999679159373
+            "latency_ms": 0.056100019719451666
           },
           {
             "budget": 20,
             "success": false,
             "nodes": 20,
             "within_budget": true,
-            "latency_ms": 0.0864000030560419
+            "latency_ms": 0.08659999002702534
           },
           {
             "budget": 50,
             "success": false,
             "nodes": 50,
             "within_budget": true,
-            "latency_ms": 0.20709999080281705
+            "latency_ms": 0.20889998995698988
           },
           {
             "budget": 100,
             "success": true,
             "nodes": 50,
             "within_budget": true,
-            "latency_ms": 0.20539999241009355
+            "latency_ms": 0.218700006371364
           }
         ],
         "C2_scene_pressure": {
@@ -219,63 +219,63 @@
             "budget": 1,
             "success": false,
             "nodes": 1,
-            "latency_ms": 0.01649999467190355,
+            "latency_ms": 0.023900007363408804,
             "within_budget": true
           },
           {
             "budget": 2,
             "success": false,
             "nodes": 2,
-            "latency_ms": 0.02200000744778663,
+            "latency_ms": 0.02519998815841973,
             "within_budget": true
           },
           {
             "budget": 3,
             "success": false,
             "nodes": 3,
-            "latency_ms": 0.020899999071843922,
+            "latency_ms": 0.021599989850074053,
             "within_budget": true
           },
           {
             "budget": 5,
             "success": false,
             "nodes": 5,
-            "latency_ms": 0.02710000262595713,
+            "latency_ms": 0.026299996534362435,
             "within_budget": true
           },
           {
             "budget": 8,
             "success": false,
             "nodes": 8,
-            "latency_ms": 0.05259999306872487,
+            "latency_ms": 0.04159999662078917,
             "within_budget": true
           },
           {
             "budget": 12,
             "success": false,
             "nodes": 12,
-            "latency_ms": 0.05669999518431723,
+            "latency_ms": 0.05470000905916095,
             "within_budget": true
           },
           {
             "budget": 20,
             "success": false,
             "nodes": 20,
-            "latency_ms": 0.09380000119563192,
+            "latency_ms": 0.12409998453222215,
             "within_budget": true
           },
           {
             "budget": 50,
             "success": false,
             "nodes": 50,
-            "latency_ms": 0.21640000340994447,
+            "latency_ms": 0.2308000111952424,
             "within_budget": true
           },
           {
             "budget": 100,
             "success": true,
             "nodes": 50,
-            "latency_ms": 0.22140001237858087,
+            "latency_ms": 0.2294000005349517,
             "within_budget": true
           }
         ],
@@ -307,11 +307,11 @@
         ],
         "C6_costs": {
           "stages": {
-            "active_set": 0.0024000037228688598,
-            "relations": 0.0050000089686363935,
-            "plan": 0.2069000038318336
+            "active_set": 0.0027999922167509794,
+            "relations": 0.0048000074457377195,
+            "plan": 0.22159999934956431
           },
-          "total_ms": 0.21430001652333885,
+          "total_ms": 0.229199999012053,
           "attribution_error": 0.0
         }
       }
@@ -333,7 +333,7 @@
         },
         "HC": {
           "plan_success": true,
-          "total_ms": 0.24639999901410192
+          "total_ms": 0.25270000332966447
         },
         "KC": {
           "nodes": 50,
@@ -357,7 +357,7 @@
     "RCR": 1.0,
     "SRR": 1.0,
     "old_module_retained": 1.0,
-    "swap_latency_ms": 0.12556000147014856,
+    "swap_latency_ms": 0.14163999585434794,
     "USR": 1.0,
     "LOC": 0.0,
     "FOR": 0.0,
@@ -369,8 +369,8 @@
     "UL_ms": 0.0,
     "BAR": 1.0,
     "MON": 1.0,
-    "p95_ms": 0.20641999144572765,
-    "p99_ms": 0.20696399093139917,
+    "p95_ms": 0.21477999980561435,
+    "p99_ms": 0.21791600505821407,
     "DCR": 1.0,
     "CAT": 0.0,
     "WCB": 0.0,

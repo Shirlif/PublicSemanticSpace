@@ -1,0 +1,2063 @@
+{
+  "data_dir": "data\\tracking_bench_long",
+  "sequences": 60,
+  "conditions": [
+    {
+      "name": "oracle",
+      "miss_rate": 0.0,
+      "pose_sigma": 0.0
+    },
+    {
+      "name": "miss10_sigma2cm",
+      "miss_rate": 0.1,
+      "pose_sigma": 0.02
+    },
+    {
+      "name": "miss20_sigma5cm",
+      "miss_rate": 0.2,
+      "pose_sigma": 0.05
+    },
+    {
+      "name": "miss30_sigma8cm",
+      "miss_rate": 0.3,
+      "pose_sigma": 0.08
+    }
+  ],
+  "results": {
+    "oracle": {
+      "overall": {
+        "n": 60,
+        "id_retention": 0.9888888888888889,
+        "id_switches": 0.02222222222222222,
+        "reappearance": 0.9777777777777777
+      },
+      "per_subset": {
+        "mixed": {
+          "n": 30,
+          "id_retention": 1.0,
+          "id_switches": 0.0,
+          "reappearance": 1.0
+        },
+        "samecat": {
+          "n": 15,
+          "id_retention": 1.0,
+          "id_switches": 0.0,
+          "reappearance": 1.0
+        },
+        "near_identical": {
+          "n": 15,
+          "id_retention": 0.9555555555555555,
+          "id_switches": 0.08888888888888888,
+          "reappearance": 0.9111111111111111
+        }
+      }
+    },
+    "miss10_sigma2cm": {
+      "overall": {
+        "n": 60,
+        "id_retention": 0.9751653439153439,
+        "id_switches": 0.06111111111111111,
+        "reappearance": 0.9652380952380952
+      },
+      "per_subset": {
+        "mixed": {
+          "n": 30,
+          "id_retention": 0.991358024691358,
+          "id_switches": 0.02222222222222222,
+          "reappearance": 0.9866666666666667
+        },
+        "samecat": {
+          "n": 15,
+          "id_retention": 1.0,
+          "id_switches": 0.0,
+          "reappearance": 1.0
+        },
+        "near_identical": {
+          "n": 15,
+          "id_retention": 0.9179453262786595,
+          "id_switches": 0.2,
+          "reappearance": 0.8876190476190476
+        }
+      }
+    },
+    "miss20_sigma5cm": {
+      "overall": {
+        "n": 60,
+        "id_retention": 0.8707782186948856,
+        "id_switches": 0.5777777777777778,
+        "reappearance": 0.9068320105820107
+      },
+      "per_subset": {
+        "mixed": {
+          "n": 30,
+          "id_retention": 0.9054761904761904,
+          "id_switches": 0.4777777777777778,
+          "reappearance": 0.9013888888888888
+        },
+        "samecat": {
+          "n": 15,
+          "id_retention": 0.8281393298059964,
+          "id_switches": 0.8,
+          "reappearance": 0.9740740740740742
+        },
+        "near_identical": {
+          "n": 15,
+          "id_retention": 0.844021164021164,
+          "id_switches": 0.5555555555555555,
+          "reappearance": 0.8504761904761905
+        }
+      }
+    },
+    "miss30_sigma8cm": {
+      "overall": {
+        "n": 60,
+        "id_retention": 0.6968672839506173,
+        "id_switches": 2.0611111111111113,
+        "reappearance": 0.7561574074074073
+      },
+      "per_subset": {
+        "mixed": {
+          "n": 30,
+          "id_retention": 0.6991975308641977,
+          "id_switches": 2.0888888888888886,
+          "reappearance": 0.7886507936507937
+        },
+        "samecat": {
+          "n": 15,
+          "id_retention": 0.6779717813051146,
+          "id_switches": 2.3777777777777778,
+          "reappearance": 0.7186772486772487
+        },
+        "near_identical": {
+          "n": 15,
+          "id_retention": 0.7111022927689594,
+          "id_switches": 1.6888888888888889,
+          "reappearance": 0.7286507936507935
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "sample": "mixed_test_0000",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0000",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0000",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0000",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.546957671957672,
+      "id_switches": 3.3333333333333335,
+      "reappearance": 0.5714285714285714
+    },
+    {
+      "sample": "mixed_test_0001",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0001",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0001",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.9166666666666666,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0001",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7566137566137566,
+      "id_switches": 2.0,
+      "reappearance": 0.75
+    },
+    {
+      "sample": "mixed_test_0002",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0002",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0002",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0002",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6666666666666666,
+      "id_switches": 3.0,
+      "reappearance": 0.625
+    },
+    {
+      "sample": "mixed_test_0003",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0003",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0003",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0003",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.625,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 0.875
+    },
+    {
+      "sample": "mixed_test_0004",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0004",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0004",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.9333333333333332,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0004",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5502645502645502,
+      "id_switches": 3.3333333333333335,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "mixed_test_0005",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0005",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0005",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0005",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.9523809523809524,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0006",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0006",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0006",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0006",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8518518518518517,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0007",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0007",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0007",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0007",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6925925925925926,
+      "id_switches": 2.0,
+      "reappearance": 0.6666666666666666
+    },
+    {
+      "sample": "mixed_test_0008",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0008",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0008",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8571428571428571,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0008",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8492063492063493,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0009",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0009",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0009",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8194444444444445,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.875
+    },
+    {
+      "sample": "mixed_test_0009",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8333333333333334,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 0.875
+    },
+    {
+      "sample": "mixed_test_0010",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0010",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0010",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.9583333333333334,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0010",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8333333333333334,
+      "id_switches": 1.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0011",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0011",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0011",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0011",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5571428571428572,
+      "id_switches": 1.0,
+      "reappearance": 0.7777777777777778
+    },
+    {
+      "sample": "mixed_test_0012",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0012",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0012",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0012",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8111111111111112,
+      "id_switches": 1.0,
+      "reappearance": 0.8888888888888888
+    },
+    {
+      "sample": "mixed_test_0013",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0013",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0013",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.9444444444444445,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 0.75
+    },
+    {
+      "sample": "mixed_test_0013",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7407407407407406,
+      "id_switches": 2.6666666666666665,
+      "reappearance": 0.75
+    },
+    {
+      "sample": "mixed_test_0014",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0014",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0014",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8736772486772487,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0014",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5523809523809524,
+      "id_switches": 2.6666666666666665,
+      "reappearance": 0.6
+    },
+    {
+      "sample": "mixed_test_0015",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0015",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0015",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0015",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7777777777777777,
+      "id_switches": 2.6666666666666665,
+      "reappearance": 0.8571428571428571
+    },
+    {
+      "sample": "mixed_test_0016",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0016",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0016",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.75,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "mixed_test_0016",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8095238095238096,
+      "id_switches": 2.3333333333333335,
+      "reappearance": 0.625
+    },
+    {
+      "sample": "mixed_test_0017",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0017",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0017",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0017",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7527777777777778,
+      "id_switches": 2.0,
+      "reappearance": 0.875
+    },
+    {
+      "sample": "mixed_test_0018",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0018",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0018",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8888888888888888,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0018",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6833333333333332,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 0.8333333333333334
+    },
+    {
+      "sample": "mixed_test_0019",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0019",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0019",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.9523809523809524,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0019",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.3452380952380952,
+      "id_switches": 3.0,
+      "reappearance": 0.8
+    },
+    {
+      "sample": "samecat_test_0000",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0000",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0000",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8416666666666667,
+      "id_switches": 1.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0000",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6944444444444445,
+      "id_switches": 2.6666666666666665,
+      "reappearance": 0.6666666666666666
+    },
+    {
+      "sample": "samecat_test_0001",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0001",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0001",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8380952380952381,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0001",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7944444444444444,
+      "id_switches": 2.0,
+      "reappearance": 0.75
+    },
+    {
+      "sample": "samecat_test_0002",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0002",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0002",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.7607142857142857,
+      "id_switches": 2.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0002",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5661375661375662,
+      "id_switches": 4.333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0003",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0003",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0003",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.6157407407407408,
+      "id_switches": 1.6666666666666667,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0003",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5138888888888888,
+      "id_switches": 3.3333333333333335,
+      "reappearance": 0.7142857142857143
+    },
+    {
+      "sample": "samecat_test_0004",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0004",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0004",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8166666666666668,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.8333333333333334
+    },
+    {
+      "sample": "samecat_test_0004",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6825396825396824,
+      "id_switches": 3.0,
+      "reappearance": 0.5714285714285714
+    },
+    {
+      "sample": "samecat_test_0005",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0005",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0005",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.9047619047619048,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0005",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6031746031746031,
+      "id_switches": 2.6666666666666665,
+      "reappearance": 0.8333333333333334
+    },
+    {
+      "sample": "samecat_test_0006",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0006",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0006",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.7037037037037037,
+      "id_switches": 1.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0006",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6507936507936508,
+      "id_switches": 3.3333333333333335,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "samecat_test_0007",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0007",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0007",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.9629629629629629,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0007",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5376984126984127,
+      "id_switches": 2.6666666666666665,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "samecat_test_0008",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0008",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0008",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8666666666666667,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0008",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5978835978835979,
+      "id_switches": 2.6666666666666665,
+      "reappearance": 0.8
+    },
+    {
+      "sample": "samecat_test_0009",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0009",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0009",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.7916666666666666,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0009",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8690476190476191,
+      "id_switches": 1.6666666666666667,
+      "reappearance": 0.7142857142857143
+    },
+    {
+      "sample": "samecat_test_0010",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0010",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0010",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0010",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.746031746031746,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 0.8571428571428571
+    },
+    {
+      "sample": "samecat_test_0011",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0011",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0011",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.7777777777777777,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0011",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6567460317460317,
+      "id_switches": 2.3333333333333335,
+      "reappearance": 0.5714285714285714
+    },
+    {
+      "sample": "samecat_test_0012",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0012",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0012",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.5416666666666666,
+      "id_switches": 1.6666666666666667,
+      "reappearance": 0.7777777777777778
+    },
+    {
+      "sample": "samecat_test_0012",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7583333333333334,
+      "id_switches": 1.6666666666666667,
+      "reappearance": 0.7777777777777778
+    },
+    {
+      "sample": "samecat_test_0013",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0013",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0013",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0013",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8000000000000002,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.6666666666666666
+    },
+    {
+      "sample": "samecat_test_0014",
+      "subset": "samecat",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0014",
+      "subset": "samecat",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0014",
+      "subset": "samecat",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "samecat_test_0014",
+      "subset": "samecat",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6984126984126985,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 0.8571428571428571
+    },
+    {
+      "sample": "near_identical_test_0000",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0000",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 0.6488095238095238,
+      "id_switches": 1.0,
+      "reappearance": 0.7142857142857143
+    },
+    {
+      "sample": "near_identical_test_0000",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.9523809523809524,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 0.8571428571428571
+    },
+    {
+      "sample": "near_identical_test_0000",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8857142857142857,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0001",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0001",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0001",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.708994708994709,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.6
+    },
+    {
+      "sample": "near_identical_test_0001",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6821428571428573,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 0.8
+    },
+    {
+      "sample": "near_identical_test_0002",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 0.6666666666666666,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.3333333333333333
+    },
+    {
+      "sample": "near_identical_test_0002",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 0.6851851851851851,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "near_identical_test_0002",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.5661375661375662,
+      "id_switches": 2.3333333333333335,
+      "reappearance": 0.6666666666666666
+    },
+    {
+      "sample": "near_identical_test_0002",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.4761904761904762,
+      "id_switches": 2.3333333333333335,
+      "reappearance": 0.7142857142857143
+    },
+    {
+      "sample": "near_identical_test_0003",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0003",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0003",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.7222222222222222,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.6666666666666666
+    },
+    {
+      "sample": "near_identical_test_0003",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.9047619047619048,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0004",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0004",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0004",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0004",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5138888888888888,
+      "id_switches": 3.6666666666666665,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "near_identical_test_0005",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 0.6666666666666666,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.3333333333333333
+    },
+    {
+      "sample": "near_identical_test_0005",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 0.6851851851851851,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.6
+    },
+    {
+      "sample": "near_identical_test_0005",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0005",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5851851851851853,
+      "id_switches": 2.3333333333333335,
+      "reappearance": 0.3333333333333333
+    },
+    {
+      "sample": "near_identical_test_0006",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0006",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 0.75,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "near_identical_test_0006",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.6256613756613757,
+      "id_switches": 1.0,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "near_identical_test_0006",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6534391534391534,
+      "id_switches": 2.0,
+      "reappearance": 0.6
+    },
+    {
+      "sample": "near_identical_test_0007",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0007",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0007",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0007",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8571428571428572,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0008",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0008",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0008",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8055555555555555,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 0.8
+    },
+    {
+      "sample": "near_identical_test_0008",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.46230158730158727,
+      "id_switches": 3.0,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "near_identical_test_0009",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0009",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0009",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8055555555555555,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.8333333333333334
+    },
+    {
+      "sample": "near_identical_test_0009",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8214285714285715,
+      "id_switches": 1.0,
+      "reappearance": 0.8571428571428571
+    },
+    {
+      "sample": "near_identical_test_0010",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0010",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0010",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.875,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0010",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7453703703703703,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0011",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0011",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0011",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.5988095238095238,
+      "id_switches": 1.0,
+      "reappearance": 0.8333333333333334
+    },
+    {
+      "sample": "near_identical_test_0011",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7277777777777779,
+      "id_switches": 2.0,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "near_identical_test_0012",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0012",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0012",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0012",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5853174603174603,
+      "id_switches": 2.0,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "near_identical_test_0013",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0013",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0013",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0013",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8611111111111112,
+      "id_switches": 2.0,
+      "reappearance": 0.625
+    },
+    {
+      "sample": "near_identical_test_0014",
+      "subset": "near_identical",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0014",
+      "subset": "near_identical",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0014",
+      "subset": "near_identical",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "near_identical_test_0014",
+      "subset": "near_identical",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.9047619047619048,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0020",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0020",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 0.7407407407407408,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.6
+    },
+    {
+      "sample": "mixed_test_0020",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.6011904761904762,
+      "id_switches": 2.3333333333333335,
+      "reappearance": 0.16666666666666666
+    },
+    {
+      "sample": "mixed_test_0020",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7103174603174603,
+      "id_switches": 2.3333333333333335,
+      "reappearance": 0.875
+    },
+    {
+      "sample": "mixed_test_0021",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0021",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0021",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.875,
+      "id_switches": 1.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0021",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7268518518518517,
+      "id_switches": 1.6666666666666667,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0022",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0022",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0022",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8472222222222222,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 0.75
+    },
+    {
+      "sample": "mixed_test_0022",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.8194444444444445,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 0.8333333333333334
+    },
+    {
+      "sample": "mixed_test_0023",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0023",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0023",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.7714285714285715,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "mixed_test_0023",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6047619047619048,
+      "id_switches": 2.3333333333333335,
+      "reappearance": 0.7142857142857143
+    },
+    {
+      "sample": "mixed_test_0024",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0024",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0024",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.9047619047619048,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0024",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7407407407407408,
+      "id_switches": 2.3333333333333335,
+      "reappearance": 0.6666666666666666
+    },
+    {
+      "sample": "mixed_test_0025",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0025",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0025",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.7185185185185184,
+      "id_switches": 1.6666666666666667,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0025",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.546031746031746,
+      "id_switches": 4.666666666666667,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0026",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0026",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0026",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.8518518518518517,
+      "id_switches": 0.3333333333333333,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0026",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.6296296296296297,
+      "id_switches": 4.666666666666667,
+      "reappearance": 0.6666666666666666
+    },
+    {
+      "sample": "mixed_test_0027",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0027",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0027",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0027",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.7638888888888888,
+      "id_switches": 1.6666666666666667,
+      "reappearance": 0.8333333333333334
+    },
+    {
+      "sample": "mixed_test_0028",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0028",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0028",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0028",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.746031746031746,
+      "id_switches": 0.6666666666666666,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0029",
+      "subset": "mixed",
+      "condition": "oracle",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0029",
+      "subset": "mixed",
+      "condition": "miss10_sigma2cm",
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "reappearance": 1.0
+    },
+    {
+      "sample": "mixed_test_0029",
+      "subset": "mixed",
+      "condition": "miss20_sigma5cm",
+      "id_retention": 0.7000000000000001,
+      "id_switches": 1.3333333333333333,
+      "reappearance": 0.5
+    },
+    {
+      "sample": "mixed_test_0029",
+      "subset": "mixed",
+      "condition": "miss30_sigma8cm",
+      "id_retention": 0.5,
+      "id_switches": 2.6666666666666665,
+      "reappearance": 0.2
+    }
+  ],
+  "generated": "2026-11-25 15:52:48 UTC"
+}

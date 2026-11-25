@@ -1,0 +1,282 @@
+{
+  "data_dir": "data/category_pretrain",
+  "n_test": 192,
+  "weights": {
+    "vision": 1.0,
+    "tactile": 0.5,
+    "geometry": 1.0
+  },
+  "conditions": {
+    "clean": {
+      "pss_fixed": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_abstain": {
+        "accuracy": 0.8385416666666666,
+        "coverage": 0.8541666666666666,
+        "accepted_accuracy": 0.9817073170731707,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_drop": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_reliable": {
+        "accuracy": 0.734375,
+        "coverage": 0.7395833333333334,
+        "accepted_accuracy": 0.9929577464788732,
+        "conflict_rate": 0.07291666666666667
+      },
+      "transformer": {
+        "accuracy_mean": 0.9756944444444445,
+        "accuracy_std": 0.006495932963149201
+      }
+    },
+    "tactile_shuffle": {
+      "pss_fixed": {
+        "accuracy": 0.9739583333333334,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9739583333333334,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_abstain": {
+        "accuracy": 0.8385416666666666,
+        "coverage": 0.8541666666666666,
+        "accepted_accuracy": 0.9817073170731707,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_drop": {
+        "accuracy": 0.9739583333333334,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9739583333333334,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_reliable": {
+        "accuracy": 0.734375,
+        "coverage": 0.7395833333333334,
+        "accepted_accuracy": 0.9929577464788732,
+        "conflict_rate": 0.07291666666666667
+      },
+      "transformer": {
+        "accuracy_mean": 0.9600694444444443,
+        "accuracy_std": 0.004910463758239896
+      }
+    },
+    "tactile_noise_0.5": {
+      "pss_fixed": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_abstain": {
+        "accuracy": 0.8385416666666666,
+        "coverage": 0.8541666666666666,
+        "accepted_accuracy": 0.9817073170731707,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_drop": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_reliable": {
+        "accuracy": 0.734375,
+        "coverage": 0.7395833333333334,
+        "accepted_accuracy": 0.9929577464788732,
+        "conflict_rate": 0.07291666666666667
+      },
+      "transformer": {
+        "accuracy_mean": 0.9774305555555557,
+        "accuracy_std": 0.004910463758239896
+      }
+    },
+    "tactile_noise_1.0": {
+      "pss_fixed": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_abstain": {
+        "accuracy": 0.8385416666666666,
+        "coverage": 0.8541666666666666,
+        "accepted_accuracy": 0.9817073170731707,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_drop": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_reliable": {
+        "accuracy": 0.734375,
+        "coverage": 0.7395833333333334,
+        "accepted_accuracy": 0.9929577464788732,
+        "conflict_rate": 0.07291666666666667
+      },
+      "transformer": {
+        "accuracy_mean": 0.9739583333333334,
+        "accuracy_std": 0.004252586358998558
+      }
+    },
+    "tactile_zero": {
+      "pss_fixed": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_abstain": {
+        "accuracy": 0.8385416666666666,
+        "coverage": 0.8541666666666666,
+        "accepted_accuracy": 0.9817073170731707,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_drop": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.14583333333333334
+      },
+      "pss_reliable": {
+        "accuracy": 0.734375,
+        "coverage": 0.7395833333333334,
+        "accepted_accuracy": 0.9929577464788732,
+        "conflict_rate": 0.07291666666666667
+      },
+      "transformer": {
+        "accuracy_mean": 0.9635416666666666,
+        "accuracy_std": 0.004252586358998558
+      }
+    },
+    "vision_shuffle": {
+      "pss_fixed": {
+        "accuracy": 0.4739583333333333,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.4739583333333333,
+        "conflict_rate": 0.9166666666666666
+      },
+      "pss_abstain": {
+        "accuracy": 0.08333333333333333,
+        "coverage": 0.08333333333333333,
+        "accepted_accuracy": 1.0,
+        "conflict_rate": 0.9166666666666666
+      },
+      "pss_drop": {
+        "accuracy": 0.4739583333333333,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.4739583333333333,
+        "conflict_rate": 0.9166666666666666
+      },
+      "pss_reliable": {
+        "accuracy": 0.07291666666666667,
+        "coverage": 0.07291666666666667,
+        "accepted_accuracy": 1.0,
+        "conflict_rate": 0.7291666666666666
+      },
+      "transformer": {
+        "accuracy_mean": 0.1527777777777778,
+        "accuracy_std": 0.00885246443332081
+      }
+    },
+    "geometry_shuffle": {
+      "pss_fixed": {
+        "accuracy": 0.4583333333333333,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.4583333333333333,
+        "conflict_rate": 0.9322916666666666
+      },
+      "pss_abstain": {
+        "accuracy": 0.0625,
+        "coverage": 0.06770833333333333,
+        "accepted_accuracy": 0.9230769230769231,
+        "conflict_rate": 0.9322916666666666
+      },
+      "pss_drop": {
+        "accuracy": 0.4583333333333333,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.4583333333333333,
+        "conflict_rate": 0.9322916666666666
+      },
+      "pss_reliable": {
+        "accuracy": 0.052083333333333336,
+        "coverage": 0.052083333333333336,
+        "accepted_accuracy": 1.0,
+        "conflict_rate": 0.75
+      },
+      "transformer": {
+        "accuracy_mean": 0.734375,
+        "accuracy_std": 0.0042525863589986035
+      }
+    },
+    "vision_zero": {
+      "pss_fixed": {
+        "accuracy": 0.8645833333333334,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.8645833333333334,
+        "conflict_rate": 0.0
+      },
+      "pss_abstain": {
+        "accuracy": 0.8645833333333334,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.8645833333333334,
+        "conflict_rate": 0.0
+      },
+      "pss_drop": {
+        "accuracy": 0.8645833333333334,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.8645833333333334,
+        "conflict_rate": 0.0
+      },
+      "pss_reliable": {
+        "accuracy": 0.7395833333333334,
+        "coverage": 0.8177083333333334,
+        "accepted_accuracy": 0.9044585987261147,
+        "conflict_rate": 0.0
+      },
+      "transformer": {
+        "accuracy_mean": 0.6354166666666666,
+        "accuracy_std": 0.04101045767714485
+      }
+    },
+    "geometry_zero": {
+      "pss_fixed": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.0
+      },
+      "pss_abstain": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.0
+      },
+      "pss_drop": {
+        "accuracy": 0.9791666666666666,
+        "coverage": 1.0,
+        "accepted_accuracy": 0.9791666666666666,
+        "conflict_rate": 0.0
+      },
+      "pss_reliable": {
+        "accuracy": 0.9635416666666666,
+        "coverage": 0.9739583333333334,
+        "accepted_accuracy": 0.9893048128342246,
+        "conflict_rate": 0.0
+      },
+      "transformer": {
+        "accuracy_mean": 0.9097222222222222,
+        "accuracy_std": 0.02418122964788913
+      }
+    }
+  },
+  "generated": "2026-11-25 16:16:27 UTC"
+}

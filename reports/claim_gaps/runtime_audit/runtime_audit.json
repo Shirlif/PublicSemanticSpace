@@ -1,0 +1,51 @@
+{
+  "generated": "2026-11-25 16:24:11 UTC",
+  "actions": [
+    "read",
+    "ingest",
+    "write_facts",
+    "plan",
+    "act",
+    "rollback"
+  ],
+  "matrix": {
+    "read_only": {
+      "read": true,
+      "ingest": false,
+      "write_facts": false,
+      "plan": false,
+      "act": false,
+      "rollback": false
+    },
+    "service": {
+      "read": true,
+      "ingest": true,
+      "write_facts": false,
+      "plan": false,
+      "act": false,
+      "rollback": false
+    },
+    "operator": {
+      "read": true,
+      "ingest": true,
+      "write_facts": true,
+      "plan": true,
+      "act": true,
+      "rollback": false
+    },
+    "admin": {
+      "read": true,
+      "ingest": true,
+      "write_facts": true,
+      "plan": true,
+      "act": true,
+      "rollback": true
+    }
+  },
+  "audit_denied_entries": {
+    "read_only": 5,
+    "service": 4,
+    "operator": 1,
+    "admin": 0
+  }
+}

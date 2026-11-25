@@ -1,0 +1,85 @@
+{
+  "seed": 0,
+  "dim": [
+    {
+      "dim": 128,
+      "SSR": 1.0,
+      "RBE": 1.0,
+      "INT": 0.0,
+      "RCR": 1.0,
+      "ZCR": 0.674,
+      "swap_latency_ms": 0.0959400087594986
+    },
+    {
+      "dim": 256,
+      "SSR": 1.0,
+      "RBE": 1.0,
+      "INT": 0.0,
+      "RCR": 1.0,
+      "ZCR": 0.674,
+      "swap_latency_ms": 0.12655999744310975
+    },
+    {
+      "dim": 512,
+      "SSR": 1.0,
+      "RBE": 1.0,
+      "INT": 0.0,
+      "RCR": 1.0,
+      "ZCR": 0.667,
+      "swap_latency_ms": 0.11791999568231404
+    }
+  ],
+  "facts": [
+    {
+      "facts": 100,
+      "build_ms": 1.7435000045225024,
+      "update_ms": 5.088900012196973,
+      "rollback_exact": 1.0,
+      "audit_complete": 0.0,
+      "locality_ok": 1.0
+    },
+    {
+      "facts": 500,
+      "build_ms": 9.002600010717288,
+      "update_ms": 30.450699996436015,
+      "rollback_exact": 1.0,
+      "audit_complete": 0.0,
+      "locality_ok": 1.0
+    },
+    {
+      "facts": 1000,
+      "build_ms": 17.102899990277365,
+      "update_ms": 52.92750001535751,
+      "rollback_exact": 1.0,
+      "audit_complete": 0.0,
+      "locality_ok": 1.0
+    }
+  ],
+  "scenes": [
+    {
+      "entities": 50,
+      "relations": 100,
+      "active_entities": 50,
+      "active_relations": 100,
+      "bounded": true,
+      "latency_ms": 0.0042000028770416975
+    },
+    {
+      "entities": 200,
+      "relations": 1000,
+      "active_entities": 50,
+      "active_relations": 100,
+      "bounded": true,
+      "latency_ms": 0.02479998511262238
+    },
+    {
+      "entities": 500,
+      "relations": 2000,
+      "active_entities": 50,
+      "active_relations": 100,
+      "bounded": true,
+      "latency_ms": 0.0357000099029392
+    }
+  ],
+  "generated": "2026-11-25 15:52:25 UTC"
+}

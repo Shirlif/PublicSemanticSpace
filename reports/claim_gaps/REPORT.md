@@ -1,7 +1,8 @@
 # Claim-gap validation
 
-> generated: 2026-11-25 15:07:35 UTC
+> generated: 2026-11-25 16:33:45 UTC
 > design: `notes/CLAIM_GAP_EXPERIMENTS.md`
+> §10 follow-ups: `reports/claim_gaps/FOLLOWUPS.md`
 
 ## Verdict table
 

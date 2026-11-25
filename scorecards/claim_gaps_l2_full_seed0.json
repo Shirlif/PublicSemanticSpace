@@ -1,0 +1,51 @@
+{
+  "spec": "s4_pss_pick_place_v1",
+  "plan_actions": [
+    "pick",
+    "place"
+  ],
+  "plan_confidence": 1.0,
+  "goal": [
+    "obj_0001",
+    "in",
+    "obj_0003"
+  ],
+  "cup_track": "obj_0001",
+  "bin_track": "obj_0003",
+  "selection": "category",
+  "selection_reason": "category",
+  "cup_prim": "/World/Assets/cup_01",
+  "seed": 0,
+  "variant": "full",
+  "actions": [
+    {
+      "skill": "reach",
+      "status": "ok",
+      "detail": "err=0.0198"
+    },
+    {
+      "skill": "grasp",
+      "status": "ok",
+      "detail": "dist=0.017 suction"
+    },
+    {
+      "skill": "place",
+      "status": "ok",
+      "detail": ""
+    }
+  ],
+  "actions_ok": true,
+  "task_success": true,
+  "cup_xyz": [
+    0.113,
+    -0.064,
+    0.85
+  ],
+  "bin_xyz": [
+    0.109,
+    -0.038,
+    0.8
+  ],
+  "steps": 285,
+  "wall_s": 2.24
+}
