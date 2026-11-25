@@ -87,6 +87,8 @@ def render() -> str:
         e17_path = ROOT / "eval/results/runtime_audit/runtime_audit.json"
     e17 = json.loads(e17_path.read_text(encoding="utf-8")) if e17_path.exists() else None
     e18 = _l2_s4()
+    e19 = _load("l2_runtime_updates/metrics.json")
+    e20 = _load("runtime_cross_layer/runtime.json")
     l0 = _seed_summary("scorecards/property/l0_seed*.json", ("SSR", "INT", "RBE", "RCR", "BAR", "MON", "ZCR"))
     l1 = _seed_summary(
         "scorecards/property/l1_seed*.json",
@@ -160,10 +162,11 @@ def render() -> str:
                 f"({len(valid_bundles)} bundles)"
             )
         lines.append(
-            f"| 2 L2 cognitive layer | E12 bundle replay + S4 variants | "
+            f"| 2 L2 cognitive layer | E12 + E18 + E19 + E20 | "
             f"occlusion full {_fmt(s['full']['id_retention'])} / no_memory "
             f"{_fmt(s['no_memory']['id_retention'])} / no_entity "
-            f"{_fmt(s['no_entity']['id_retention'])}{extra}; S4 no_relations 0/3 | partial |"
+            f"{_fmt(s['no_entity']['id_retention'])}{extra}; S4 no_relations 0/3 | "
+            f"completed (runtime-level; perception-level partial) |"
         )
     if e18:
         s4 = e18
@@ -171,7 +174,23 @@ def render() -> str:
             f"| 2b L2 S4 variants | E18 S4-PSS | full {s4.get('full', {}).get('success_rate', 0):.0%} "
             f"({s4.get('full', {}).get('n', 0)} seeds); no_relations "
             f"{s4.get('no_relations', {}).get('success_rate', 0):.0%}; no_memory "
-            f"{s4.get('no_memory', {}).get('success_rate', 0):.0%} | completed (demo) |"
+            f"{s4.get('no_memory', {}).get('success_rate', 0):.0%}; no_entity "
+            f"{s4.get('no_entity', {}).get('success_rate', 0):.0%} | completed (demo) |"
+        )
+    if e19:
+        su = e19["summary"]
+        lines.append(
+            f"| 2c L2 runtime mid-task | E19 KB update + planner swap | "
+            f"plan changed {su['kb_update']['plan_changed']:.0%}/{su['planner_swap']['plan_changed']:.0%}; "
+            f"baseline {su['kb_update']['baseline_goal_ok']:.0%}/{su['planner_swap']['baseline_goal_ok']:.0%}; "
+            f"updated {su['kb_update']['updated_goal_ok']:.0%}/{su['planner_swap']['updated_goal_ok']:.0%} | completed |"
+        )
+    if e20:
+        v = e20["variants"]
+        lines.append(
+            f"| 2d L2 runtime cross-layer | E20 occlusion + conflict + audit | "
+            f"no_entity plan={v['no_entity']['plan_success']}; no_uncertainty conflict="
+            f"{v['no_uncertainty']['conflict_flagged']}; no_audit rollback={v['no_audit']['rollback_ok']} | completed |"
         )
     if e7:
         s = e7["results"]
@@ -510,6 +529,46 @@ def render() -> str:
             "not memory. E12 supplies the memory ablation on bundles.",
         ]
 
+    if e19:
+        lines += [
+            "",
+            "## E19: L2 runtime mid-task updates",
+            "",
+            "| scenario | plan changed | baseline goal | updated goal |",
+            "|---|---:|---:|---:|",
+        ]
+        for scenario, r in e19["summary"].items():
+            lines.append(
+                f"| {scenario} | {r['plan_changed']:.0%} | {r['baseline_goal_ok']:.0%} | "
+                f"{r['updated_goal_ok']:.0%} |"
+            )
+        lines += [
+            "",
+            "`kb_update`: goal changes G -> B mid-task. `planner_swap`: direct route is",
+            "blocked and `runtime.planner` is swapped to a detour library. In both cases",
+            "the old plan fails and the replanned one succeeds without restarting.",
+        ]
+
+    if e20:
+        lines += [
+            "",
+            "## E20: L2 runtime cross-layer",
+            "",
+            "| variant | entity persistence | plan | task | conflict | rollback |",
+            "|---|---:|---:|---:|---:|---:|",
+        ]
+        for name, r in e20["variants"].items():
+            lines.append(
+                f"| {name} | {r['entity_persistence']} | {r['plan_success']} | "
+                f"{r['task_success']} | {r['conflict_flagged']} | {r['rollback_ok']} |"
+            )
+        lines += [
+            "",
+            "`no_entity` drops the occluded bottle and cannot plan the goal;",
+            "`no_uncertainty` does not flag the conflicting fact; `no_audit` cannot",
+            "rollback. This is the runtime-level occlusion/conflict/audit evidence.",
+        ]
+
     if e12all:
         lines += [
             "",
@@ -539,6 +598,8 @@ def render() -> str:
         "- `reports/claim_gaps/openset/`",
         "- `reports/claim_gaps/space_ablation/`",
         "- `reports/claim_gaps/runtime_audit/`",
+        "- `reports/claim_gaps/runtime_cross_layer/`",
+        "- `reports/claim_gaps/l2_runtime_updates/`",
         "",
     ]
     return "\n".join(lines)

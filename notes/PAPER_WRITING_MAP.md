@@ -281,7 +281,7 @@ cognitive runtime; entity binding; typed relations; active-set memory; modular a
 |---:|---|---|---|---|
 | 0 | property suite 跑非 PSS baseline | **完成（E5）** | PSS 9 项契约指标通过；contract-free baseline 在 SRR/RBE/RCR/PCR/AUD/RBE-KB/BAR/MON 上全 0；INT 0.667 | 不是竞争性架构，只是敏感性控制 |
 | 1 | A5 真实 retrain-all | **完成（E6/E6b/E6c）** | 冻结专家 + 重建 prototype 0.964（3.2 ms）；仅重训投影 0.979（13.5 s）；5ep 专家全量重训 0.943（29 s）；30ep 专家全量重训 0.969（38 s） | 30ep 专家仍不如“冻结专家 + 仅重训投影”；没有质量理由重训专家 |
-| 2 | L2 覆盖认知层 | **部分（E12 + S4 variants）** | valid-bundle replay：full 1.000 / no_memory 0.827 / no_entity 0.270（19/33 bundles）；S4 `full`/`no_memory` 3/3，`no_relations` 0/3 | 运行中 swap、任务中 KB 更新、冲突弃权仍需 perception-driven L2 harness |
+| 2 | L2 覆盖认知层 | **完成（运行时级；感知级部分）** | valid-bundle replay：full 1.000 / no_memory 0.827 / no_entity 0.270（19/33）；S4 `full`/`no_memory`/`no_entity` 3/3，`no_relations` 0/3；E19 runtime mid-task：KB 更新与 planner swap 均 100% replan 成功、baseline 0%；E20 cross-layer：`no_entity` 不能规划、`no_uncertainty` 不报冲突、`no_audit` 不能回滚 | 感知驱动的 expert swap / 运行中冲突注入仍需新 L2 bundle；当前 bundle 没有 embeddings |
 | 3 | 非 oracle 检测器 | **完成（E7）** | oracle 0.989 → 20% miss 0.871 → 30% miss 0.697 | 未接 GroundingDINO 权重；是检测噪声注入 |
 | 4 | 关系层 held-out 消融 | **完成（E3）** | hybrid_diag 0.857 vs geo_tau 0.828 @ noise 0.15 | 非网格布局 + 感知噪声未测 |
 | 5 | 长历史 fact active-set | **完成（E4）** | query 条件下 k=4 0.241 → 1.000；简单规则追平 learned | 多 query + coverage loss 未测 |
@@ -309,6 +309,6 @@ cognitive runtime; entity binding; typed relations; active-set memory; modular a
 
 - **写什么**：显式认知状态层（绑定/关系/记忆/审计）+ 契约前提（热插拔/版本化 KB/有界推理）+ property 协议 + 可校准接口边界。
 - **不写什么**：re-ID 精度优势、零样本公共空间、学习关系替代几何、学习打分优于简单规则、per-modality 提升闭集精度、retrain-all 必要、SOTA、真机可靠、大规模。
-- **最强证据**：实体审计全 1.00 + 3 负控制、70 帧绑定 0.989 vs 0.500、关系 F1 0.957–0.996、hybrid_diag 0.857 vs geo_tau 0.828、active-set 1.2 候选追平、query-conditioned fact 1.000、开放集 0.958、契约 property 不变、N1–N8、S4-PSS 5/5、contract-free baseline 在 8 项契约指标上全 0、L2 valid all-bundle 1.000/0.827/0.270（19/33）、S4 `no_relations` 0/3、30% 检测丢失下 0.697、dim 128/256/512 不变、TMS 生产 store 全 1.00、exact-RAG 1.38 ms vs PSS 0.0003 ms、3 族 k=1 0.936、30ep 全量重训 38 s/0.969 vs 冻结+仅重训投影 13.5 s/0.979。
+- **最强证据**：实体审计全 1.00 + 3 负控制、70 帧绑定 0.989 vs 0.500、关系 F1 0.957–0.996、hybrid_diag 0.857 vs geo_tau 0.828、active-set 1.2 候选追平、query-conditioned fact 1.000、开放集 0.958、契约 property 不变、N1–N8、S4-PSS 5/5、contract-free baseline 在 8 项契约指标上全 0、L2 valid all-bundle 1.000/0.827/0.270（19/33）、S4 `no_relations` 0/3、L2 runtime mid-task 100%/baseline 0%、cross-layer `no_entity`/`no_uncertainty`/`no_audit` 均按预期失败、30% 检测丢失下 0.697、dim 128/256/512 不变、TMS 生产 store 全 1.00、exact-RAG 1.38 ms vs PSS 0.0003 ms、3 族 k=1 0.936、30ep 全量重训 38 s/0.969 vs 冻结+仅重训投影 13.5 s/0.979。
 - **最有价值的负结果**：公平归因 +0.012、朴素 hybrid（learned 用于对齐轴）0.503、learned 关系 0.532、旧 fact active-set 0.241（已定位为 query-conditioning 缺失）、tactile 0.245、1-shot ridge 0.922 < frozen+alt prototypes 0.964、closed-set 在 sum/random 变体下仍 0.969（对齐只体现在 cross-modal R@1 0.510 vs 0.115）、S4 `no_memory`/`no_entity` 仍 3/3（该 L2 任务不测记忆）。
 - **论文定位**：不是“又一个非 LLM 大模型”，而是“感知之上的显式认知状态层 + 可分离测量”。

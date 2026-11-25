@@ -144,7 +144,7 @@ held-out 区域 D/G，3 seeds：
 ### 仍未闭合（更新到 2026-11-26）
 
 - **真机**：环境无机器人。
-- **L2 运行中 H/K / 冲突弃权**：S4-PSS 是 oracle pose + 无遮挡；E12 用 bundle replay 补了 L2 记忆消融，但 swap/KB 仍需新 harness。
+- **L2 感知级 expert swap / 冲突注入**：E19/E20 补了运行时级 KB 更新、planner swap、遮挡/冲突/审计消融；感知级 expert swap 仍需带 embeddings 的 L2 bundle（当前 `obs_detections.emb` 为空）。
 - **E2/E7 外部效度**：仍是 MuJoCo 渲染；E7 是检测噪声注入，不是 GroundingDINO。
 - **E3 网格性**：P5b 是 5-region 网格；非网格布局未测。
 - **E4 多 query**：只测单 query top-k；多 query + coverage loss 未测。
@@ -171,6 +171,8 @@ held-out 区域 D/G，3 seeds：
 | E14 space ablation | 空间 | closed-set 0.969 三变体不变；cross-modal R@1 0.510 vs random 0.115 | 学习投影的价值在跨模态对齐 |
 | E15 modality conflict | 8 | tactile_zero fixed 0.979；vision_shuffle abstain 0.083/1.000 | 触觉降级可显式处理 |
 | E16 open-set | — | PSS AUROC 0.993 / reject 0.958 vs energy 0.937/0.753 | 开放集拒识仍成立 |
+| E19 runtime mid-task | 2 | KB 更新与 planner swap 均 100% replan 成功、baseline 0% | 运行时可热更新/换模块 |
+| E20 runtime cross-layer | 2 | no_entity 不能规划、no_uncertainty 不报冲突、no_audit 不能回滚 | 遮挡/冲突/审计在 runtime 生效 |
 
 ### 解读要点
 
@@ -181,5 +183,6 @@ held-out 区域 D/G，3 seeds：
 - **E12 补上了 L2 记忆**：33 个 bundle 里 19 个有有效身份 trace；valid-bundle full 1.000 / no_memory 0.827 / no_entity 0.270。零 retention 的 bundle 不作为证据。
 - **E18 区分了两类 L2 任务**：S4-PSS 的 `no_relations` 0/3，说明它测关系；`no_memory`/`no_entity` 3/3，说明它不测记忆。记忆证据来自 E12。
 - **E17 补了 runtime 权限**：read_only 拒绝 5 项、admin 0；拒绝动作入审计。
+- **E19/E20 把 L2 补到“运行时级完成”**：KB 更新、planner swap、遮挡绑定、冲突弃权、审计回滚都有消融；感知级 expert swap 仍缺，因为 L2 bundle 没有 embeddings。
 - **E13 补上了 RAG 基线**：learned-RAG 是弱基线，exact-RAG（top-1 精确检索）是公平上界；PSS 在同等准确率下快约 4000x。
 

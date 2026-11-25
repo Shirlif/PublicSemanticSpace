@@ -24,12 +24,14 @@
 | E15 | Is tactile degradation handled explicitly? | tactile_zero fixed 0.979; vision_shuffle abstain 0.083/1.000 | `modality_conflict/modality_conflict.md` |
 | E16 | Does open-set rejection still hold? | PSS AUROC 0.993 / reject 0.958 vs energy 0.937/0.753 | `openset/p2_openset.md` |
 | E17 | Are runtime permissions audited? | read_only denies 5 actions; admin 0; denials audited | `runtime_audit/` |
-| E18 | Which cognitive layer does the L2 demo exercise? | S4 `full`/`no_memory` 3/3, `no_relations` 0/3 | `FOLLOWUPS.md` |
+| E18 | Which cognitive layer does the L2 demo exercise? | S4 `full`/`no_memory`/`no_entity` 3/3, `no_relations` 0/3 | `FOLLOWUPS.md` |
+| E19 | Can the runtime update knowledge / swap a module mid-task? | KB update and planner swap both replan 100%, baseline 0% | `l2_runtime_updates/REPORT.md` |
+| E20 | Does the runtime cross-layer depend on its components? | `no_entity` cannot plan; `no_uncertainty` misses conflict; `no_audit` cannot rollback | `runtime_cross_layer/runtime.md` |
 
 ## Reading guide
 
-- **Strongest new evidence for C1**: E1 (audit) + E2 (signal decomposition) + E12 (L2 memory ablation) + E7 (detection noise).
+- **Strongest new evidence for C1**: E1 (audit) + E2 (signal decomposition) + E12 (L2 memory ablation) + E7 (detection noise) + E20 (occlusion at runtime).
 - **Strongest new evidence for C2**: E3 (distribution-aware hybrid; the naive hybrid is a negative control).
 - **Strongest new evidence for C3**: E4 (query conditioning) + E13 (exact-RAG cost) + E8 (1000 facts).
-- **Strongest new evidence for C4**: E5 (contract-free separation) + E8 (scale) + E10 (production TMS) + E17 (permissions).
+- **Strongest new evidence for C4**: E5 (contract-free separation) + E8 (scale) + E10 (production TMS) + E17 (permissions) + E19 (mid-task update/swap).
 - **Honest negatives**: E6c (expert retrain does not beat projection retrain), E14 (closed-set invariant), E18 (S4 does not test memory), E6/E11 (tactile remains weak).

@@ -1,0 +1,123 @@
+{
+  "seeds": 3,
+  "rows": [
+    {
+      "seed": 0,
+      "scenario": "kb_update",
+      "plan_before": [
+        "move_A_G"
+      ],
+      "plan_after": [
+        "move_A_B"
+      ],
+      "plan_changed": true,
+      "baseline_exec_ok": true,
+      "baseline_goal_ok": false,
+      "updated_exec_ok": true,
+      "updated_goal_ok": true,
+      "version_after_update": 5
+    },
+    {
+      "seed": 0,
+      "scenario": "planner_swap",
+      "plan_before": [
+        "move_A_G_direct"
+      ],
+      "plan_after": [
+        "move_A_D",
+        "move_D_G"
+      ],
+      "plan_changed": true,
+      "baseline_exec_ok": false,
+      "baseline_goal_ok": false,
+      "updated_exec_ok": true,
+      "updated_goal_ok": true,
+      "version_after_update": 8
+    },
+    {
+      "seed": 1,
+      "scenario": "kb_update",
+      "plan_before": [
+        "move_A_G"
+      ],
+      "plan_after": [
+        "move_A_B"
+      ],
+      "plan_changed": true,
+      "baseline_exec_ok": true,
+      "baseline_goal_ok": false,
+      "updated_exec_ok": true,
+      "updated_goal_ok": true,
+      "version_after_update": 5
+    },
+    {
+      "seed": 1,
+      "scenario": "planner_swap",
+      "plan_before": [
+        "move_A_G_direct"
+      ],
+      "plan_after": [
+        "move_A_D",
+        "move_D_G"
+      ],
+      "plan_changed": true,
+      "baseline_exec_ok": false,
+      "baseline_goal_ok": false,
+      "updated_exec_ok": true,
+      "updated_goal_ok": true,
+      "version_after_update": 8
+    },
+    {
+      "seed": 2,
+      "scenario": "kb_update",
+      "plan_before": [
+        "move_A_G"
+      ],
+      "plan_after": [
+        "move_A_B"
+      ],
+      "plan_changed": true,
+      "baseline_exec_ok": true,
+      "baseline_goal_ok": false,
+      "updated_exec_ok": true,
+      "updated_goal_ok": true,
+      "version_after_update": 5
+    },
+    {
+      "seed": 2,
+      "scenario": "planner_swap",
+      "plan_before": [
+        "move_A_G_direct"
+      ],
+      "plan_after": [
+        "move_A_D",
+        "move_D_G"
+      ],
+      "plan_changed": true,
+      "baseline_exec_ok": false,
+      "baseline_goal_ok": false,
+      "updated_exec_ok": true,
+      "updated_goal_ok": true,
+      "version_after_update": 8
+    }
+  ],
+  "summary": {
+    "kb_update": {
+      "n": 3,
+      "plan_changed": 1.0,
+      "baseline_goal_ok": 0.0,
+      "updated_goal_ok": 1.0,
+      "baseline_exec_ok": 1.0,
+      "updated_exec_ok": 1.0
+    },
+    "planner_swap": {
+      "n": 3,
+      "plan_changed": 1.0,
+      "baseline_goal_ok": 0.0,
+      "updated_goal_ok": 1.0,
+      "baseline_exec_ok": 0.0,
+      "updated_exec_ok": 1.0
+    }
+  },
+  "generated": "2026-11-25 17:16:28 UTC"
+}

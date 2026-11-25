@@ -1,6 +1,6 @@
 # §10 follow-up experiments
 
-> generated: 2026-11-25 17:02:44 UTC
+> generated: 2026-11-25 17:18:21 UTC
 > design: `notes/CLAIM_GAP_EXPERIMENTS.md`; first batch: `reports/claim_gaps/REPORT.md`
 
 ## §10 coverage
@@ -11,8 +11,10 @@
 | 1 A5 retrain-all | E6 retrain proxy | frozen+alt prototypes 0.964; retrained 0.979 @ 13.5s; 1-shot 0.922 | completed (proxy) |
 | 1b full retrain (5ep experts) | E6b retrain with experts | frozen+alt prototypes 0.922; retrained 0.943; total 29.0s | completed (cheap retrain) |
 | 1c 30ep full retrain | E6c retrain with 30ep experts | frozen+alt prototypes 0.953; retrained 0.969; total 38.0s | completed |
-| 2 L2 cognitive layer | E12 bundle replay + S4 variants | occlusion full 0.889 / no_memory 0.615 / no_entity 0.213; valid all-bundle full 1.000 / no_memory 0.827 / no_entity 0.270 (19 bundles); S4 no_relations 0/3 | partial |
-| 2b L2 S4 variants | E18 S4-PSS | full 100% (3 seeds); no_relations 0%; no_memory 100% | completed (demo) |
+| 2 L2 cognitive layer | E12 + E18 + E19 + E20 | occlusion full 0.889 / no_memory 0.615 / no_entity 0.213; valid all-bundle full 1.000 / no_memory 0.827 / no_entity 0.270 (19 bundles); S4 no_relations 0/3 | completed (runtime-level; perception-level partial) |
+| 2b L2 S4 variants | E18 S4-PSS | full 100% (3 seeds); no_relations 0%; no_memory 100%; no_entity 100% | completed (demo) |
+| 2c L2 runtime mid-task | E19 KB update + planner swap | plan changed 100%/100%; baseline 0%/0%; updated 100%/100% | completed |
+| 2d L2 runtime cross-layer | E20 occlusion + conflict + audit | no_entity plan=False; no_uncertainty conflict=False; no_audit rollback=False | completed |
 | 3 non-oracle detector | E7 detection noise | oracle 0.989 → miss20 0.871 → miss30 0.697 | completed |
 | 6 more expert families | E11 three-family swap | zero-shot 0.186; k=1 0.936 | completed |
 | 7 real robot | — | not available in this environment | N/A |
@@ -202,13 +204,39 @@ closed-set accuracy.
 | variant | seeds | success rate | wall mean s |
 |---|---:|---:|---:|
 | full | 3 | 100% | 2.04 |
-| no_entity | 1 | 100% | 1.97 |
+| no_entity | 3 | 100% | 1.92 |
 | no_memory | 3 | 100% | 2.39 |
 | no_relations | 3 | 0% | 1.19 |
 
 `no_relations` fails because the pick-place goal is a relation; `no_memory` and
 `no_entity` succeed because this demo has no occlusion. The demo tests relations,
 not memory. E12 supplies the memory ablation on bundles.
+
+## E19: L2 runtime mid-task updates
+
+| scenario | plan changed | baseline goal | updated goal |
+|---|---:|---:|---:|
+| kb_update | 100% | 0% | 100% |
+| planner_swap | 100% | 0% | 100% |
+
+`kb_update`: goal changes G -> B mid-task. `planner_swap`: direct route is
+blocked and `runtime.planner` is swapped to a detour library. In both cases
+the old plan fails and the replanned one succeeds without restarting.
+
+## E20: L2 runtime cross-layer
+
+| variant | entity persistence | plan | task | conflict | rollback |
+|---|---:|---:|---:|---:|---:|
+| full | True | True | True | True | True |
+| no_entity | False | False | False | False | True |
+| no_relations | True | True | True | True | True |
+| no_uncertainty | True | True | True | False | True |
+| no_audit | True | True | True | True | False |
+| no_language | True | True | True | True | True |
+
+`no_entity` drops the occluded bottle and cannot plan the goal;
+`no_uncertainty` does not flag the conflicting fact; `no_audit` cannot
+rollback. This is the runtime-level occlusion/conflict/audit evidence.
 
 ## E12b: all-bundle replay
 
@@ -233,3 +261,5 @@ not memory. E12 supplies the memory ablation on bundles.
 - `reports/claim_gaps/openset/`
 - `reports/claim_gaps/space_ablation/`
 - `reports/claim_gaps/runtime_audit/`
+- `reports/claim_gaps/runtime_cross_layer/`
+- `reports/claim_gaps/l2_runtime_updates/`

@@ -1,0 +1,289 @@
+{
+  "generated": "2026-11-25 17:13:15 UTC",
+  "variants": {
+    "full": {
+      "variant": "full",
+      "learned_relations": 0,
+      "rejected_facts": 0,
+      "noisy_fact_rejected": false,
+      "slots": [
+        "obj_0001",
+        "obj_0002",
+        "obj_0003"
+      ],
+      "components": {
+        "relation_head": false,
+        "active_policy": false,
+        "write_policy": false,
+        "associator": "hand",
+        "relation_rules": {
+          "version": 1,
+          "source": "learned",
+          "thresholds": {
+            "near_dist": 0.12,
+            "contact_pad": 0.07220965684270447,
+            "bin_half": 0.03,
+            "bin_z": 0.13999999999999996,
+            "version": 1,
+            "source": "learned"
+          }
+        },
+        "fallback": {
+          "relation_head": "symbolic records only",
+          "active_policy": "confidence top-k",
+          "write_policy": "write-all"
+        }
+      },
+      "entity_persistence": true,
+      "plan_success": true,
+      "plan_actions": 2,
+      "task_success": true,
+      "conflict_flagged": true,
+      "recommendation": "review",
+      "rollback_ok": true,
+      "explanation_has_location": true,
+      "explanation_citations": 1,
+      "n_entities": 3,
+      "n_relations": 12,
+      "n_facts": 3,
+      "n_audit": 10,
+      "version": 9
+    },
+    "no_entity": {
+      "variant": "no_entity",
+      "learned_relations": 0,
+      "rejected_facts": 0,
+      "noisy_fact_rejected": false,
+      "slots": [],
+      "components": {
+        "relation_head": true,
+        "active_policy": true,
+        "write_policy": false,
+        "associator": "hand",
+        "relation_rules": {
+          "version": 1,
+          "source": "learned",
+          "thresholds": {
+            "near_dist": 0.12,
+            "contact_pad": 0.07220965684270447,
+            "bin_half": 0.03,
+            "bin_z": 0.13999999999999996,
+            "version": 1,
+            "source": "learned"
+          }
+        },
+        "fallback": {
+          "relation_head": null,
+          "active_policy": null,
+          "write_policy": "write-all"
+        }
+      },
+      "entity_persistence": false,
+      "plan_success": false,
+      "plan_actions": 0,
+      "task_success": false,
+      "conflict_flagged": false,
+      "recommendation": "accept",
+      "rollback_ok": true,
+      "explanation_has_location": false,
+      "explanation_citations": 0,
+      "n_entities": 2,
+      "n_relations": 2,
+      "n_facts": 2,
+      "n_audit": 5,
+      "version": 4
+    },
+    "no_relations": {
+      "variant": "no_relations",
+      "learned_relations": 0,
+      "rejected_facts": 0,
+      "noisy_fact_rejected": false,
+      "slots": [
+        "obj_0001",
+        "obj_0002",
+        "obj_0003"
+      ],
+      "components": {
+        "relation_head": false,
+        "active_policy": false,
+        "write_policy": false,
+        "associator": "hand",
+        "relation_rules": {
+          "version": 1,
+          "source": "learned",
+          "thresholds": {
+            "near_dist": 0.12,
+            "contact_pad": 0.07220965684270447,
+            "bin_half": 0.03,
+            "bin_z": 0.13999999999999996,
+            "version": 1,
+            "source": "learned"
+          }
+        },
+        "fallback": {
+          "relation_head": "symbolic records only",
+          "active_policy": "confidence top-k",
+          "write_policy": "write-all"
+        }
+      },
+      "entity_persistence": true,
+      "plan_success": true,
+      "plan_actions": 2,
+      "task_success": true,
+      "conflict_flagged": true,
+      "recommendation": "review",
+      "rollback_ok": true,
+      "explanation_has_location": true,
+      "explanation_citations": 1,
+      "n_entities": 3,
+      "n_relations": 0,
+      "n_facts": 3,
+      "n_audit": 10,
+      "version": 9
+    },
+    "no_uncertainty": {
+      "variant": "no_uncertainty",
+      "learned_relations": 0,
+      "rejected_facts": 0,
+      "noisy_fact_rejected": false,
+      "slots": [
+        "obj_0001",
+        "obj_0002",
+        "obj_0003"
+      ],
+      "components": {
+        "relation_head": false,
+        "active_policy": false,
+        "write_policy": false,
+        "associator": "hand",
+        "relation_rules": {
+          "version": 1,
+          "source": "learned",
+          "thresholds": {
+            "near_dist": 0.12,
+            "contact_pad": 0.07220965684270447,
+            "bin_half": 0.03,
+            "bin_z": 0.13999999999999996,
+            "version": 1,
+            "source": "learned"
+          }
+        },
+        "fallback": {
+          "relation_head": "symbolic records only",
+          "active_policy": "confidence top-k",
+          "write_policy": "write-all"
+        }
+      },
+      "entity_persistence": true,
+      "plan_success": true,
+      "plan_actions": 2,
+      "task_success": true,
+      "conflict_flagged": false,
+      "recommendation": "disabled",
+      "rollback_ok": true,
+      "explanation_has_location": true,
+      "explanation_citations": 1,
+      "n_entities": 3,
+      "n_relations": 12,
+      "n_facts": 3,
+      "n_audit": 10,
+      "version": 9
+    },
+    "no_audit": {
+      "variant": "no_audit",
+      "learned_relations": 0,
+      "rejected_facts": 0,
+      "noisy_fact_rejected": false,
+      "slots": [
+        "obj_0001",
+        "obj_0002",
+        "obj_0003"
+      ],
+      "components": {
+        "relation_head": false,
+        "active_policy": false,
+        "write_policy": false,
+        "associator": "hand",
+        "relation_rules": {
+          "version": 1,
+          "source": "learned",
+          "thresholds": {
+            "near_dist": 0.12,
+            "contact_pad": 0.07220965684270447,
+            "bin_half": 0.03,
+            "bin_z": 0.13999999999999996,
+            "version": 1,
+            "source": "learned"
+          }
+        },
+        "fallback": {
+          "relation_head": "symbolic records only",
+          "active_policy": "confidence top-k",
+          "write_policy": "write-all"
+        }
+      },
+      "entity_persistence": true,
+      "plan_success": true,
+      "plan_actions": 2,
+      "task_success": true,
+      "conflict_flagged": true,
+      "recommendation": "review",
+      "rollback_ok": false,
+      "explanation_has_location": true,
+      "explanation_citations": 1,
+      "n_entities": 3,
+      "n_relations": 12,
+      "n_facts": 3,
+      "n_audit": 0,
+      "version": 0
+    },
+    "no_language": {
+      "variant": "no_language",
+      "learned_relations": 0,
+      "rejected_facts": 0,
+      "noisy_fact_rejected": false,
+      "slots": [
+        "obj_0001",
+        "obj_0002",
+        "obj_0003"
+      ],
+      "components": {
+        "relation_head": false,
+        "active_policy": false,
+        "write_policy": false,
+        "associator": "hand",
+        "relation_rules": {
+          "version": 1,
+          "source": "learned",
+          "thresholds": {
+            "near_dist": 0.12,
+            "contact_pad": 0.07220965684270447,
+            "bin_half": 0.03,
+            "bin_z": 0.13999999999999996,
+            "version": 1,
+            "source": "learned"
+          }
+        },
+        "fallback": {
+          "relation_head": "symbolic records only",
+          "active_policy": "confidence top-k",
+          "write_policy": "write-all"
+        }
+      },
+      "entity_persistence": true,
+      "plan_success": true,
+      "plan_actions": 2,
+      "task_success": true,
+      "conflict_flagged": true,
+      "recommendation": "review",
+      "rollback_ok": true,
+      "explanation_has_location": false,
+      "explanation_citations": 0,
+      "n_entities": 3,
+      "n_relations": 12,
+      "n_facts": 3,
+      "n_audit": 10,
+      "version": 9
+    }
+  }
+}
