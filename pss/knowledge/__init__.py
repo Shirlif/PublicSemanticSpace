@@ -5,6 +5,7 @@ from .facts import (
     RuleEngine,
     VersionedRuleEngine,
 )
+from .tms import Justification, TruthMaintenanceSystem
 
 __all__ = [
     "FactStore",
@@ -12,4 +13,6 @@ __all__ = [
     "Rule",
     "RuleEngine",
     "VersionedRuleEngine",
+    "Justification",
+    "TruthMaintenanceSystem",
 ]

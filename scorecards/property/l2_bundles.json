@@ -1,0 +1,234 @@
+{
+  "bundles": "bundles\\dev",
+  "max_entities": 50,
+  "max_latency_ms": 10.0,
+  "n_traces": 14,
+  "traces": [
+    {
+      "path": "bundles\\dev\\s1_camera_oracle\\b4bb5f0e\\seed0\\pss_trace.parquet",
+      "rows": 95,
+      "BAR": 1.0,
+      "p95_ms": 0.2059200051007792,
+      "p99_ms": 0.3078080056002378,
+      "max_entities": 4.0,
+      "max_latency_ms": 0.8970000053523108,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 14.431599905947223
+      }
+    },
+    {
+      "path": "bundles\\dev\\s1_camera_real\\b4bb5f0e\\seed0\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 0.995,
+      "p95_ms": 1.1074000023654662,
+      "p99_ms": 2.5207550008783834,
+      "max_entities": 7.0,
+      "max_latency_ms": 52.46180000540335,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 121.40010000439361
+      }
+    },
+    {
+      "path": "bundles\\dev\\s1_hard\\37f0c8b8\\seed0\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 1.0,
+      "p95_ms": 1.678195001295535,
+      "p99_ms": 1.8114809969847567,
+      "max_entities": 13.0,
+      "max_latency_ms": 2.017499995417893,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 103.82999990542885
+      }
+    },
+    {
+      "path": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed0\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 1.0,
+      "p95_ms": 2.888585001346655,
+      "p99_ms": 3.1746850076888227,
+      "max_entities": 20.0,
+      "max_latency_ms": 3.301900011138059,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 212.27479999652132
+      }
+    },
+    {
+      "path": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed1\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 0.995,
+      "p95_ms": 3.4054999923682767,
+      "p99_ms": 4.994869992806645,
+      "max_entities": 20.0,
+      "max_latency_ms": 63.48109999089502,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 278.69599995028693
+      }
+    },
+    {
+      "path": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed2\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 1.0,
+      "p95_ms": 2.9055650054942816,
+      "p99_ms": 3.2560250010283216,
+      "max_entities": 20.0,
+      "max_latency_ms": 3.5752999974647537,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 216.8473000783706
+      }
+    },
+    {
+      "path": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed3\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 1.0,
+      "p95_ms": 3.1375849961477797,
+      "p99_ms": 3.5005129913042805,
+      "max_entities": 20.0,
+      "max_latency_ms": 4.313600002205931,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 230.37530017609242
+      }
+    },
+    {
+      "path": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed4\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 1.0,
+      "p95_ms": 3.0901600053766742,
+      "p99_ms": 3.4116600124980345,
+      "max_entities": 20.0,
+      "max_latency_ms": 3.853200003504753,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 220.5359999643406
+      }
+    },
+    {
+      "path": "bundles\\dev\\s1_occlusion_noisy\\16ea9f38\\seed0\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 1.0,
+      "p95_ms": 0.3434099955484271,
+      "p99_ms": 0.3581560046586674,
+      "max_entities": 27.0,
+      "max_latency_ms": 0.3735999925993383,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 21.649000060278922
+      }
+    },
+    {
+      "path": "bundles\\dev\\s1_occlusion_oracle\\16ea9f38\\seed0\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 1.0,
+      "p95_ms": 1.0185399973124731,
+      "p99_ms": 1.0902780086325996,
+      "max_entities": 4.0,
+      "max_latency_ms": 2.018700004555285,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 67.95900008000899
+      }
+    },
+    {
+      "path": "bundles\\dev\\s1_occlusion_real\\16ea9f38\\seed0\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 1.0,
+      "p95_ms": 1.58004499899107,
+      "p99_ms": 2.4654719953832833,
+      "max_entities": 5.0,
+      "max_latency_ms": 5.383200012147427,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 82.64119997329544
+      }
+    },
+    {
+      "path": "bundles\\dev\\s2_twins\\3d49ce1b\\seed0\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 1.0,
+      "p95_ms": 0.24074999819276854,
+      "p99_ms": 0.28259299680939887,
+      "max_entities": 8.0,
+      "max_latency_ms": 0.3017000126419589,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 18.150900039472617
+      }
+    },
+    {
+      "path": "bundles\\dev\\s2_twins_oracle\\3d49ce1b\\seed0\\pss_trace.parquet",
+      "rows": 100,
+      "BAR": 1.0,
+      "p95_ms": 0.20052499676239674,
+      "p99_ms": 0.2412600022216794,
+      "max_entities": 4.0,
+      "max_latency_ms": 0.2570999931776896,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 15.27419987542089
+      }
+    },
+    {
+      "path": "bundles\\dev\\s3_relations_ood\\66399bd6\\seed0\\pss_trace.parquet",
+      "rows": 50,
+      "BAR": 1.0,
+      "p95_ms": 0.6087649955588859,
+      "p99_ms": 0.8500330006063449,
+      "max_entities": 10.0,
+      "max_latency_ms": 0.873700002557598,
+      "max_expansions": 0.0,
+      "max_facts": 0.0,
+      "CAT": 0.0,
+      "layers": {
+        "entity": 25.98139995825477
+      }
+    }
+  ],
+  "aggregate": {
+    "BAR_mean": 0.9992857142857143,
+    "BAR_min": 0.995,
+    "p99_ms": {
+      "n": 14,
+      "mean": 2.018970644078675,
+      "median": 2.13847649618402,
+      "p95": 4.023537941830107,
+      "p99": 4.800603582611337,
+      "min": 0.2412600022216794,
+      "max": 4.994869992806645
+    },
+    "max_entities": 27.0,
+    "max_latency_ms": 63.48109999089502,
+    "CAT_mean": 0.0
+  }
+}

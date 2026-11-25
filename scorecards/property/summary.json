@@ -1,0 +1,986 @@
+{
+  "l0_runs": 5,
+  "l1_runs": 3,
+  "l0_pass": {
+    "AUD": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "BAR": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "CAT": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "CDR": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "DCR": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "DT": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "INT": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "LOC": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "MON": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "PCR": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "RBE": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "RBE-KB": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "RCR": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "RES": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "SRR": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "SSR": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "USR": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "WCB": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "ZCR_cross_modal": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "ZCR_same_modality": {
+      "pass_rate": 1.0,
+      "n": 5
+    },
+    "interaction_pass_rate": {
+      "pass_rate": 1.0,
+      "n": 5
+    }
+  },
+  "l0_metrics": {
+    "AUD": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "BAR": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "CAT": {
+      "mean": 0.0,
+      "std": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "n": 5
+    },
+    "CDR": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "DCR": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "DT": {
+      "mean": 0.0,
+      "std": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "n": 5
+    },
+    "FOR": {
+      "mean": 0.0,
+      "std": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "n": 5
+    },
+    "HC_ok": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "HKC_ok": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "HK_ok": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "HK_rollback": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "INT": {
+      "mean": 0.0,
+      "std": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "n": 5
+    },
+    "KC_ok": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "LOC": {
+      "mean": 0.0,
+      "std": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "n": 5
+    },
+    "MON": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "PCR": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "RBE": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "RBE-KB": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "RCR": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "RES": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "SRR": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "SSR": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "UL_ms": {
+      "mean": 0.0,
+      "std": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "n": 5
+    },
+    "USR": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "WCB": {
+      "mean": 0.0,
+      "std": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "n": 5
+    },
+    "ZCR": {
+      "mean": 0.6676,
+      "std": 0.00402988833592198,
+      "min": 0.663,
+      "max": 0.674,
+      "n": 5
+    },
+    "ZCR_cross_modal": {
+      "mean": 0.9,
+      "std": 0.0,
+      "min": 0.9,
+      "max": 0.9,
+      "n": 5
+    },
+    "ZCR_same_modality": {
+      "mean": 0.9,
+      "std": 0.0,
+      "min": 0.9,
+      "max": 0.9,
+      "n": 5
+    },
+    "anytime_valid": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "interaction_pass_rate": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "old_module_retained": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "p95_ms": {
+      "mean": 0.20471200114116073,
+      "std": 0.005209154305513592,
+      "min": 0.20046000427100807,
+      "max": 0.21418000396806747,
+      "n": 5
+    },
+    "p99_ms": {
+      "mean": 0.20551840076223016,
+      "std": 0.005610505621879331,
+      "min": 0.20081200229469687,
+      "max": 0.2158760029124096,
+      "n": 5
+    },
+    "swap_latency_ms": {
+      "mean": 0.19349200068973005,
+      "std": 0.11409923325848524,
+      "min": 0.12556000147014856,
+      "max": 0.4206200013868511,
+      "n": 5
+    }
+  },
+  "l1_metrics": {
+    "SSR_L1": 1.0,
+    "ZCR_L1": 0.65,
+    "ZCR_same_modality_L1": 0.84375,
+    "ZCR_ratio_Q1": 0.9677419354838709,
+    "ZCR_ratio_mean": 1.012056044314109,
+    "INT_L1": 0.0,
+    "RBE_L1": 1.0,
+    "RCR_L1": 1.0,
+    "swap_latency_ms_L1": 0.13310000649653375
+  },
+  "l1_metric_stats": {
+    "INT_L1": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n": 3
+    },
+    "RBE_L1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+    },
+    "RCR_L1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+    },
+    "SSR_L1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+    },
+    "ZCR_L1": {
+      "mean": 0.6666666666666666,
+      "std": 0.01453364551142806,
+      "n": 3
+    },
+    "ZCR_ratio_Q1": {
+      "mean": 1.0075667064914375,
+      "std": 0.028160365638651874,
+      "n": 3
+    },
+    "ZCR_ratio_mean": {
+      "mean": 1.0502395520316667,
+      "std": 0.03692304425249933,
+      "n": 3
+    },
+    "ZCR_same_modality_L1": {
+      "mean": 0.8784722222222223,
+      "std": 0.024552318791199585,
+      "n": 3
+    },
+    "swap_latency_ms_L1": {
+      "mean": 0.11716666728413354,
+      "std": 0.01466636772077896,
+      "n": 3
+    }
+  },
+  "l1_per_level": {
+    "Q0": {
+      "zcr_mean": 0.96875,
+      "zcr_std": 0.0,
+      "rollback_mean": 1.0
+    },
+    "Q1": {
+      "zcr_mean": 0.8784722222222223,
+      "zcr_std": 0.024552318791199585,
+      "rollback_mean": 1.0
+    },
+    "Q2": {
+      "zcr_mean": 0.7569444444444445,
+      "zcr_std": 0.009820927516479843,
+      "rollback_mean": 1.0
+    },
+    "Q3": {
+      "zcr_mean": 0.5868055555555556,
+      "zcr_std": 0.04195502074164783,
+      "rollback_mean": 1.0
+    },
+    "Q4": {
+      "zcr_mean": 0.14236111111111113,
+      "zcr_std": 0.0049104637582399226,
+      "rollback_mean": 1.0
+    }
+  },
+  "l1_family": {
+    "alt_data": "data/category_pretrain",
+    "alt_experts": "checkpoints\\category_pretrain_experts",
+    "n_samples": 60,
+    "common_classes": [
+      "block",
+      "bottle",
+      "box",
+      "cup",
+      "plate",
+      "toy_fruit"
+    ],
+    "per_class_counts": {
+      "cup": 12,
+      "plate": 12,
+      "bottle": 12,
+      "box": 12,
+      "block": 12
+    },
+    "ZCR_vision": 0.2,
+    "ZCR_tactile": 0.06666666666666667,
+    "chance": 0.16666666666666666
+  },
+  "l1_calibration": {
+    "alt_data": "data/category_pretrain",
+    "alt_experts": "checkpoints\\category_pretrain_experts",
+    "n_test": 60,
+    "ks": [
+      0,
+      1,
+      5,
+      20
+    ],
+    "chance": 0.16666666666666666,
+    "per_modality": {
+      "vision": {
+        "0": 0.2,
+        "1": 1.0,
+        "5": 0.95,
+        "20": 1.0
+      },
+      "tactile": {
+        "0": 0.06666666666666667,
+        "1": 0.4,
+        "5": 0.31666666666666665,
+        "20": 0.3333333333333333
+      }
+    }
+  },
+  "interactions": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "rows": [
+      {
+        "name": "I",
+        "metrics": {
+          "interaction_pass_rate": 1.0,
+          "HK_ok": 1.0,
+          "HK_rollback": 1.0,
+          "HC_ok": 1.0,
+          "KC_ok": 1.0,
+          "HKC_ok": 1.0
+        },
+        "details": {
+          "HK": {
+            "consistent": true,
+            "rollback": 1.0
+          },
+          "HC": {
+            "plan_success": true,
+            "total_ms": 0.2738999901339412
+          },
+          "KC": {
+            "nodes": 50,
+            "within": true
+          },
+          "HKC": {
+            "within": true,
+            "nodes": 50
+          }
+        }
+      },
+      {
+        "name": "I",
+        "metrics": {
+          "interaction_pass_rate": 1.0,
+          "HK_ok": 1.0,
+          "HK_rollback": 1.0,
+          "HC_ok": 1.0,
+          "KC_ok": 1.0,
+          "HKC_ok": 1.0
+        },
+        "details": {
+          "HK": {
+            "consistent": true,
+            "rollback": 1.0
+          },
+          "HC": {
+            "plan_success": true,
+            "total_ms": 0.5653999978676438
+          },
+          "KC": {
+            "nodes": 50,
+            "within": true
+          },
+          "HKC": {
+            "within": true,
+            "nodes": 50
+          }
+        }
+      },
+      {
+        "name": "I",
+        "metrics": {
+          "interaction_pass_rate": 1.0,
+          "HK_ok": 1.0,
+          "HK_rollback": 1.0,
+          "HC_ok": 1.0,
+          "KC_ok": 1.0,
+          "HKC_ok": 1.0
+        },
+        "details": {
+          "HK": {
+            "consistent": true,
+            "rollback": 1.0
+          },
+          "HC": {
+            "plan_success": true,
+            "total_ms": 0.5872000037925318
+          },
+          "KC": {
+            "nodes": 50,
+            "within": true
+          },
+          "HKC": {
+            "within": true,
+            "nodes": 50
+          }
+        }
+      },
+      {
+        "name": "I",
+        "metrics": {
+          "interaction_pass_rate": 1.0,
+          "HK_ok": 1.0,
+          "HK_rollback": 1.0,
+          "HC_ok": 1.0,
+          "KC_ok": 1.0,
+          "HKC_ok": 1.0
+        },
+        "details": {
+          "HK": {
+            "consistent": true,
+            "rollback": 1.0
+          },
+          "HC": {
+            "plan_success": true,
+            "total_ms": 0.5692000122508034
+          },
+          "KC": {
+            "nodes": 50,
+            "within": true
+          },
+          "HKC": {
+            "within": true,
+            "nodes": 50
+          }
+        }
+      },
+      {
+        "name": "I",
+        "metrics": {
+          "interaction_pass_rate": 1.0,
+          "HK_ok": 1.0,
+          "HK_rollback": 1.0,
+          "HC_ok": 1.0,
+          "KC_ok": 1.0,
+          "HKC_ok": 1.0
+        },
+        "details": {
+          "HK": {
+            "consistent": true,
+            "rollback": 1.0
+          },
+          "HC": {
+            "plan_success": true,
+            "total_ms": 0.6573999999091029
+          },
+          "KC": {
+            "nodes": 50,
+            "within": true
+          },
+          "HKC": {
+            "within": true,
+            "nodes": 50
+          }
+        }
+      }
+    ],
+    "aggregate": {
+      "HC_ok": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 5
+      },
+      "HKC_ok": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 5
+      },
+      "HK_ok": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 5
+      },
+      "HK_rollback": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 5
+      },
+      "KC_ok": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 5
+      },
+      "interaction_pass_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 5
+      }
+    },
+    "controls": {
+      "seed": 0,
+      "controls": [
+        {
+          "id": "N1",
+          "name": "flat KB",
+          "expected": "fail locality/rollback",
+          "passed": true,
+          "details": {
+            "rollback": false,
+            "propagation": false
+          }
+        },
+        {
+          "id": "N2",
+          "name": "unbounded planner",
+          "expected": "fail budget adherence",
+          "passed": true,
+          "details": {
+            "nodes": 56,
+            "success": false
+          }
+        },
+        {
+          "id": "N3",
+          "name": "naive swap",
+          "expected": "accept invalid module (should fail)",
+          "passed": true,
+          "details": {
+            "accepted": true,
+            "active_dim": 64
+          }
+        },
+        {
+          "id": "N4",
+          "name": "random expert capability",
+          "expected": "fail capability (near chance)",
+          "passed": true,
+          "details": {
+            "accuracy": 0.21,
+            "chance": 0.125
+          }
+        },
+        {
+          "id": "N5",
+          "name": "random expert property",
+          "expected": "pass property contract",
+          "passed": true,
+          "details": {
+            "valid": true,
+            "swap_success": true
+          }
+        },
+        {
+          "id": "N6",
+          "name": "no-op update",
+          "expected": "identity",
+          "passed": true,
+          "details": {
+            "before": "bdc6345d4cfc875596bf91ad3e43bd027327103f4d5abb9fe83bac18ca875909",
+            "after": "bdc6345d4cfc875596bf91ad3e43bd027327103f4d5abb9fe83bac18ca875909"
+          }
+        },
+        {
+          "id": "N7",
+          "name": "shuffled embeddings",
+          "expected": "capability fails, contract holds",
+          "passed": true,
+          "details": {
+            "accuracy": 0.125,
+            "chance": 0.125
+          }
+        },
+        {
+          "id": "N8",
+          "name": "over-budget input",
+          "expected": "budget metric catches violation",
+          "passed": true,
+          "details": {
+            "violations": [
+              "entities",
+              "relations"
+            ]
+          }
+        }
+      ],
+      "all_passed": true
+    },
+    "all_passed": true
+  },
+  "l2": {
+    "bundles": "bundles\\dev",
+    "max_entities": 50,
+    "max_latency_ms": 10.0,
+    "n_traces": 14,
+    "traces": [
+      {
+        "path": "bundles\\dev\\s1_camera_oracle\\b4bb5f0e\\seed0\\pss_trace.parquet",
+        "rows": 95,
+        "BAR": 1.0,
+        "p95_ms": 0.2059200051007792,
+        "p99_ms": 0.3078080056002378,
+        "max_entities": 4.0,
+        "max_latency_ms": 0.8970000053523108,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 14.431599905947223
+        }
+      },
+      {
+        "path": "bundles\\dev\\s1_camera_real\\b4bb5f0e\\seed0\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 0.995,
+        "p95_ms": 1.1074000023654662,
+        "p99_ms": 2.5207550008783834,
+        "max_entities": 7.0,
+        "max_latency_ms": 52.46180000540335,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 121.40010000439361
+        }
+      },
+      {
+        "path": "bundles\\dev\\s1_hard\\37f0c8b8\\seed0\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 1.0,
+        "p95_ms": 1.678195001295535,
+        "p99_ms": 1.8114809969847567,
+        "max_entities": 13.0,
+        "max_latency_ms": 2.017499995417893,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 103.82999990542885
+        }
+      },
+      {
+        "path": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed0\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 1.0,
+        "p95_ms": 2.888585001346655,
+        "p99_ms": 3.1746850076888227,
+        "max_entities": 20.0,
+        "max_latency_ms": 3.301900011138059,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 212.27479999652132
+        }
+      },
+      {
+        "path": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed1\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 0.995,
+        "p95_ms": 3.4054999923682767,
+        "p99_ms": 4.994869992806645,
+        "max_entities": 20.0,
+        "max_latency_ms": 63.48109999089502,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 278.69599995028693
+        }
+      },
+      {
+        "path": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed2\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 1.0,
+        "p95_ms": 2.9055650054942816,
+        "p99_ms": 3.2560250010283216,
+        "max_entities": 20.0,
+        "max_latency_ms": 3.5752999974647537,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 216.8473000783706
+        }
+      },
+      {
+        "path": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed3\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 1.0,
+        "p95_ms": 3.1375849961477797,
+        "p99_ms": 3.5005129913042805,
+        "max_entities": 20.0,
+        "max_latency_ms": 4.313600002205931,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 230.37530017609242
+        }
+      },
+      {
+        "path": "bundles\\dev\\s1_occlusion_20\\18c18c5e\\seed4\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 1.0,
+        "p95_ms": 3.0901600053766742,
+        "p99_ms": 3.4116600124980345,
+        "max_entities": 20.0,
+        "max_latency_ms": 3.853200003504753,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 220.5359999643406
+        }
+      },
+      {
+        "path": "bundles\\dev\\s1_occlusion_noisy\\16ea9f38\\seed0\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 1.0,
+        "p95_ms": 0.3434099955484271,
+        "p99_ms": 0.3581560046586674,
+        "max_entities": 27.0,
+        "max_latency_ms": 0.3735999925993383,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 21.649000060278922
+        }
+      },
+      {
+        "path": "bundles\\dev\\s1_occlusion_oracle\\16ea9f38\\seed0\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 1.0,
+        "p95_ms": 1.0185399973124731,
+        "p99_ms": 1.0902780086325996,
+        "max_entities": 4.0,
+        "max_latency_ms": 2.018700004555285,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 67.95900008000899
+        }
+      },
+      {
+        "path": "bundles\\dev\\s1_occlusion_real\\16ea9f38\\seed0\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 1.0,
+        "p95_ms": 1.58004499899107,
+        "p99_ms": 2.4654719953832833,
+        "max_entities": 5.0,
+        "max_latency_ms": 5.383200012147427,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 82.64119997329544
+        }
+      },
+      {
+        "path": "bundles\\dev\\s2_twins\\3d49ce1b\\seed0\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 1.0,
+        "p95_ms": 0.24074999819276854,
+        "p99_ms": 0.28259299680939887,
+        "max_entities": 8.0,
+        "max_latency_ms": 0.3017000126419589,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 18.150900039472617
+        }
+      },
+      {
+        "path": "bundles\\dev\\s2_twins_oracle\\3d49ce1b\\seed0\\pss_trace.parquet",
+        "rows": 100,
+        "BAR": 1.0,
+        "p95_ms": 0.20052499676239674,
+        "p99_ms": 0.2412600022216794,
+        "max_entities": 4.0,
+        "max_latency_ms": 0.2570999931776896,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 15.27419987542089
+        }
+      },
+      {
+        "path": "bundles\\dev\\s3_relations_ood\\66399bd6\\seed0\\pss_trace.parquet",
+        "rows": 50,
+        "BAR": 1.0,
+        "p95_ms": 0.6087649955588859,
+        "p99_ms": 0.8500330006063449,
+        "max_entities": 10.0,
+        "max_latency_ms": 0.873700002557598,
+        "max_expansions": 0.0,
+        "max_facts": 0.0,
+        "CAT": 0.0,
+        "layers": {
+          "entity": 25.98139995825477
+        }
+      }
+    ],
+    "aggregate": {
+      "BAR_mean": 0.9992857142857143,
+      "BAR_min": 0.995,
+      "p99_ms": {
+        "n": 14,
+        "mean": 2.018970644078675,
+        "median": 2.13847649618402,
+        "p95": 4.023537941830107,
+        "p99": 4.800603582611337,
+        "min": 0.2412600022216794,
+        "max": 4.994869992806645
+      },
+      "max_entities": 27.0,
+      "max_latency_ms": 63.48109999089502,
+      "CAT_mean": 0.0
+    }
+  },
+  "variance": {
+    "property_var": 0.0,
+    "capability_var": 0.08510802469135803,
+    "ratio": 0.0
+  }
+}

@@ -1,0 +1,283 @@
+{
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "rows": [
+    {
+      "name": "I",
+      "metrics": {
+        "interaction_pass_rate": 1.0,
+        "HK_ok": 1.0,
+        "HK_rollback": 1.0,
+        "HC_ok": 1.0,
+        "KC_ok": 1.0,
+        "HKC_ok": 1.0
+      },
+      "details": {
+        "HK": {
+          "consistent": true,
+          "rollback": 1.0
+        },
+        "HC": {
+          "plan_success": true,
+          "total_ms": 0.2738999901339412
+        },
+        "KC": {
+          "nodes": 50,
+          "within": true
+        },
+        "HKC": {
+          "within": true,
+          "nodes": 50
+        }
+      }
+    },
+    {
+      "name": "I",
+      "metrics": {
+        "interaction_pass_rate": 1.0,
+        "HK_ok": 1.0,
+        "HK_rollback": 1.0,
+        "HC_ok": 1.0,
+        "KC_ok": 1.0,
+        "HKC_ok": 1.0
+      },
+      "details": {
+        "HK": {
+          "consistent": true,
+          "rollback": 1.0
+        },
+        "HC": {
+          "plan_success": true,
+          "total_ms": 0.5653999978676438
+        },
+        "KC": {
+          "nodes": 50,
+          "within": true
+        },
+        "HKC": {
+          "within": true,
+          "nodes": 50
+        }
+      }
+    },
+    {
+      "name": "I",
+      "metrics": {
+        "interaction_pass_rate": 1.0,
+        "HK_ok": 1.0,
+        "HK_rollback": 1.0,
+        "HC_ok": 1.0,
+        "KC_ok": 1.0,
+        "HKC_ok": 1.0
+      },
+      "details": {
+        "HK": {
+          "consistent": true,
+          "rollback": 1.0
+        },
+        "HC": {
+          "plan_success": true,
+          "total_ms": 0.5872000037925318
+        },
+        "KC": {
+          "nodes": 50,
+          "within": true
+        },
+        "HKC": {
+          "within": true,
+          "nodes": 50
+        }
+      }
+    },
+    {
+      "name": "I",
+      "metrics": {
+        "interaction_pass_rate": 1.0,
+        "HK_ok": 1.0,
+        "HK_rollback": 1.0,
+        "HC_ok": 1.0,
+        "KC_ok": 1.0,
+        "HKC_ok": 1.0
+      },
+      "details": {
+        "HK": {
+          "consistent": true,
+          "rollback": 1.0
+        },
+        "HC": {
+          "plan_success": true,
+          "total_ms": 0.5692000122508034
+        },
+        "KC": {
+          "nodes": 50,
+          "within": true
+        },
+        "HKC": {
+          "within": true,
+          "nodes": 50
+        }
+      }
+    },
+    {
+      "name": "I",
+      "metrics": {
+        "interaction_pass_rate": 1.0,
+        "HK_ok": 1.0,
+        "HK_rollback": 1.0,
+        "HC_ok": 1.0,
+        "KC_ok": 1.0,
+        "HKC_ok": 1.0
+      },
+      "details": {
+        "HK": {
+          "consistent": true,
+          "rollback": 1.0
+        },
+        "HC": {
+          "plan_success": true,
+          "total_ms": 0.6573999999091029
+        },
+        "KC": {
+          "nodes": 50,
+          "within": true
+        },
+        "HKC": {
+          "within": true,
+          "nodes": 50
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "HC_ok": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "HKC_ok": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "HK_ok": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "HK_rollback": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "KC_ok": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    },
+    "interaction_pass_rate": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "n": 5
+    }
+  },
+  "controls": {
+    "seed": 0,
+    "controls": [
+      {
+        "id": "N1",
+        "name": "flat KB",
+        "expected": "fail locality/rollback",
+        "passed": true,
+        "details": {
+          "rollback": false,
+          "propagation": false
+        }
+      },
+      {
+        "id": "N2",
+        "name": "unbounded planner",
+        "expected": "fail budget adherence",
+        "passed": true,
+        "details": {
+          "nodes": 56,
+          "success": false
+        }
+      },
+      {
+        "id": "N3",
+        "name": "naive swap",
+        "expected": "accept invalid module (should fail)",
+        "passed": true,
+        "details": {
+          "accepted": true,
+          "active_dim": 64
+        }
+      },
+      {
+        "id": "N4",
+        "name": "random expert capability",
+        "expected": "fail capability (near chance)",
+        "passed": true,
+        "details": {
+          "accuracy": 0.21,
+          "chance": 0.125
+        }
+      },
+      {
+        "id": "N5",
+        "name": "random expert property",
+        "expected": "pass property contract",
+        "passed": true,
+        "details": {
+          "valid": true,
+          "swap_success": true
+        }
+      },
+      {
+        "id": "N6",
+        "name": "no-op update",
+        "expected": "identity",
+        "passed": true,
+        "details": {
+          "before": "bdc6345d4cfc875596bf91ad3e43bd027327103f4d5abb9fe83bac18ca875909",
+          "after": "bdc6345d4cfc875596bf91ad3e43bd027327103f4d5abb9fe83bac18ca875909"
+        }
+      },
+      {
+        "id": "N7",
+        "name": "shuffled embeddings",
+        "expected": "capability fails, contract holds",
+        "passed": true,
+        "details": {
+          "accuracy": 0.125,
+          "chance": 0.125
+        }
+      },
+      {
+        "id": "N8",
+        "name": "over-budget input",
+        "expected": "budget metric catches violation",
+        "passed": true,
+        "details": {
+          "violations": [
+            "entities",
+            "relations"
+          ]
+        }
+      }
+    ],
+    "all_passed": true
+  },
+  "all_passed": true
+}

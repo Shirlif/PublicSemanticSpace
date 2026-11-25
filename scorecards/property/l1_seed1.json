@@ -1,0 +1,133 @@
+{
+  "seed": 1,
+  "swap": {
+    "metrics": {
+      "SSR_L1": 1.0,
+      "ZCR_L1": 0.6854166666666668,
+      "ZCR_same_modality_L1": 0.8958333333333334,
+      "ZCR_ratio_Q1": 1.027479091995221,
+      "ZCR_ratio_mean": 1.10017740125267,
+      "INT_L1": 0.0,
+      "RBE_L1": 1.0,
+      "RCR_L1": 1.0,
+      "swap_latency_ms_L1": 0.2851600031135604
+    },
+    "per_level": {
+      "Q0": {
+        "accuracy_target": 1.0,
+        "zcr": 0.96875,
+        "zcr_ratio": 0.96875,
+        "swap_success": true,
+        "swap_latency_ms": 0.2555000100983307,
+        "rollback": 1.0,
+        "int": 0.0,
+        "dt": 0.0
+      },
+      "Q1": {
+        "accuracy_target": 0.9,
+        "zcr": 0.8958333333333334,
+        "zcr_ratio": 1.027479091995221,
+        "swap_success": true,
+        "swap_latency_ms": 0.3209999995306134,
+        "rollback": 1.0,
+        "int": 0.0,
+        "dt": 0.0
+      },
+      "Q2": {
+        "accuracy_target": 0.75,
+        "zcr": 0.7708333333333334,
+        "zcr_ratio": 1.060931899641577,
+        "swap_success": true,
+        "swap_latency_ms": 0.2961999998660758,
+        "rollback": 1.0,
+        "int": 0.0,
+        "dt": 0.0
+      },
+      "Q3": {
+        "accuracy_target": 0.55,
+        "zcr": 0.6458333333333334,
+        "zcr_ratio": 1.2121212121212122,
+        "swap_success": true,
+        "swap_latency_ms": 0.262400004430674,
+        "rollback": 1.0,
+        "int": 0.0,
+        "dt": 0.0
+      },
+      "Q4": {
+        "accuracy_target": 0.0,
+        "zcr": 0.14583333333333334,
+        "zcr_ratio": 145833333.33333334,
+        "swap_success": true,
+        "swap_latency_ms": 0.29070000164210796,
+        "rollback": 1.0,
+        "int": 0.0,
+        "dt": 0.0
+      }
+    },
+    "metadata": {
+      "data_dir": "data/expert_v1",
+      "expert_dir": "checkpoints\\expert_v1",
+      "projection_dir": "checkpoints\\projection_v1",
+      "prototype_dir": "checkpoints\\prototypes_v1",
+      "n_samples": 96,
+      "classes": [
+        "block",
+        "bottle",
+        "box",
+        "cup",
+        "plate",
+        "toy_fruit"
+      ],
+      "device": "cuda"
+    }
+  },
+  "family": {
+    "alt_data": "data/category_pretrain",
+    "alt_experts": "checkpoints\\category_pretrain_experts",
+    "n_samples": 60,
+    "common_classes": [
+      "block",
+      "bottle",
+      "box",
+      "cup",
+      "plate",
+      "toy_fruit"
+    ],
+    "per_class_counts": {
+      "cup": 12,
+      "plate": 12,
+      "bottle": 12,
+      "box": 12,
+      "block": 12
+    },
+    "ZCR_vision": 0.2,
+    "ZCR_tactile": 0.06666666666666667,
+    "chance": 0.16666666666666666
+  },
+  "calibration": {
+    "alt_data": "data/category_pretrain",
+    "alt_experts": "checkpoints\\category_pretrain_experts",
+    "n_test": 60,
+    "ks": [
+      0,
+      1,
+      5,
+      20
+    ],
+    "chance": 0.16666666666666666,
+    "per_modality": {
+      "vision": {
+        "0": 0.2,
+        "1": 1.0,
+        "5": 0.95,
+        "20": 1.0
+      },
+      "tactile": {
+        "0": 0.06666666666666667,
+        "1": 0.4,
+        "5": 0.31666666666666665,
+        "20": 0.3333333333333333
+      }
+    }
+  }
+}

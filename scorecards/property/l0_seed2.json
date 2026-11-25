@@ -1,0 +1,431 @@
+{
+  "seed": 2,
+  "n_observations": 200,
+  "suites": [
+    {
+      "name": "H",
+      "metrics": {
+        "SSR": 1.0,
+        "ZCR": 0.67,
+        "ZCR_same_modality": 0.9,
+        "ZCR_cross_modal": 0.9,
+        "INT": 0.0,
+        "RBE": 1.0,
+        "DT": 0.0,
+        "RCR": 1.0,
+        "SRR": 1.0,
+        "old_module_retained": 1.0,
+        "swap_latency_ms": 0.13617999793495983
+      },
+      "details": {
+        "per_level": {
+          "Q0": {
+            "swap_success": true,
+            "zcr": 1.0,
+            "swap_latency_ms": 0.26220000290777534,
+            "rollback_exact": 1.0,
+            "measured": {
+              "n": 200,
+              "accuracy": 1.0,
+              "ece": 8.346253688173988e-10,
+              "mean_confidence": 0.9999999991653746
+            }
+          },
+          "Q1": {
+            "swap_success": true,
+            "zcr": 0.9,
+            "swap_latency_ms": 0.12569999671541154,
+            "rollback_exact": 1.0,
+            "measured": {
+              "n": 200,
+              "accuracy": 0.9,
+              "ece": 0.0999999991491003,
+              "mean_confidence": 0.9999999991491003
+            }
+          },
+          "Q2": {
+            "swap_success": true,
+            "zcr": 0.75,
+            "swap_latency_ms": 0.0914999982342124,
+            "rollback_exact": 1.0,
+            "measured": {
+              "n": 200,
+              "accuracy": 0.75,
+              "ece": 0.24999999913499893,
+              "mean_confidence": 0.9999999991349989
+            }
+          },
+          "Q3": {
+            "swap_success": true,
+            "zcr": 0.55,
+            "swap_latency_ms": 0.10320000001229346,
+            "rollback_exact": 1.0,
+            "measured": {
+              "n": 200,
+              "accuracy": 0.55,
+              "ece": 0.4499999991917668,
+              "mean_confidence": 0.9999999991917669
+            }
+          },
+          "Q4": {
+            "swap_success": true,
+            "zcr": 0.15,
+            "swap_latency_ms": 0.0982999918051064,
+            "rollback_exact": 1.0,
+            "measured": {
+              "n": 200,
+              "accuracy": 0.09,
+              "ece": 0.4749524615900571,
+              "mean_confidence": 0.5649524615900571
+            }
+          }
+        },
+        "invalid_rejected": 3,
+        "invalid_injected": 3,
+        "cross_modal_note": "L0 uses a same-codebook tactile stub; real transplant is L1/L2."
+      }
+    },
+    {
+      "name": "K",
+      "metrics": {
+        "USR": 1.0,
+        "LOC": 0.0,
+        "FOR": 0.0,
+        "PCR": 1.0,
+        "CDR": 1.0,
+        "RES": 1.0,
+        "RBE-KB": 1.0,
+        "AUD": 1.0,
+        "UL_ms": 0.0
+      },
+      "details": {
+        "K1_assert_retract_identity": 1.0,
+        "K2_locality_violations": 0,
+        "K3_propagation": 1.0,
+        "K4_conflicts": {
+          "detected": 1,
+          "conflict_set": {
+            "('cup', 'color')": [
+              "blue",
+              "red"
+            ]
+          },
+          "resolved": "red"
+        },
+        "K5_rollback_exactness": 1.0,
+        "K6_hot_update": {
+          "before_success": false,
+          "after_success": true,
+          "actions": [
+            "clean"
+          ]
+        },
+        "K7_adversarial": {
+          "rejected": 2,
+          "accepted": 1,
+          "audit": 1.0
+        },
+        "K8_multisource": {
+          "priority_ok": true,
+          "timestamp_ok": true
+        }
+      }
+    },
+    {
+      "name": "C",
+      "metrics": {
+        "BAR": 1.0,
+        "MON": 1.0,
+        "p95_ms": 0.20198000129312277,
+        "p99_ms": 0.20255600102245808,
+        "DCR": 1.0,
+        "CAT": 0.0,
+        "WCB": 0.0,
+        "anytime_valid": 1.0
+      },
+      "details": {
+        "C1_budget_sweep": [
+          {
+            "budget": 1,
+            "success": false,
+            "nodes": 1,
+            "within_budget": true,
+            "latency_ms": 0.004799992893822491
+          },
+          {
+            "budget": 2,
+            "success": false,
+            "nodes": 2,
+            "within_budget": true,
+            "latency_ms": 0.016200006939470768
+          },
+          {
+            "budget": 3,
+            "success": false,
+            "nodes": 3,
+            "within_budget": true,
+            "latency_ms": 0.017799990018829703
+          },
+          {
+            "budget": 5,
+            "success": false,
+            "nodes": 5,
+            "within_budget": true,
+            "latency_ms": 0.02479999966453761
+          },
+          {
+            "budget": 8,
+            "success": false,
+            "nodes": 8,
+            "within_budget": true,
+            "latency_ms": 0.03979999746661633
+          },
+          {
+            "budget": 12,
+            "success": false,
+            "nodes": 12,
+            "within_budget": true,
+            "latency_ms": 0.05190000229049474
+          },
+          {
+            "budget": 20,
+            "success": false,
+            "nodes": 20,
+            "within_budget": true,
+            "latency_ms": 0.09439999121241271
+          },
+          {
+            "budget": 50,
+            "success": false,
+            "nodes": 50,
+            "within_budget": true,
+            "latency_ms": 0.2027000009547919
+          },
+          {
+            "budget": 100,
+            "success": true,
+            "nodes": 50,
+            "within_budget": true,
+            "latency_ms": 0.20090000180061907
+          }
+        ],
+        "C2_scene_pressure": {
+          "entities": 50,
+          "relations": 100,
+          "within": true
+        },
+        "C3_anytime": [
+          {
+            "budget": 1,
+            "success": false,
+            "nodes": 1,
+            "latency_ms": 0.018999999156221747,
+            "within_budget": true
+          },
+          {
+            "budget": 2,
+            "success": false,
+            "nodes": 2,
+            "latency_ms": 0.023300002794712782,
+            "within_budget": true
+          },
+          {
+            "budget": 3,
+            "success": false,
+            "nodes": 3,
+            "latency_ms": 0.020699997548945248,
+            "within_budget": true
+          },
+          {
+            "budget": 5,
+            "success": false,
+            "nodes": 5,
+            "latency_ms": 0.026399997295811772,
+            "within_budget": true
+          },
+          {
+            "budget": 8,
+            "success": false,
+            "nodes": 8,
+            "latency_ms": 0.04189999890513718,
+            "within_budget": true
+          },
+          {
+            "budget": 12,
+            "success": false,
+            "nodes": 12,
+            "latency_ms": 0.05499999679159373,
+            "within_budget": true
+          },
+          {
+            "budget": 20,
+            "success": false,
+            "nodes": 20,
+            "latency_ms": 0.08909999451134354,
+            "within_budget": true
+          },
+          {
+            "budget": 50,
+            "success": false,
+            "nodes": 50,
+            "latency_ms": 0.20340000628493726,
+            "within_budget": true
+          },
+          {
+            "budget": 100,
+            "success": true,
+            "nodes": 50,
+            "latency_ms": 0.22109999554231763,
+            "within_budget": true
+          }
+        ],
+        "C4_adversarial": {
+          "success": false,
+          "nodes": 20,
+          "within_budget": true,
+          "worst_case_excess": 0
+        },
+        "C5_degradation": [
+          {
+            "level": "degraded",
+            "proposal_allowed": false,
+            "motion_allowed": true,
+            "manual_required": false
+          },
+          {
+            "level": "emergency",
+            "proposal_allowed": false,
+            "motion_allowed": false,
+            "manual_required": true
+          },
+          {
+            "level": "normal",
+            "proposal_allowed": true,
+            "motion_allowed": true,
+            "manual_required": false
+          }
+        ],
+        "C6_costs": {
+          "stages": {
+            "active_set": 0.0023000029614195228,
+            "relations": 0.0053000112529844046,
+            "plan": 0.20790001144632697
+          },
+          "total_ms": 0.2155000256607309,
+          "attribution_error": 0.0
+        }
+      }
+    },
+    {
+      "name": "I",
+      "metrics": {
+        "interaction_pass_rate": 1.0,
+        "HK_ok": 1.0,
+        "HK_rollback": 1.0,
+        "HC_ok": 1.0,
+        "KC_ok": 1.0,
+        "HKC_ok": 1.0
+      },
+      "details": {
+        "HK": {
+          "consistent": true,
+          "rollback": 1.0
+        },
+        "HC": {
+          "plan_success": true,
+          "total_ms": 0.23570000485051423
+        },
+        "KC": {
+          "nodes": 50,
+          "within": true
+        },
+        "HKC": {
+          "within": true,
+          "nodes": 50
+        }
+      }
+    }
+  ],
+  "metrics": {
+    "SSR": 1.0,
+    "ZCR": 0.67,
+    "ZCR_same_modality": 0.9,
+    "ZCR_cross_modal": 0.9,
+    "INT": 0.0,
+    "RBE": 1.0,
+    "DT": 0.0,
+    "RCR": 1.0,
+    "SRR": 1.0,
+    "old_module_retained": 1.0,
+    "swap_latency_ms": 0.13617999793495983,
+    "USR": 1.0,
+    "LOC": 0.0,
+    "FOR": 0.0,
+    "PCR": 1.0,
+    "CDR": 1.0,
+    "RES": 1.0,
+    "RBE-KB": 1.0,
+    "AUD": 1.0,
+    "UL_ms": 0.0,
+    "BAR": 1.0,
+    "MON": 1.0,
+    "p95_ms": 0.20198000129312277,
+    "p99_ms": 0.20255600102245808,
+    "DCR": 1.0,
+    "CAT": 0.0,
+    "WCB": 0.0,
+    "anytime_valid": 1.0,
+    "interaction_pass_rate": 1.0,
+    "HK_ok": 1.0,
+    "HK_rollback": 1.0,
+    "HC_ok": 1.0,
+    "KC_ok": 1.0,
+    "HKC_ok": 1.0
+  },
+  "thresholds": {
+    "SSR": 0.9,
+    "ZCR_same_modality": 0.9,
+    "ZCR_cross_modal": 0.7,
+    "INT": 0.02,
+    "RBE": 1.0,
+    "DT": 0.01,
+    "RCR": 0.95,
+    "SRR": 1.0,
+    "USR": 0.99,
+    "LOC": 0.0,
+    "PCR": 1.0,
+    "CDR": 0.95,
+    "RES": 1.0,
+    "RBE-KB": 1.0,
+    "AUD": 1.0,
+    "BAR": 1.0,
+    "MON": 0.95,
+    "DCR": 0.95,
+    "CAT": 0.05,
+    "WCB": 0.0,
+    "interaction_pass_rate": 1.0
+  },
+  "pass": {
+    "SSR": true,
+    "ZCR_same_modality": true,
+    "ZCR_cross_modal": true,
+    "INT": true,
+    "RBE": true,
+    "DT": true,
+    "RCR": true,
+    "SRR": true,
+    "USR": true,
+    "LOC": true,
+    "PCR": true,
+    "CDR": true,
+    "RES": true,
+    "RBE-KB": true,
+    "AUD": true,
+    "BAR": true,
+    "MON": true,
+    "DCR": true,
+    "CAT": true,
+    "WCB": true,
+    "interaction_pass_rate": true
+  }
+}
