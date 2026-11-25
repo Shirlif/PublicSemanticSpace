@@ -1,0 +1,108 @@
+{
+  "suite": "s1_camera_real",
+  "device_class": "dev",
+  "detector_tier": "frozen_real",
+  "n_episodes": 1,
+  "metrics": {
+    "full": {
+      "idf1": 0.7406143344709898,
+      "id_retention": 0.8724586288416075,
+      "id_switches": 0.75,
+      "duplicate_rate": 0.4,
+      "reappearance_rate": 0.75
+    },
+    "no_entity": {
+      "idf1": 0.013651877133105802,
+      "id_retention": 0.018053092986603625,
+      "id_switches": 59.25,
+      "duplicate_rate": 0.983402489626556,
+      "reappearance_rate": 0.0
+    },
+    "B1_text": {
+      "idf1": 0.5597269624573379,
+      "id_retention": 0.6120419621749409,
+      "id_switches": 2.0,
+      "duplicate_rate": 0.6363636363636364,
+      "reappearance_rate": 0.25
+    },
+    "B2_sort": {
+      "idf1": 0.5631399317406144,
+      "id_retention": 0.6194518321513003,
+      "id_switches": 2.75,
+      "duplicate_rate": 0.6363636363636364,
+      "reappearance_rate": 0.25
+    }
+  },
+  "full_minus_baseline": {
+    "no_entity": {
+      "idf1": {
+        "mean": 0.726962457337884,
+        "ci95": [
+          0.726962457337884,
+          0.726962457337884
+        ]
+      },
+      "id_retention": {
+        "mean": 0.8544055358550039,
+        "ci95": [
+          0.8544055358550039,
+          0.8544055358550039
+        ]
+      },
+      "reappearance_rate": {
+        "mean": 0.75,
+        "ci95": [
+          0.75,
+          0.75
+        ]
+      }
+    },
+    "B1_text": {
+      "idf1": {
+        "mean": 0.1808873720136519,
+        "ci95": [
+          0.1808873720136519,
+          0.1808873720136519
+        ]
+      },
+      "id_retention": {
+        "mean": 0.26041666666666663,
+        "ci95": [
+          0.26041666666666663,
+          0.26041666666666663
+        ]
+      },
+      "reappearance_rate": {
+        "mean": 0.5,
+        "ci95": [
+          0.5,
+          0.5
+        ]
+      }
+    },
+    "B2_sort": {
+      "idf1": {
+        "mean": 0.1774744027303754,
+        "ci95": [
+          0.1774744027303754,
+          0.1774744027303754
+        ]
+      },
+      "id_retention": {
+        "mean": 0.25300679669030723,
+        "ci95": [
+          0.25300679669030723,
+          0.25300679669030723
+        ]
+      },
+      "reappearance_rate": {
+        "mean": 0.5,
+        "ci95": [
+          0.5,
+          0.5
+        ]
+      }
+    }
+  },
+  "note": "B1 = memoryless text-state proxy; B2 = constant-velocity SORT-lite"
+}

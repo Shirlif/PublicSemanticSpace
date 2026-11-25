@@ -11,7 +11,6 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pss.isaac.bundle import TRACE_SCHEMA
 from pss.memory.perception import Observation
 from pss.runtime.variants import build_runtime
 

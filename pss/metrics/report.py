@@ -58,7 +58,7 @@ def verify_recompute(
     suites: dict[tuple[str, str], dict[str, Any]] = {}
     for path in sorted(stored_dir.glob("*.json")):
         if path.name.startswith(("S7", "S8")) or path.name.endswith(
-            ("_relations.json", "_ablation.json")
+            ("_relations.json", "_ablation.json", "_vs_baselines.json")
         ):
             continue
         try:

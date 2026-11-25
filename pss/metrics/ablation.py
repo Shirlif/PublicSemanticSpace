@@ -11,7 +11,7 @@ import numpy as np
 from pss.detect.replay import replay_bundle
 from pss.detect.session_replay import replay_session
 from pss.metrics.memory import compute_memory_metrics
-from pss.metrics.scorecard import discover_bundles, score_bundle, write_scorecard
+from pss.metrics.scorecard import discover_bundles, score_bundle
 from pss.runtime.variants import VARIANTS
 
 

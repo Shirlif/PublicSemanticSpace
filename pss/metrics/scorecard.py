@@ -29,24 +29,21 @@ def discover_bundles(
     return found
 
 
-def _match_states(bundle: Path, gate: float = 0.05) -> pd.DataFrame:
-    """Evaluation-side pred/track -> GT matching by 3D position.
-
-    The PSS process never sees GT; this matching happens after replay and is
-    what turns track states into an identity trace.
-    """
+def match_states(
+    gt: pd.DataFrame,
+    preds: pd.DataFrame,
+    steps: list[int],
+    *,
+    gate: float = 0.05,
+) -> pd.DataFrame:
+    """Evaluation-side pred-track -> GT matching by 3D position."""
     import numpy as np
     from scipy.optimize import linear_sum_assignment
 
-    obs = pd.read_parquet(bundle / "obs_frames.parquet")
-    gt = pd.read_parquet(bundle / "gt.parquet")
-    preds = pd.read_parquet(bundle / "pred_states.parquet")
-    steps = sorted(int(s) for s in obs["step"].unique())
     step_to_frame = {step: i for i, step in enumerate(steps)}
     gt = gt[(gt["physics_step"].isin(steps)) & (gt["visibility_ratio"] > 0.001)]
     gt_by_step = {int(step): group for step, group in gt.groupby("physics_step")}
     pred_by_step = {int(step): group for step, group in preds.groupby("step")}
-
     rows = []
     for step in steps:
         g = gt_by_step.get(step)
@@ -69,6 +66,34 @@ def _match_states(bundle: Path, gate: float = 0.05) -> pd.DataFrame:
                     }
                 )
     return pd.DataFrame(rows, columns=["frame", "gt_id", "pred_id"])
+
+
+def score_pred_states(bundle: str | Path, preds: pd.DataFrame) -> dict[str, Any]:
+    """Score any tracker's per-frame states with the shared matching/metrics."""
+    root = Path(bundle)
+    obs = pd.read_parquet(root / "obs_frames.parquet")
+    gt = pd.read_parquet(root / "gt.parquet")
+    steps = sorted(int(s) for s in obs["step"].unique())
+    trace = match_states(gt, preds, steps)
+    gt_frames = gt[
+        (gt["physics_step"].isin(steps)) & (gt["visibility_ratio"] > 0.001)
+    ][["physics_step", "instance_id"]].rename(columns={"physics_step": "frame"})
+    step_to_frame = {step: i for i, step in enumerate(steps)}
+    gt_frames["frame"] = gt_frames["frame"].map(step_to_frame)
+    return compute_entity_metrics(gt_frames, trace, pred_total=len(preds))
+
+
+def _match_states(bundle: Path, gate: float = 0.05) -> pd.DataFrame:
+    """Evaluation-side pred/track -> GT matching by 3D position.
+
+    The PSS process never sees GT; this matching happens after replay and is
+    what turns track states into an identity trace.
+    """
+    obs = pd.read_parquet(bundle / "obs_frames.parquet")
+    gt = pd.read_parquet(bundle / "gt.parquet")
+    preds = pd.read_parquet(bundle / "pred_states.parquet")
+    steps = sorted(int(s) for s in obs["step"].unique())
+    return match_states(gt, preds, steps, gate=gate)
 
 
 def _gt_frames(bundle: Path) -> tuple[pd.DataFrame, dict[int, int]]:

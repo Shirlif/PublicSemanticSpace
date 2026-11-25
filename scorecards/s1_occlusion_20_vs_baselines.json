@@ -1,0 +1,108 @@
+{
+  "suite": "s1_occlusion_20",
+  "device_class": "dev",
+  "detector_tier": "oracle",
+  "n_episodes": 5,
+  "metrics": {
+    "full": {
+      "idf1": 1.0,
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "duplicate_rate": 0.0,
+      "reappearance_rate": 1.0
+    },
+    "no_entity": {
+      "idf1": 0.011316091629856218,
+      "id_retention": 0.01135471129880231,
+      "id_switches": 87.37,
+      "duplicate_rate": 0.9886839083701439,
+      "reappearance_rate": 0.0
+    },
+    "B1_text": {
+      "idf1": 0.6038287163937721,
+      "id_retention": 0.6015095399226652,
+      "id_switches": 1.3900000000000001,
+      "duplicate_rate": 0.5815602836879433,
+      "reappearance_rate": 0.0
+    },
+    "B2_sort": {
+      "idf1": 1.0,
+      "id_retention": 1.0,
+      "id_switches": 0.0,
+      "duplicate_rate": 0.0,
+      "reappearance_rate": 1.0
+    }
+  },
+  "full_minus_baseline": {
+    "no_entity": {
+      "idf1": {
+        "mean": 0.9886839083701439,
+        "ci95": [
+          0.9886672675865364,
+          0.9887017991656654
+        ]
+      },
+      "id_retention": {
+        "mean": 0.9886452887011977,
+        "ci95": [
+          0.9886288636226567,
+          0.98866381309149
+        ]
+      },
+      "reappearance_rate": {
+        "mean": 1.0,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "B1_text": {
+      "idf1": {
+        "mean": 0.396171283606228,
+        "ci95": [
+          0.3923219126486731,
+          0.3996135692334984
+        ]
+      },
+      "id_retention": {
+        "mean": 0.3984904600773347,
+        "ci95": [
+          0.3946629321651536,
+          0.40208776184771666
+        ]
+      },
+      "reappearance_rate": {
+        "mean": 1.0,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "B2_sort": {
+      "idf1": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "id_retention": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "reappearance_rate": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
+  "note": "B1 = memoryless text-state proxy; B2 = constant-velocity SORT-lite"
+}
