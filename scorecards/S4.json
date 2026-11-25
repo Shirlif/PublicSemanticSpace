@@ -1,0 +1,17 @@
+{
+  "suite": "S4",
+  "scripted_baseline": true,
+  "n_episodes": 1,
+  "execution_success": 1.0,
+  "episodes": [
+    {
+      "fault": "none",
+      "seed": 0,
+      "success": true,
+      "steps": 147,
+      "wall_s": 3.5491549968719482,
+      "bundle": "bundles\\dev\\s4_g1_pick_place\\fbfcc066\\none\\seed0"
+    }
+  ],
+  "note": "scripted skill sequence + suction proxy; PSS not in the loop"
+}

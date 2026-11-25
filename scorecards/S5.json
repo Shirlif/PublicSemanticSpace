@@ -1,0 +1,58 @@
+{
+  "suite": "S5",
+  "scripted_baseline": true,
+  "recovery_rate_mean": 0.9,
+  "per_fault": {
+    "occlusion_insert": {
+      "episodes": 1,
+      "recovery_rate": 1.0,
+      "steps_mean": 151.0
+    },
+    "object_relocate": {
+      "episodes": 1,
+      "recovery_rate": 1.0,
+      "steps_mean": 311.0
+    },
+    "object_remove": {
+      "episodes": 1,
+      "recovery_rate": 0.0,
+      "steps_mean": 585.0
+    },
+    "grasp_slip": {
+      "episodes": 1,
+      "recovery_rate": 1.0,
+      "steps_mean": 147.0
+    },
+    "camera_dropout": {
+      "episodes": 1,
+      "recovery_rate": 1.0,
+      "steps_mean": 147.0
+    },
+    "lighting_shock": {
+      "episodes": 1,
+      "recovery_rate": 1.0,
+      "steps_mean": 147.0
+    },
+    "twin_swap": {
+      "episodes": 1,
+      "recovery_rate": 1.0,
+      "steps_mean": 214.0
+    },
+    "joint_limit": {
+      "episodes": 1,
+      "recovery_rate": 1.0,
+      "steps_mean": 147.0
+    },
+    "base_disturb": {
+      "episodes": 1,
+      "recovery_rate": 1.0,
+      "steps_mean": 147.0
+    },
+    "path_blocked": {
+      "episodes": 1,
+      "recovery_rate": 1.0,
+      "steps_mean": 147.0
+    }
+  },
+  "note": "scripted policy with suction proxy; not PSS recovery"
+}

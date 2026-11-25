@@ -271,13 +271,13 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [x] T27 S3 表
 
 ### P5（W8–W10）
-- [ ] T28 G1 全身 + 行走策略冻结
-- [ ] T29 技能库
-- [ ] T30 平行夹爪抓取
-- [ ] T31 S4 闭环
-- [ ] T32 故障引擎 10 类
-- [ ] T33 S5 表
-- [ ] T34 `base_mobile` 附表
+- [ ] T28 G1 全身 + 行走策略冻结（部分：全身/IK 完成，无 G1 locomotion checkpoint）
+- [x] T29 技能库
+- [x] T30 平行夹爪抓取
+- [x] T31 S4 闭环
+- [x] T32 故障引擎 10 类
+- [x] T33 S5 表
+- [ ] T34 `base_mobile` 附表（阻塞：无 locomotion policy）
 
 ### P6（W11–W12）
 - [ ] T35 S6 多 episode 记忆

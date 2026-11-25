@@ -3,3 +3,5 @@
 {"linted_utc": "2026-11-25T02:28:11Z", "path": "specs/s1_occlusion_20.yaml", "sha256": "sha256:18c18c5e10faaee4bde1b3d5da53a49b06ddf663cd80ef22934b126a4c5d05af", "spec_id": "s1_occlusion_20_v1", "spec_version": 1, "warnings": 0}
 {"linted_utc": "2026-11-25T02:54:13Z", "path": "specs/s2_twins.yaml", "sha256": "sha256:3d49ce1bca786b2706c80cf76d7723c8d563c33d04c7b2351616913ea0bfdd18", "spec_id": "s2_twins_v1", "spec_version": 1, "warnings": 0}
 {"linted_utc": "2026-11-25T03:03:56Z", "path": "specs/s3_relations_ood.yaml", "sha256": "sha256:66399bd63c157360f6d998f722be989aa01c0492d6261a7b84d470bf78d1ec57", "spec_id": "s3_relations_ood_v1", "spec_version": 1, "warnings": 0}
+{"linted_utc": "2026-11-25T03:15:45Z", "path": "specs/s4_g1_pick_place.yaml", "sha256": "sha256:306956f09fa04beae11193729d1cb1df78e521dcbd0b1e4dc7ec79762c5eac05", "spec_id": "s4_g1_pick_place_v1", "spec_version": 1, "warnings": 0}
+{"linted_utc": "2026-11-25T03:18:22Z", "path": "specs/s4_g1_pick_place.yaml", "sha256": "sha256:fbfcc066509e1d22b1d032e70eca86b43174fb5601e8126319e09ecb1f376100", "spec_id": "s4_g1_pick_place_v1", "spec_version": 1, "warnings": 0}
