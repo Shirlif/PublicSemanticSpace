@@ -16,8 +16,13 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from pss.isaac.bundle import ENTITY_TRACE_SCHEMA, TRACE_SCHEMA
+from pss.isaac.bundle import (
+    ENTITY_TRACE_SCHEMA,
+    PRED_STATES_SCHEMA,
+    TRACE_SCHEMA,
+)
 from pss.memory.perception import Observation
+from pss.memory.scene_graph import SceneGraph
 from pss.memory.tracking import Tracker, TrackerConfig
 from pss.runtime.layers import EntityLayer
 from pss.runtime.runtime import PSSRuntime
@@ -61,8 +66,10 @@ def _oracle_runtime() -> PSSRuntime:
         reid_w_pose=0.0,
         reid_w_app=1.0,
     )
-    tracker = Tracker(config)
+    graph = SceneGraph()
+    tracker = Tracker(config, graph)
     entity_layer = EntityLayer(
+        graph=graph,
         tracker=tracker,
         use_default_relations=False,
         use_default_active=False,
@@ -101,6 +108,7 @@ def replay_bundle(
 
     trace_rows: list[dict[str, Any]] = []
     pss_rows: list[dict[str, Any]] = []
+    pred_rows: list[dict[str, Any]] = []
     frames = list(detections.groupby("step", sort=True))
     for frame_idx, (step, group) in enumerate(frames):
         step = int(step)
@@ -108,12 +116,17 @@ def replay_bundle(
         observations = []
         for _, row in group.iterrows():
             identity = str(row["emb_ref"])
+            embedding = row.get("emb")
+            if embedding is not None and len(embedding) > 0:
+                appearance = np.asarray(embedding, dtype=float)
+            else:
+                appearance = _one_hot(index[identity], len(identity_ids))
             observations.append(
                 Observation(
                     gt_id=identity,
                     pos=np.asarray(row["pose_xyz"], dtype=float),
                     quat=np.asarray(row["pose_quat"], dtype=float),
-                    appearance=_one_hot(index[identity], len(identity_ids)),
+                    appearance=appearance,
                     raw={
                         "vision": np.zeros(4),
                         "geometry": np.zeros(4),
@@ -151,13 +164,31 @@ def replay_bundle(
                 "expansions": 0,
             }
         )
+        for track in runtime.entities.graph.tracks.values():
+            if int(track.last_seen) == frame_idx:
+                pred_rows.append(
+                    {
+                        "step": step,
+                        "t_s": t_s,
+                        "pred_id": track.id,
+                        "pos_xyz": [float(v) for v in track.pos[:3]],
+                        "category": track.category,
+                        "confidence": float(track.confidence),
+                    }
+                )
 
     trace = pd.DataFrame(trace_rows, columns=["step", "t_s", "gt_id", "pred_id"])
     pss = pd.DataFrame(pss_rows, columns=list(TRACE_SCHEMA.names))
+    preds = pd.DataFrame(pred_rows, columns=list(PRED_STATES_SCHEMA.names))
     if write:
         pq.write_table(
             pa.Table.from_pylist(trace.to_dict(orient="records"), schema=ENTITY_TRACE_SCHEMA),
             root / "entity_trace.parquet",
+            compression="zstd",
+        )
+        pq.write_table(
+            pa.Table.from_pylist(preds.to_dict(orient="records"), schema=PRED_STATES_SCHEMA),
+            root / "pred_states.parquet",
             compression="zstd",
         )
         pq.write_table(

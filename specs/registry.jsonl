@@ -1,3 +1,4 @@
 {"linted_utc": "2026-11-24T16:45:10Z", "path": "specs/s1_occlusion.yaml", "sha256": "sha256:16ea9f38d590e00f3a795180dd411e5a3f4f0e6d1ba1c83d3ab9bbeb53e9ca2d", "spec_id": "s1_occlusion_v1", "spec_version": 1, "warnings": 0}
 {"linted_utc": "2026-11-24T17:54:24Z", "path": "specs/g1_load.yaml", "sha256": "sha256:76a1659bd0c184fc769bd292d27fc1e506976fdb646b3d55739002306fff2014", "spec_id": "g1_load_v1", "spec_version": 1, "warnings": 0}
 {"linted_utc": "2026-11-25T02:28:11Z", "path": "specs/s1_occlusion_20.yaml", "sha256": "sha256:18c18c5e10faaee4bde1b3d5da53a49b06ddf663cd80ef22934b126a4c5d05af", "spec_id": "s1_occlusion_20_v1", "spec_version": 1, "warnings": 0}
+{"linted_utc": "2026-11-25T02:54:13Z", "path": "specs/s2_twins.yaml", "sha256": "sha256:3d49ce1bca786b2706c80cf76d7723c8d563c33d04c7b2351616913ea0bfdd18", "spec_id": "s2_twins_v1", "spec_version": 1, "warnings": 0}

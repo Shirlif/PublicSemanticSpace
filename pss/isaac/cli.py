@@ -43,6 +43,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         bus=args.bus,
         obs_addr=args.obs_addr,
         gt_addr=args.gt_addr,
+        store_images=args.store_images,
     )
     return 0
 
@@ -86,6 +87,12 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--bus", action="store_true", help="publish obs/gt on ZMQ PUB sockets")
     run.add_argument("--obs-addr", default="tcp://127.0.0.1:5555")
     run.add_argument("--gt-addr", default="tcp://127.0.0.1:5556")
+    run.add_argument(
+        "--store-images",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="force RGB-D capture on/off (default: spec recording.store_images)",
+    )
     run.set_defaults(func=_cmd_run)
 
     verify = sub.add_parser("verify", help="read-back checks for one bundle (D5)")

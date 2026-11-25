@@ -16,6 +16,7 @@ from .entity import (
     reappearance_rate,
     slot_purity,
 )
+from .twin import twin_ambiguity
 
 __all__ = [
     "METRIC_REGISTRY",
@@ -27,4 +28,5 @@ __all__ = [
     "metric",
     "reappearance_rate",
     "slot_purity",
+    "twin_ambiguity",
 ]

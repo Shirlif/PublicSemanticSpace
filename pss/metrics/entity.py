@@ -50,12 +50,16 @@ def _gt_detections(gt_frames: pd.DataFrame) -> pd.DataFrame:
 
 
 @metric("idf1", direction="max", uses=("gt", "detections", "assignments"))
-def idf1(gt_frames: pd.DataFrame, trace: pd.DataFrame) -> float:
+def idf1(
+    gt_frames: pd.DataFrame,
+    trace: pd.DataFrame,
+    pred_total: int | None = None,
+) -> float:
     """Identity F1 with a global bipartite GT/track matching (Ristani et al.)."""
     trace = _clean_trace(trace)
     gt = _gt_detections(gt_frames)
     gt_total = len(gt)
-    pred_total = len(trace)
+    pred_total = len(trace) if pred_total is None else int(pred_total)
     if gt_total == 0 and pred_total == 0:
         return 1.0
     if trace.empty:
@@ -144,16 +148,18 @@ def slot_purity(trace: pd.DataFrame) -> float:
 def compute_entity_metrics(
     gt_frames: pd.DataFrame,
     trace: pd.DataFrame,
+    *,
+    pred_total: int | None = None,
 ) -> dict[str, float]:
     return {
-        "idf1": idf1(gt_frames, trace),
+        "idf1": idf1(gt_frames, trace, pred_total=pred_total),
         "id_retention": id_retention(trace),
         "id_switches": id_switches(trace),
         "duplicate_rate": duplicate_rate(trace),
         "reappearance_rate": reappearance_rate(trace),
         "slot_purity": slot_purity(trace),
         "gt_detections": int(len(_gt_detections(gt_frames))),
-        "pred_detections": int(len(_clean_trace(trace))),
+        "pred_detections": int(len(_clean_trace(trace)) if pred_total is None else pred_total),
         "gt_instances": int(_gt_detections(gt_frames)["instance_id"].nunique()),
         "pred_identities": int(_clean_trace(trace)["pred_id"].nunique()),
     }

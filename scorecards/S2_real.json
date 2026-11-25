@@ -1,0 +1,94 @@
+{
+  "suite": "s2_twins",
+  "created_utc": "2026-11-25T02:57:16Z",
+  "device_class": "dev",
+  "detector_tier": "frozen_real",
+  "caveat": "",
+  "spec_hashes": [
+    "sha256:3d49ce1bca786b2706c80cf76d7723c8d563c33d04c7b2351616913ea0bfdd18"
+  ],
+  "n_episodes": 1,
+  "seeds": [
+    0
+  ],
+  "metrics": {
+    "idf1": {
+      "mean": 0.8189987163029525,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.8189987163029525,
+      "max": 0.8189987163029525
+    },
+    "id_retention": {
+      "mean": 0.8575268817204301,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.8575268817204301,
+      "max": 0.8575268817204301
+    },
+    "id_switches": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "duplicate_rate": {
+      "mean": 0.6666666666666666,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.6666666666666666,
+      "max": 0.6666666666666666
+    },
+    "reappearance_rate": {
+      "mean": 1.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "slot_purity": {
+      "mean": 0.910394265232975,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.910394265232975,
+      "max": 0.910394265232975
+    },
+    "twin_ambiguity_rate": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "twin_mean_max_similarity": {
+      "mean": 0.8655821639394389,
+      "std": 0.0,
+      "ci95": 0.0,
+      "min": 0.8655821639394389,
+      "max": 0.8655821639394389
+    }
+  },
+  "episodes": [
+    {
+      "idf1": 0.8189987163029525,
+      "id_retention": 0.8575268817204301,
+      "id_switches": 1.0,
+      "duplicate_rate": 0.6666666666666666,
+      "reappearance_rate": 1.0,
+      "slot_purity": 0.910394265232975,
+      "gt_detections": 372,
+      "pred_detections": 407,
+      "gt_instances": 4,
+      "pred_identities": 6,
+      "twin_ambiguity_rate": 0.0,
+      "twin_mean_max_similarity": 0.8655821639394389,
+      "episode_id": "s2_twins__seed00__oracle__full",
+      "seed": 0,
+      "bundle": "bundles\\dev\\s2_twins\\3d49ce1b\\seed0",
+      "spec_hash": "sha256:3d49ce1bca786b2706c80cf76d7723c8d563c33d04c7b2351616913ea0bfdd18",
+      "device_class": "dev",
+      "detector_tier": "frozen_real"
+    }
+  ]
+}

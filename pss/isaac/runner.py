@@ -275,6 +275,7 @@ def _run_one(
     bus: bool = False,
     obs_addr: str = "tcp://127.0.0.1:5555",
     gt_addr: str = "tcp://127.0.0.1:5556",
+    store_images: bool | None = None,
 ) -> Path:
     from .scene_builder import build_scene
 
@@ -288,11 +289,12 @@ def _run_one(
     if bundle_dir.exists() and force:
         shutil.rmtree(bundle_dir)
 
-    if spec.recording.get("store_images") is not False:
-        raise NotImplementedError(
-            "store_images=true is not implemented in W1; set recording.store_images: false "
-            "in the spec until the camera renderer lands in W2"
-        )
+    capture = store_images
+    if capture is None:
+        capture = spec.recording.get("store_images") is True
+    if capture:
+        capture_dir = bundle_dir / "images"
+        capture_dir.mkdir(parents=True, exist_ok=True)
 
     import omni.usd
     from isaacsim.core.api import SimulationContext
@@ -339,6 +341,34 @@ def _run_one(
         publisher = BusPublisher(obs_addr, gt_addr)
         print(f"[bus] obs={obs_addr} gt={gt_addr}")
 
+    camera_sensors: dict[str, Any] = {}
+    if capture:
+        from isaacsim.sensors.camera import Camera
+
+        for camera_cfg in spec.cameras:
+            cam_name_cfg = str(camera_cfg["name"])
+            sensor = Camera(
+                prim_path=f"/World/Cameras/{cam_name_cfg}",
+                resolution=(int(camera_cfg["width"]), int(camera_cfg["height"])),
+                # Must be divisible by the rendering frequency (120 Hz here);
+                # frame acquisition is still gated by our explicit renders.
+                frequency=int(round(1.0 / physics_dt)),
+            )
+            sensor.initialize(attach_rgb_annotator=True)
+            sensor.add_distance_to_image_plane_to_frame()
+            camera_sensors[cam_name_cfg] = sensor
+
+        # First frames compile RTX shaders; wait until the render product
+        # actually publishes a frame before starting the episode clock.
+        import time as _time
+
+        deadline = _time.time() + 20.0
+        while _time.time() < deadline:
+            sim.render()
+            if all(sensor.get_rgb() is not None for sensor in camera_sensors.values()):
+                break
+            _time.sleep(0.1)
+
     from .visibility import Box, compute_visibility
 
     fault_specs = sorted(spec.faults, key=lambda f: int(f.get("at_step", 0)))
@@ -381,6 +411,25 @@ def _run_one(
                 continue
             kind = str(fault.get("kind"))
             params = dict(fault.get("params") or {})
+            if kind == "twin_swap":
+                targets = [str(v) for v in params.get("targets", [])]
+                if len(targets) != 2:
+                    raise ValueError("twin_swap requires two targets")
+                first = _world_pose(stage, asset_paths[targets[0]])
+                second = _world_pose(stage, asset_paths[targets[1]])
+                if first is not None and second is not None:
+                    _set_asset_translate(stage, asset_paths[targets[0]], second[0:3])
+                    _set_asset_translate(stage, asset_paths[targets[1]], first[0:3])
+                faults_injected += 1
+                fault_events.append(
+                    {
+                        "t_s": t_s,
+                        "kind": "fault_injected",
+                        "source": "fault_engine",
+                        "detail_json": json.dumps({"kind": kind, **params}),
+                    }
+                )
+                continue
             if kind != "occlusion_insert":
                 raise NotImplementedError(f"fault kind not implemented in W2: {kind}")
             name = str(params.get("occluder", f"occluder_{step}"))
@@ -468,13 +517,40 @@ def _run_one(
             last_visibility = compute_visibility(
                 boxes, cam_pose, fov_deg=fov, aspect=aspect, per_axis=3
             )
+            image_ref = None
+            depth_ref = None
+            if capture and cam_name in camera_sensors:
+                sensor = camera_sensors[cam_name]
+                rgb = None
+                for _ in range(10):
+                    sim.render()
+                    rgb = sensor.get_rgb()
+                    if rgb is not None:
+                        break
+                    time.sleep(0.05)
+                depth = sensor.get_depth()
+                if rgb is not None:
+                    import numpy as np
+                    from PIL import Image
+
+                    name = f"images/{cam_name}/{step:06d}"
+                    (bundle_dir / "images" / cam_name).mkdir(parents=True, exist_ok=True)
+                    Image.fromarray(np.asarray(rgb, dtype=np.uint8)).save(
+                        bundle_dir / f"{name}.jpg", quality=85
+                    )
+                    image_ref = f"{name}.jpg"
+                    if depth is not None:
+                        depth_mm = (np.asarray(depth, dtype=np.float32) * 1000.0).astype(np.uint16)
+                        Image.fromarray(depth_mm).save(bundle_dir / f"{name}_depth.png")
+                        depth_ref = f"{name}_depth.png"
+
             obs_rows.append(
                 {
                     "step": step,
                     "t_s": t_s,
                     "camera": cam_name,
-                    "image_ref": None,
-                    "depth_ref": None,
+                    "image_ref": image_ref,
+                    "depth_ref": depth_ref,
                     "robot_q": None,
                     "ee_pose": None,
                     "camera_pose": cam_pose,
@@ -657,6 +733,7 @@ def run(
     bus: bool = False,
     obs_addr: str = "tcp://127.0.0.1:5555",
     gt_addr: str = "tcp://127.0.0.1:5556",
+    store_images: bool | None = None,
 ) -> list[Path]:
     if device not in ("dev", "official"):
         raise ValueError("device must be 'dev' or 'official'")
@@ -693,6 +770,7 @@ def run(
                     bus=bus,
                     obs_addr=obs_addr,
                     gt_addr=gt_addr,
+                    store_images=store_images,
                 )
             )
     except BaseException:

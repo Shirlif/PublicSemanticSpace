@@ -11,6 +11,7 @@ from typing import Any
 import pandas as pd
 
 from .entity import compute_entity_metrics
+from .twin import twin_ambiguity
 
 
 def discover_bundles(
@@ -28,6 +29,48 @@ def discover_bundles(
     return found
 
 
+def _match_states(bundle: Path, gate: float = 0.05) -> pd.DataFrame:
+    """Evaluation-side pred/track -> GT matching by 3D position.
+
+    The PSS process never sees GT; this matching happens after replay and is
+    what turns track states into an identity trace.
+    """
+    import numpy as np
+    from scipy.optimize import linear_sum_assignment
+
+    obs = pd.read_parquet(bundle / "obs_frames.parquet")
+    gt = pd.read_parquet(bundle / "gt.parquet")
+    preds = pd.read_parquet(bundle / "pred_states.parquet")
+    steps = sorted(int(s) for s in obs["step"].unique())
+    step_to_frame = {step: i for i, step in enumerate(steps)}
+    gt = gt[(gt["physics_step"].isin(steps)) & (gt["visibility_ratio"] > 0.001)]
+    gt_by_step = {int(step): group for step, group in gt.groupby("physics_step")}
+    pred_by_step = {int(step): group for step, group in preds.groupby("step")}
+
+    rows = []
+    for step in steps:
+        g = gt_by_step.get(step)
+        p = pred_by_step.get(step)
+        if g is None or p is None or g.empty or p.empty:
+            continue
+        gt_ids = g["instance_id"].astype(str).tolist()
+        pred_ids = p["pred_id"].astype(str).tolist()
+        gpos = np.stack([np.asarray(v, dtype=float) for v in g["pose_xyz"]])
+        ppos = np.stack([np.asarray(v, dtype=float) for v in p["pos_xyz"]])
+        cost = np.linalg.norm(gpos[:, None, :] - ppos[None, :, :], axis=2)
+        rows_i, cols_j = linear_sum_assignment(cost)
+        for i, j in zip(rows_i, cols_j):
+            if cost[i, j] <= gate:
+                rows.append(
+                    {
+                        "frame": step_to_frame[step],
+                        "gt_id": gt_ids[int(i)],
+                        "pred_id": pred_ids[int(j)],
+                    }
+                )
+    return pd.DataFrame(rows, columns=["frame", "gt_id", "pred_id"])
+
+
 def _gt_frames(bundle: Path) -> tuple[pd.DataFrame, dict[int, int]]:
     obs = pd.read_parquet(bundle / "obs_frames.parquet")
     gt = pd.read_parquet(bundle / "gt.parquet")
@@ -42,14 +85,39 @@ def _gt_frames(bundle: Path) -> tuple[pd.DataFrame, dict[int, int]]:
 def score_bundle(bundle: str | Path) -> dict[str, Any]:
     root = Path(bundle)
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
-    trace = pd.read_parquet(root / "entity_trace.parquet")
-    if trace.empty:
-        raise ValueError(f"{root}: entity_trace is empty; run `pss replay` first")
     gt_frames, step_to_frame = _gt_frames(root)
-    trace = trace.copy()
-    trace["frame"] = trace["step"].map(step_to_frame)
-    trace = trace.dropna(subset=["frame"])
-    metrics = compute_entity_metrics(gt_frames, trace[["frame", "gt_id", "pred_id"]])
+    if (root / "pred_states.parquet").exists() and not pd.read_parquet(
+        root / "pred_states.parquet"
+    ).empty:
+        trace = _match_states(root)
+    else:
+        trace = pd.read_parquet(root / "entity_trace.parquet")
+        trace = trace.copy()
+        trace["frame"] = trace["step"].map(step_to_frame)
+        trace = trace.dropna(subset=["frame"])
+    if trace.empty:
+        raise ValueError(f"{root}: no identity trace; run `pss replay` first")
+    pred_states_path = root / "pred_states.parquet"
+    pred_total = (
+        int(len(pd.read_parquet(pred_states_path)))
+        if pred_states_path.exists()
+        else None
+    )
+    metrics = compute_entity_metrics(
+        gt_frames, trace[["frame", "gt_id", "pred_id"]], pred_total=pred_total
+    )
+    det_path = root / "obs_detections.parquet"
+    if det_path.exists():
+        detections = pd.read_parquet(det_path)
+        if "emb" in detections.columns and detections["emb"].notna().any():
+            twin = twin_ambiguity(detections, pd.read_parquet(root / "gt.parquet"))
+            if twin["frames"] > 0:
+                metrics.update(
+                    {
+                        "twin_ambiguity_rate": twin["twin_ambiguity_rate"],
+                        "twin_mean_max_similarity": twin["mean_max_similarity"],
+                    }
+                )
     metrics.update(
         {
             "episode_id": manifest.get("episode_id"),
@@ -94,6 +162,11 @@ def score_suite(
         "duplicate_rate",
         "reappearance_rate",
         "slot_purity",
+    ]
+    metric_names += [
+        name
+        for name in ("twin_ambiguity_rate", "twin_mean_max_similarity")
+        if all(name in ep for ep in episodes)
     ]
     aggregate: dict[str, Any] = {}
     for name in metric_names:
