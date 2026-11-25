@@ -28,6 +28,7 @@ from pss.memory.tracking import Tracker, TrackerConfig
 from pss.relations import RelObject, compute_relations
 from pss.runtime.layers import EntityLayer
 from pss.runtime.runtime import PSSRuntime
+from pss.runtime.variants import build_runtime
 
 
 class _AppearanceMetric:
@@ -152,6 +153,7 @@ def replay_bundle(
     bundle_dir: str | Path,
     *,
     write: bool = True,
+    variant: str = "full",
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     root = Path(bundle_dir)
     detections = pd.read_parquet(root / "obs_detections.parquet")
@@ -162,11 +164,12 @@ def replay_bundle(
     identity_ids = sorted(str(v) for v in detections["emb_ref"].dropna().unique())
     index = {identity: i for i, identity in enumerate(identity_ids)}
 
-    runtime = (
-        _real_runtime()
+    tier = (
+        "frozen_real"
         if "emb" in detections.columns and detections["emb"].notna().any()
-        else _oracle_runtime()
+        else "oracle"
     )
+    runtime = build_runtime(variant, tier=tier)
 
     trace_rows: list[dict[str, Any]] = []
     pss_rows: list[dict[str, Any]] = []

@@ -110,9 +110,11 @@ class EntityLayer:
         use_default_active: bool = True,
         associator=None,
         metric_max_cost: float = 10.0,
+        active_capacity: int = 4,
     ):
         self.graph = graph or SceneGraph()
         self.associator = associator
+        self.active_capacity = int(active_capacity)
         self.associator_name = type(associator).__name__ if associator is not None else "hand"
         if tracker is not None:
             self.tracker = tracker
@@ -173,6 +175,10 @@ class EntityLayer:
         active = [t for t in self.graph.tracks.values() if t.status == "active"]
         if not active:
             return []
+        if self.active_capacity < 0:
+            capacity = len(active)
+        else:
+            capacity = self.active_capacity
         if self.active_policy is not None and observations:
             try:
                 track_tokens, obs_tokens = self._tokens(active, observations)

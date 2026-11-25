@@ -116,8 +116,8 @@ def _cmd_detect(args: argparse.Namespace) -> int:
 
 
 def _cmd_replay(args: argparse.Namespace) -> int:
-    trace, pss = replay_bundle(args.bundle, write=not args.no_write)
-    print(f"[replay] {len(trace)} assignments, {len(pss)} pss_trace rows")
+    trace, pss = replay_bundle(args.bundle, write=not args.no_write, variant=args.variant)
+    print(f"[replay] {len(trace)} assignments, {len(pss)} pss_trace rows (variant={args.variant})")
     return 0
 
 
@@ -153,6 +153,21 @@ def build_parser() -> argparse.ArgumentParser:
     replay = sub.add_parser("replay", help="run PSS over detections and write traces")
     replay.add_argument("bundle")
     replay.add_argument("--no-write", action="store_true")
+    replay.add_argument(
+        "--variant",
+        default="full",
+        choices=(
+            "full",
+            "no_entity",
+            "no_relations",
+            "no_memory",
+            "no_active_set",
+            "no_uncertainty",
+            "no_audit",
+            "flat_context",
+            "no_tools",
+        ),
+    )
     replay.set_defaults(func=_cmd_replay)
     return parser
 

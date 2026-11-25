@@ -295,6 +295,7 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [x] T36 `pss/metrics/memory.py`
 - [x] T37 S7 校准
 - [x] T38 S8 成本
+- [x] T46 9 变体 preliminary 消融（S1/S6，dev）
 
 ### P7（W13–W14）
 - [x] T39 预注册 A4

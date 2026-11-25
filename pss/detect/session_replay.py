@@ -13,8 +13,9 @@ import pandas as pd
 
 from pss.isaac.bundle import TRACE_SCHEMA
 from pss.memory.perception import Observation
+from pss.runtime.variants import build_runtime
 
-from .replay import _one_hot, _oracle_runtime
+from .replay import _one_hot
 
 
 def _state_hash(runtime) -> str:
@@ -34,6 +35,7 @@ def replay_session(
     bundle_dirs: list[str | Path],
     *,
     rollback_test: bool = True,
+    variant: str = "full",
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     bundles = [Path(b) for b in bundle_dirs]
     identity_ids = set()
@@ -45,11 +47,23 @@ def replay_session(
     identity_ids = sorted(identity_ids)
     index = {identity: i for i, identity in enumerate(identity_ids)}
 
-    runtime = _oracle_runtime(audit=True)
+    tier = (
+        "frozen_real"
+        if any(
+            "emb" in det.columns and det["emb"].notna().any()
+            for det in detections.values()
+        )
+        else "oracle"
+    )
+    runtime = build_runtime(variant, tier=tier)
     rows: list[dict[str, Any]] = []
     frame_offset = 0
     pss_rows: list[dict[str, Any]] = []
     for episode, bundle in enumerate(bundles):
+        if variant == "no_memory" and episode > 0:
+            runtime = build_runtime(variant, tier=tier)
+            # make IDs unique across the session so "forgot everything" is visible
+            runtime.entities.graph._next = episode * 1000 + 1
         det = detections[bundle]
         if det.empty:
             continue
@@ -129,7 +143,7 @@ def replay_session(
         "tracks": int(len(runtime.entities.graph.tracks)),
         "frames": int(len(trace)),
     }
-    if rollback_test and runtime.entities.graph.tracks:
+    if rollback_test and runtime.entities.graph.tracks and runtime.audit_enabled:
         before_hash = _state_hash(runtime)
         before_version = int(runtime.state.version)
         track_id = sorted(runtime.entities.graph.tracks)[0]

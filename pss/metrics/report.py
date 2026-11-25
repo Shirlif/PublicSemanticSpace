@@ -57,7 +57,9 @@ def verify_recompute(
     stored_dir = Path(scorecards_dir)
     suites: dict[tuple[str, str], dict[str, Any]] = {}
     for path in sorted(stored_dir.glob("*.json")):
-        if path.name.startswith(("S7", "S8")) or path.name.endswith("_relations.json"):
+        if path.name.startswith(("S7", "S8")) or path.name.endswith(
+            ("_relations.json", "_ablation.json")
+        ):
             continue
         try:
             report = json.loads(path.read_text(encoding="utf-8"))

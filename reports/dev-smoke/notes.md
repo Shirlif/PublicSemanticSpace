@@ -66,3 +66,11 @@
 3. official 全量生成 → detect → replay → score。
 4. `pss verify-recompute --tag isaac-p7-v1`（跨机复算用 4070）。
 5. `pss report --tag isaac-p7-v1`，检查 8 件套。
+
+## Dev 全链路 dry-run（2026-11-25）
+
+- 4070 上跑通：相机轨迹 episode → 100 帧 RGB-D → oracle/real 检测 → replay → score → verify → report。
+- S1 camera oracle IDF1 1.0；frozen_real 0.7406（移动相机，1 episode，dev）。
+- 发现并修复深度/平面反投影 y 轴符号 bug；修复后 real 从 0.106 升到 0.7406。
+- 产物：`reports/dev-smoke/`、`verify/dev-smoke.json`、`notes/dev_smoke.md`。
+- 这仍是 dev smoke，不是 official 数字。
