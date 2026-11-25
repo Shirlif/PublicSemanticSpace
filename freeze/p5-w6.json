@@ -1,0 +1,38 @@
+{
+  "tag": "p5-w6",
+  "date": "2026-11-25",
+  "code": {
+    "commit": "856c139cc2f604e7ce5af24f2fed78fcc908b29e"
+  },
+  "python": {
+    "pss": "3.13.7",
+    "isaac": "3.11.13"
+  },
+  "sim": {
+    "isaac_sim": "5.1.0.0",
+    "isaac_lab": "TBD",
+    "physx": "107.3.26",
+    "graphics_api": "D3D12",
+    "extra_args": [
+      "--/app/vulkan=false"
+    ]
+  },
+  "driver": "616.64",
+  "gpu": {
+    "dev": "RTX 4070 Laptop 8GB",
+    "official": "RTX 3090 Ti 24GB"
+  },
+  "detector": {
+    "pss": "TBD",
+    "weights_sha256": "TBD"
+  },
+  "env": {
+    "pss_python": "D:\\Python\\python.exe",
+    "isaac_venv": "D:\\isaac\\env",
+    "isaac_uv_cache": "D:\\isaac\\uvcache"
+  },
+  "notes": [
+    "W6-W7 T24-T27 complete: geometric relation GT, relation metrics, S3 pipeline.",
+    "S3 F1=1.0 is a pipeline check, not OOD evidence; learned relation head remains."
+  ]
+}
