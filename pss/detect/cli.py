@@ -118,7 +118,7 @@ def _cmd_detect(args: argparse.Namespace) -> int:
 
 
 def _cmd_replay(args: argparse.Namespace) -> int:
-    trace, pss = replay_bundle(args.bundle, write=not args.no_write, variant=args.variant)
+    trace, pss = replay_bundle(args.bundle, write=not args.no_write, variant=args.variant, shuffle_embeddings=args.shuffle_emb)
     print(f"[replay] {len(trace)} assignments, {len(pss)} pss_trace rows (variant={args.variant})")
     return 0
 
@@ -156,6 +156,7 @@ def build_parser() -> argparse.ArgumentParser:
     replay = sub.add_parser("replay", help="run PSS over detections and write traces")
     replay.add_argument("bundle")
     replay.add_argument("--no-write", action="store_true")
+    replay.add_argument("--shuffle-emb", action="store_true")
     replay.add_argument(
         "--variant",
         default="full",

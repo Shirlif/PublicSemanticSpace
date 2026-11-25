@@ -72,3 +72,16 @@ PSS − 最好基线：
 2. 修 duplicate：3D 去重/更好的 ReID 阈值/孪生弃权；
 3. 如果 5 seeds 后仍 <0.70 或增益 <0.10：**承认 PSS 在这个基准上不优于通用跟踪器**，不要包装；
 4. 把结论写进正式报告，标 dev，不冒充 official。
+
+## 视觉混淆控制（2026-11-25）
+
+把每帧检测的 appearance embedding 随机打乱后：
+
+| 条件 | IDF1 | retention | duplicate | reappearance |
+|---|---|---|---|---|
+| PSS full | 0.5874 | 0.7088 | 0.7692 | 0.2308 |
+| PSS full + 打乱 embedding | 0.5159 | 0.6317 | 0.9231 | 0.1538 |
+| B2 SORT | 0.5179 | 0.6032 | 0.5217 | 0.0769 |
+
+打乱后 PSS 正好落到 B1/B2 水平。说明 **+0.07 IDF1 主要来自 DINOv2 外观通道，
+不是 PSS 结构**。详细控制与待补项见 `notes/visual_confound.md`。

@@ -154,6 +154,7 @@ def replay_bundle(
     *,
     write: bool = True,
     variant: str = "full",
+    shuffle_embeddings: bool = False,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     root = Path(bundle_dir)
     detections = pd.read_parquet(root / "obs_detections.parquet")
@@ -170,6 +171,7 @@ def replay_bundle(
         else "oracle"
     )
     runtime = build_runtime(variant, tier=tier)
+    rng = np.random.default_rng(0)
 
     trace_rows: list[dict[str, Any]] = []
     pss_rows: list[dict[str, Any]] = []
@@ -180,14 +182,20 @@ def replay_bundle(
     for frame_idx, (step, group) in enumerate(frames):
         step = int(step)
         t_s = float(group.iloc[0]["t_s"])
-        observations = []
-        for _, row in group.iterrows():
+        frame_rows = list(group.iterrows())
+        appearances = []
+        for _, row in frame_rows:
             identity = str(row["emb_ref"])
             embedding = row.get("emb")
             if embedding is not None and len(embedding) > 0:
-                appearance = np.asarray(embedding, dtype=float)
+                appearances.append(np.asarray(embedding, dtype=float))
             else:
-                appearance = _one_hot(index[identity], len(identity_ids))
+                appearances.append(_one_hot(index[identity], len(identity_ids)))
+        if shuffle_embeddings and len(appearances) > 1:
+            appearances = list(rng.permutation(np.stack(appearances)))
+        observations = []
+        for (_, row), appearance in zip(frame_rows, appearances):
+            identity = str(row["emb_ref"])
             observations.append(
                 Observation(
                     gt_id=identity,
