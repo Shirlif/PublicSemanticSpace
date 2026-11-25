@@ -1,0 +1,46 @@
+{
+  "tag": "p6-w8",
+  "date": "2026-11-25",
+  "code": {
+    "commit": "ae50c2366260c56ed5cdfbb0727ce1f8ce66a22f"
+  },
+  "python": {
+    "pss": "3.13.7",
+    "isaac": "3.11.13"
+  },
+  "sim": {
+    "isaac_sim": "5.1.0.0",
+    "isaac_lab": "TBD",
+    "physx": "107.3.26",
+    "graphics_api": "D3D12",
+    "extra_args": [
+      "--/app/vulkan=false"
+    ]
+  },
+  "driver": "616.64",
+  "gpu": {
+    "dev": "RTX 4070 Laptop 8GB",
+    "official": "RTX 3090 Ti 24GB"
+  },
+  "detector": {
+    "pss": "TBD",
+    "weights_sha256": "TBD"
+  },
+  "env": {
+    "pss_python": "D:\\Python\\python.exe",
+    "isaac_venv": "D:\\isaac\\env",
+    "isaac_uv_cache": "D:\\isaac\\uvcache"
+  },
+  "notes": [
+    "W8-W10 T29-T33 complete on dev: IK skills, suction proxy, S4 1.0, S5 0.900.",
+    "T28 walking policy and T34 base_mobile blocked: no G1 locomotion checkpoint.",
+    "S4/S5 are scripted baselines, not PSS-in-the-loop."
+  ],
+  "robot": {
+    "model": "unitree_g1",
+    "base_mode": "base_fixed",
+    "locomotion_policy": "none",
+    "end_effector": "suction_proxy",
+    "skill_library": "skills_g1_v1"
+  }
+}
