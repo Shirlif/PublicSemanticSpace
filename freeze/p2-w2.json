@@ -1,0 +1,45 @@
+{
+  "tag": "p2-w2",
+  "date": "2026-11-25",
+  "code": {
+    "commit": "bee80e35850f8d0ff1c472e76f7717f96e69aaa7"
+  },
+  "python": {
+    "pss": "3.13.7",
+    "isaac": "3.11.13"
+  },
+  "sim": {
+    "isaac_sim": "5.1.0.0",
+    "isaac_lab": "TBD",
+    "physx": "107.3.26",
+    "graphics_api": "D3D12",
+    "extra_args": [
+      "--/app/vulkan=false"
+    ]
+  },
+  "driver": "616.64",
+  "gpu": {
+    "dev": "RTX 4070 Laptop 8GB",
+    "official": "RTX 3090 Ti 24GB"
+  },
+  "detector": {
+    "pss": "TBD",
+    "weights_sha256": "TBD"
+  },
+  "env": {
+    "pss_python": "D:\\Python\\python.exe",
+    "isaac_venv": "D:\\isaac\\env",
+    "isaac_uv_cache": "D:\\isaac\\uvcache"
+  },
+  "notes": [
+    "W2 T11-T18 complete; S1 oracle IDF1 1.000 over seeds 0-4.",
+    "isaac_lab still not installed (not needed for S1).",
+    "base_fixed world joint and real contact sensors deferred to S4."
+  ],
+  "assets": {
+    "robot": {
+      "usd": "_external/isaac_assets/G1/g1.usd",
+      "sha256": "sha256:b76784cd131220a1bccafacb957c70d31bd13ab88d0290acba62f0b4a0864e74"
+    }
+  }
+}
