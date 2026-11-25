@@ -291,10 +291,10 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [ ] T34 `wheeled_differential` 附表（可选，未做；不再依赖 G1 locomotion）
 
 ### P6（W11–W12）
-- [ ] T35 S6 多 episode 记忆
-- [ ] T36 `pss/metrics/memory.py`
-- [ ] T37 S7 校准
-- [ ] T38 S8 成本
+- [x] T35 S6 多 episode 记忆
+- [x] T36 `pss/metrics/memory.py`
+- [x] T37 S7 校准
+- [x] T38 S8 成本
 
 ### P7（W13–W14）
 - [ ] T39 预注册 A4

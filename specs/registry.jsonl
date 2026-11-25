@@ -6,3 +6,4 @@
 {"linted_utc": "2026-11-25T03:15:45Z", "path": "specs/s4_g1_pick_place.yaml", "sha256": "sha256:306956f09fa04beae11193729d1cb1df78e521dcbd0b1e4dc7ec79762c5eac05", "spec_id": "s4_g1_pick_place_v1", "spec_version": 1, "warnings": 0}
 {"linted_utc": "2026-11-25T03:18:22Z", "path": "specs/s4_g1_pick_place.yaml", "sha256": "sha256:fbfcc066509e1d22b1d032e70eca86b43174fb5601e8126319e09ecb1f376100", "spec_id": "s4_g1_pick_place_v1", "spec_version": 1, "warnings": 0}
 {"linted_utc": "2026-11-25T04:07:44Z", "path": "specs/s1_camera_motion.yaml", "sha256": "sha256:b4bb5f0ef7cfa22152e853a76ef3ac4e9ad500824a19cee7505cb411bf06dc5d", "spec_id": "s1_camera_motion_v1", "spec_version": 1, "warnings": 0}
+{"linted_utc": "2026-11-25T04:11:57Z", "path": "specs/s6_memory.yaml", "sha256": "sha256:ae56623127d7f0b1bd530416fd050014024dcc11791e7922c9dd7870cd99b0ea", "spec_id": "s6_memory_v1", "spec_version": 1, "warnings": 0}

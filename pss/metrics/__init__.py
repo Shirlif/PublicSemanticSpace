@@ -18,6 +18,7 @@ from .entity import (
 )
 from .twin import twin_ambiguity
 from .relation import consistency_violations, per_predicate_prf
+from .memory import compute_memory_metrics
 
 __all__ = [
     "METRIC_REGISTRY",
@@ -32,4 +33,5 @@ __all__ = [
     "twin_ambiguity",
     "consistency_violations",
     "per_predicate_prf",
+    "compute_memory_metrics",
 ]

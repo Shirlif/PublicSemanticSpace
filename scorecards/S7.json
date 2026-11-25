@@ -1,0 +1,31 @@
+{
+  "suite": "s1_occlusion_real",
+  "episodes": 1,
+  "accuracy": {
+    "mean": 0.808695652173913,
+    "std": 0.0
+  },
+  "mean_confidence": {
+    "mean": 0.6370304142651351,
+    "std": 0.0
+  },
+  "brier": {
+    "mean": 0.14382144208053513,
+    "std": 0.0
+  },
+  "ece": {
+    "mean": 0.20111069264619247,
+    "std": 0.0
+  },
+  "selective_accuracy_50": {
+    "mean": 0.9391304347826087,
+    "std": 0.0
+  },
+  "selective_accuracy_80": {
+    "mean": 0.9103260869565217,
+    "std": 0.0
+  },
+  "samples": 460,
+  "conflict_f1": null,
+  "note": "conflict F1 requires PSS uncertainty traces; not available in this run"
+}

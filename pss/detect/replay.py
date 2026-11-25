@@ -79,7 +79,7 @@ def _relation_config(bundle_dir: Path) -> tuple[list[str], float]:
     return [], 0.02
 
 
-def _oracle_runtime() -> PSSRuntime:
+def _oracle_runtime(*, audit: bool = False) -> PSSRuntime:
     config = TrackerConfig(
         gate_radius=0.6,
         max_cost=0.5,
@@ -104,7 +104,7 @@ def _oracle_runtime() -> PSSRuntime:
     )
     return PSSRuntime(
         entity_layer=entity_layer,
-        audit=False,
+        audit=audit,
         uncertainty_enabled=False,
         use_default_relations=False,
         use_default_active=False,

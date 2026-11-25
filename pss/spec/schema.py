@@ -630,7 +630,7 @@ def _validate_task(task: Any, robot: Any, errors: list[str], warnings: list[str]
         errors,
         task,
         "task",
-        ("id", "initial_facts", "goal_facts", "success_check", "time_limit_s"),
+        ("id", "initial_facts", "goal_facts", "success_check", "time_limit_s", "session"),
     )
     if not isinstance(task.get("id"), str) or not task.get("id"):
         _fail(errors, "task.id", "must be a non-empty string")
@@ -645,6 +645,39 @@ def _validate_task(task: Any, robot: Any, errors: list[str], warnings: list[str]
             _fail(errors, f"task.{key}", "must be a list of fact strings")
     if task.get("goal_facts") and not robot:
         _warn(warnings, "task.goal_facts", "goal facts present but no robot section (W1 tracking)")
+    session = task.get("session")
+    if session is not None:
+        if not isinstance(session, Mapping):
+            _fail(errors, "task.session", "must be a mapping")
+        else:
+            _check_keys(
+                errors,
+                session,
+                "task.session",
+                ("sub_episodes", "sub_episode_s", "relocations"),
+            )
+            count = session.get("sub_episodes")
+            if not (isinstance(count, int) and count >= 1):
+                _fail(errors, "task.session.sub_episodes", "must be an integer >= 1")
+            duration = session.get("sub_episode_s")
+            if not (_is_number(duration) and duration > 0):
+                _fail(errors, "task.session.sub_episode_s", "must be > 0")
+            relocations = session.get("relocations", [])
+            if not isinstance(relocations, list):
+                _fail(errors, "task.session.relocations", "must be a list")
+            else:
+                for i, reloc in enumerate(relocations):
+                    path = f"task.session.relocations[{i}]"
+                    if not isinstance(reloc, Mapping):
+                        _fail(errors, path, "must be a mapping")
+                        continue
+                    _check_keys(errors, reloc, path, ("after", "target", "pose"))
+                    if not (isinstance(reloc.get("after"), int) and reloc["after"] >= 0):
+                        _fail(errors, f"{path}.after", "must be an integer >= 0")
+                    if not isinstance(reloc.get("target"), str) or not reloc.get("target"):
+                        _fail(errors, f"{path}.target", "must be a non-empty string")
+                    if not _is_vec(reloc.get("pose"), 7):
+                        _fail(errors, f"{path}.pose", "must be 7 numbers (xyz + quat wxyz)")
 
 
 def _validate_faults(faults: Any, errors: list[str], warnings: list[str]) -> None:
