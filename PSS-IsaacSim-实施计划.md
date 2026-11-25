@@ -258,11 +258,11 @@ assert gt.visibility_ratio.max() > 0.9 and gt.visibility_ratio.min() < 1.0
 - [x] T18 S1 首表（IDF1 ≥ 0.95）
 
 ### P3（W4–W5）
-- [ ] T19 GroundingDINO 接入（离线批）
-- [ ] T20 `noisy` 档
-- [ ] T21 孪生资产
-- [ ] T22 三档对比表
-- [ ] T23 S2 表
+- [x] T19 GroundingDINO 接入（离线批）
+- [x] T20 `noisy` 档
+- [x] T21 孪生资产
+- [x] T22 三档对比表
+- [x] T23 S2 表
 
 ### P4（W6–W7）
 - [ ] T24 GT 关系生成
