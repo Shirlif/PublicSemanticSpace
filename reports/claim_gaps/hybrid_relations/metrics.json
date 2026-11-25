@@ -1,0 +1,300 @@
+{
+  "train_regions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "heldout_pairs": [
+    [
+      "A",
+      "D"
+    ],
+    [
+      "A",
+      "G"
+    ],
+    [
+      "B",
+      "D"
+    ],
+    [
+      "B",
+      "G"
+    ],
+    [
+      "C",
+      "D"
+    ],
+    [
+      "C",
+      "G"
+    ],
+    [
+      "D",
+      "A"
+    ],
+    [
+      "D",
+      "B"
+    ],
+    [
+      "D",
+      "C"
+    ],
+    [
+      "D",
+      "G"
+    ],
+    [
+      "G",
+      "A"
+    ],
+    [
+      "G",
+      "B"
+    ],
+    [
+      "G",
+      "C"
+    ],
+    [
+      "G",
+      "D"
+    ]
+  ],
+  "noise_levels": [
+    0.0,
+    0.03,
+    0.08,
+    0.15
+  ],
+  "tau": 0.25,
+  "eps": 0.1,
+  "seeds": 3,
+  "per_seed": [
+    {
+      "seed": 0,
+      "by_noise": {
+        "0.0": {
+          "geometry_eps0.1": 1.0,
+          "geometry_eps0.25": 1.0,
+          "learned": 0.5714285714285714,
+          "hybrid": 0.5714285714285714,
+          "hybrid_diag": 1.0
+        },
+        "0.03": {
+          "geometry_eps0.1": 0.9903571428571428,
+          "geometry_eps0.25": 1.0,
+          "learned": 0.5714285714285714,
+          "hybrid": 0.5714285714285714,
+          "hybrid_diag": 1.0
+        },
+        "0.08": {
+          "geometry_eps0.1": 0.73,
+          "geometry_eps0.25": 0.9835714285714285,
+          "learned": 0.5678571428571428,
+          "hybrid": 0.5642857142857143,
+          "hybrid_diag": 0.9871428571428571
+        },
+        "0.15": {
+          "geometry_eps0.1": 0.535,
+          "geometry_eps0.25": 0.8339285714285715,
+          "learned": 0.5339285714285714,
+          "hybrid": 0.5078571428571429,
+          "hybrid_diag": 0.86
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "by_noise": {
+        "0.0": {
+          "geometry_eps0.1": 1.0,
+          "geometry_eps0.25": 1.0,
+          "learned": 0.6428571428571429,
+          "hybrid": 0.6428571428571429,
+          "hybrid_diag": 1.0
+        },
+        "0.03": {
+          "geometry_eps0.1": 0.985,
+          "geometry_eps0.25": 1.0,
+          "learned": 0.5975,
+          "hybrid": 0.5975,
+          "hybrid_diag": 1.0
+        },
+        "0.08": {
+          "geometry_eps0.1": 0.7210714285714286,
+          "geometry_eps0.25": 0.9771428571428571,
+          "learned": 0.5775,
+          "hybrid": 0.5742857142857143,
+          "hybrid_diag": 0.9803571428571428
+        },
+        "0.15": {
+          "geometry_eps0.1": 0.53,
+          "geometry_eps0.25": 0.8171428571428572,
+          "learned": 0.5278571428571428,
+          "hybrid": 0.4982142857142857,
+          "hybrid_diag": 0.8467857142857143
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "by_noise": {
+        "0.0": {
+          "geometry_eps0.1": 1.0,
+          "geometry_eps0.25": 1.0,
+          "learned": 0.5714285714285714,
+          "hybrid": 0.5714285714285714,
+          "hybrid_diag": 1.0
+        },
+        "0.03": {
+          "geometry_eps0.1": 0.9853571428571428,
+          "geometry_eps0.25": 1.0,
+          "learned": 0.5714285714285714,
+          "hybrid": 0.5714285714285714,
+          "hybrid_diag": 1.0
+        },
+        "0.08": {
+          "geometry_eps0.1": 0.7396428571428572,
+          "geometry_eps0.25": 0.9803571428571428,
+          "learned": 0.5707142857142857,
+          "hybrid": 0.5632142857142857,
+          "hybrid_diag": 0.9878571428571429
+        },
+        "0.15": {
+          "geometry_eps0.1": 0.5471428571428572,
+          "geometry_eps0.25": 0.8342857142857143,
+          "learned": 0.5339285714285714,
+          "hybrid": 0.5042857142857143,
+          "hybrid_diag": 0.8639285714285714
+        }
+      }
+    }
+  ],
+  "summary": {
+    "0.0": {
+      "geometry_eps0.1": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "geometry_eps0.25": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "learned": {
+        "mean": 0.5952380952380952,
+        "std": 0.03367175148507373
+      },
+      "hybrid": {
+        "mean": 0.5952380952380952,
+        "std": 0.03367175148507373
+      },
+      "hybrid_diag": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    },
+    "0.03": {
+      "geometry_eps0.1": {
+        "mean": 0.9869047619047618,
+        "std": 0.002445552212401679
+      },
+      "geometry_eps0.25": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "learned": {
+        "mean": 0.5801190476190475,
+        "std": 0.012290189292051926
+      },
+      "hybrid": {
+        "mean": 0.5801190476190475,
+        "std": 0.012290189292051926
+      },
+      "hybrid_diag": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    },
+    "0.08": {
+      "geometry_eps0.1": {
+        "mean": 0.7302380952380952,
+        "std": 0.007583623004110946
+      },
+      "geometry_eps0.25": {
+        "mean": 0.9803571428571428,
+        "std": 0.002624453295839128
+      },
+      "learned": {
+        "mean": 0.5720238095238095,
+        "std": 0.004044116131300732
+      },
+      "hybrid": {
+        "mean": 0.5672619047619047,
+        "std": 0.0049858075217552355
+      },
+      "hybrid_diag": {
+        "mean": 0.9851190476190476,
+        "std": 0.0033797784682329662
+      }
+    },
+    "0.15": {
+      "geometry_eps0.1": {
+        "mean": 0.5373809523809524,
+        "std": 0.007198198313252837
+      },
+      "geometry_eps0.25": {
+        "mean": 0.8284523809523808,
+        "std": 0.00799837001535277
+      },
+      "learned": {
+        "mean": 0.5319047619047619,
+        "std": 0.002862098876231285
+      },
+      "hybrid": {
+        "mean": 0.503452380952381,
+        "std": 0.003980536546976322
+      },
+      "hybrid_diag": {
+        "mean": 0.856904761904762,
+        "std": 0.007332792187825946
+      }
+    }
+  },
+  "verdict": {
+    "0.0": {
+      "hybrid_ge_geometry": false,
+      "hybrid_ge_learned": true,
+      "hybrid_gt_geometry": false,
+      "hybrid_ge_geometry_tau": false,
+      "hybrid_diag_ge_geometry_tau": true,
+      "hybrid_diag_gt_geometry_tau": false
+    },
+    "0.03": {
+      "hybrid_ge_geometry": false,
+      "hybrid_ge_learned": true,
+      "hybrid_gt_geometry": false,
+      "hybrid_ge_geometry_tau": false,
+      "hybrid_diag_ge_geometry_tau": true,
+      "hybrid_diag_gt_geometry_tau": false
+    },
+    "0.08": {
+      "hybrid_ge_geometry": false,
+      "hybrid_ge_learned": false,
+      "hybrid_gt_geometry": false,
+      "hybrid_ge_geometry_tau": false,
+      "hybrid_diag_ge_geometry_tau": true,
+      "hybrid_diag_gt_geometry_tau": true
+    },
+    "0.15": {
+      "hybrid_ge_geometry": false,
+      "hybrid_ge_learned": false,
+      "hybrid_gt_geometry": false,
+      "hybrid_ge_geometry_tau": false,
+      "hybrid_diag_ge_geometry_tau": true,
+      "hybrid_diag_gt_geometry_tau": true
+    }
+  },
+  "generated": "2026-11-25 14:58:08 UTC"
+}

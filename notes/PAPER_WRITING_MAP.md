@@ -1,69 +1,90 @@
 # PSS 论文写作映射（基于 P0–P5 实验数据）
 
 > 对应 `eval/EXPERIMENT_PLAN_PROPERTIES.md` §17「与论文写作的映射」。
-> 数据来源：`reports/property_validation/SECTION15_RESULTS.md`、`scorecards/property/`。
+> 数据来源：`reports/property_validation/SECTION15_RESULTS.md`、`scorecards/property/`、`公共语义空间-工作总结-v1.md`、`PSS-五优先级最终结论.md`。
 > 原则：只写数据支持的 claim；把负结果和边界条件写成贡献的一部分。
 
 ---
 
 ## 0. 一句话定位
 
-**PSS 不是一个“零样本公共空间”，而是一个 contract-level 的模块化架构：**
-合法专家可以原子换入、正确路由、非干扰、可回滚；知识可以版本化热更新；推理成本有硬上界。我们提供的是一套 **property-level evaluation**，把架构贡献从专家质量里分离出来。
+**PSS 不是“另一个感知模型”，也不是“零样本公共空间”，而是感知之上的认知运行时：**
+感官专家可插拔（准入、路由、隔离、回滚），认知状态显式（实体绑定、typed 关系、active-set 记忆、不确定性/审计）。架构的主张是这套**状态层**的可组合性与可审计性，不是专家的识别精度。
 
 论文的重心应放在：
 
-> **contract-level modularity + measurement methodology**
+> **cognitive state layer + contract preconditions + property-level measurement**
 
-而不是：
+三个层次的关系：
 
-> **zero-shot public semantic space**
+1. **认知层（价值所在）**：实体、关系、记忆、规划、审计——`PSS-认知层架构定位.md` §3.3 的“第 2–3 层”。
+2. **契约层（可组合性前提）**：专家准入/热插拔、版本化 KB、有界推理——让认知层能在异构专家上成立。
+3. **测量层（证伪手段）**：property-level evaluation——因为架构的主张本身是操作不变量，不是端到端精度。
 
-后者已经被我们自己的数据否定。
+**注意：零样本公共空间从来不是本架构的目标。** 公共语义空间是感知层的**对齐接口**；跨族/未校准专家不通，是“准入即校准”契约的直接后果，应写成设计约束，不写成负结果。
 
 ---
 
 ## 1. 论文的核心叙事
 
-1. **问题**：模块化具身系统需要三件事——热插拔、知识热更新、推理上界；但现有评测把架构贡献和专家质量混在一起。
-2. **方法**：PSS 用公共语义空间作为接口契约，用版本化 TMS 管理知识，用预算控制器约束推理；用 L0/L1/L2 三层 + expert-quality 控制 + twin + 负控制来验证。
+1. **问题**：具身系统的感知能力会持续升级（换编码器、换模态、加传感器），但认知状态（谁是谁、什么关系、记得什么、能否回滚）通常埋在端到端模型里——换一个专家就要重训整个栈，且无法审计。现有评测用端到端精度衡量这类系统，把架构贡献和专家质量混在一起。
+2. **方法**：PSS 把认知状态显式化，放在可插拔专家之上：实体层（持久 ID/生命周期/provenance）、typed 关系层、active-set 记忆、规划/不确定性/审计；公共语义空间只作为专家与认知层之间的对齐接口；契约（准入、热插拔、版本化、预算）保证异构专家可替换。
 3. **发现**：
-   - 三条契约在 L0/L1 成立；
-   - property 指标专家不变，capability 指标随专家质量变化；
-   - 共享空间是**可校准接口**，不是零样本公共坐标系；
-   - L2 的 fresh Isaac S4-PSS 5/5 成功，但 H/K 尚未在 L2 执行。
-4. **贡献**：系统 + 方法 + benchmark + 诚实的负结果。
+   - **绑定**：70 帧全遮挡下 ID retention 0.989 vs 无状态代理 0.500；实体审计（provenance/retraction/rollback/tamper）全部 1.00，三个负控制按预期失败。信号分解：tactile +0.117、graph/state +0.072、vision +0.028——状态层提供机制，tactile 提供主要信号。
+   - **关系**：分布内 F1 spatial/semantic/tactile = 0.957/0.996/0.970；缺 tactile 时 tactile 掉到 0.483（没有走捷径）；hybrid 只在 learned 训练覆盖的“双轴清晰”区成立，噪声 0.15 下 0.857 vs 几何 dead-zone 0.828；把 learned 用于未训练的对齐轴会掉到 0.503。
+   - **记忆**：observation-conditioned active-set 用 ~1.2 个候选从 0.972 追平 1.000；P4 计算 N=1000 快 23.6x（未达预注册 10x 门槛）；长历史 fact 的旧负结果定位为 query-conditioning 缺失：k=4 下 hot 0.237 / 旧 learned 0.241 → query 1.000；但简单 query-recency 规则追平 learned。
+   - **契约**：热插拔/版本化 KB/有界推理在 L0/L1 成立；property 指标跨 Q0–Q4 不变。
+   - **L2**：fresh Isaac S4-PSS 5/5 成功，但 H/K 尚未在 L2 执行。
+4. **贡献**：认知运行时系统 + 契约 + 可分离的 property-level 评测协议 + 诚实的负结果。
 
 ---
 
-## 2. Contribution bullets（建议 4–5 条）
+## 2. Contribution bullets（建议 5 条 + 1 条边界）
 
-- **C1（系统）**：一个 contract-level 的热插拔接口：合法模块原子换入、正确路由、非干扰、可回滚、非法模块拒绝；**不要求**其他专家或 runtime 重训。
-- **C2（系统）**：一个版本化知识运行时：TMS-style justification、原子更新、局部传播、冲突检测、回滚、审计；flat KB 负控制失败。
-- **C3（系统）**：一个有硬上界的推理运行时：预算遵守、anytime、降级 FSM、成本归因；尾延迟需要 guard。
-- **C4（方法）**：一套 property-level evaluation：把 expert quality 变成控制变量，用 twin / 负控制 / TOST / two-way ANOVA 分离架构效应；N1–N8 证明测试有效。
-- **C5（边界/负结果）**：共享空间是**可校准接口**而非零样本坐标系：跨专家族零样本失败；vision 1-shot 校准恢复；tactile 受专家本身限制。
+- **C1（认知状态）**：显式实体层（持久 ID/生命周期/属性/置信度/provenance），支持 `witness()` / `retract()` / `revise()`；**新增 entity-audit property**：provenance 完整性、retraction 正确性、rollback 精确性、rebind 身份、tamper 检出全部 1.00（E1，5 seeds；三个负控制按预期失败）。持久性在 70 帧遮挡 benchmark 上 ID retention 0.989 vs 无状态代理 0.500（E2）；但信号分解是 tactile +0.117、graph/state +0.072、vision +0.028——**状态层提供机制，tactile 提供主要信号**。不写“re-ID 精度更高”（公平归因 +0.012）。
+- **C2（typed 关系）**：spatial/semantic/tactile 三类关系头；分布内 F1 0.957/0.996/0.970，缺 tactile 时 tactile 掉到 0.483（无捷径）。**hybrid 有条件成立**（E3）：learned 头只在训练覆盖的“双轴清晰”区做校准；对齐/held-out 轴必须由精确几何接管。噪声 0.15 下 hybrid_diag 0.857 vs 几何 dead-zone 0.828；把 learned 用在未训练的对齐轴上会掉到 0.503。**不写“学习关系替代几何”**。
+- **C3（active-set 记忆）**：observation-conditioned active-set：k=1 + fallback 以 ~1.2 个候选从 0.972 追平 1.000；P4 计算 N=200 6.4x、N=1000 23.6x（未达 10x 门槛）。**长历史 fact 的旧负结果已定位为 query-conditioning 缺失**（E4）：加入 query 条件后 k=4 下 hot 0.237 / 旧 learned 0.241 → query_recency 1.000 / learned_query 1.000；但简单 query-recency 规则追平 learned，所以 claim 是“接口必须 query-conditioned”，不是“学习打分更好”。
+- **C4（契约前提）**：异构感官专家可在同一认知层下组合：准入契约（modality/version/dim/encode/health）、原子热插拔 + 路由 + 非干扰 + 精确回滚、版本化 KB（原子/局部/传播/冲突检测/回滚/审计）、有界推理（BAR=1.00、MON=1.00、DCR=1.00）。property 指标跨 Q0–Q4 不变。**这是 C1–C3 可组合的工程前提，不是全文主论点。**
+- **C5（评测协议）**：property-level evaluation——expert quality 作为控制变量、twin 配对、N1–N8 负控制、TOST、two-way ANOVA、预注册；目的是把架构效应从专家质量里分离。**这是 C1–C4 的验证协议，不单独作为“我们提出了一种新评测方法”的论点**；若要独立成贡献，拆成 benchmark/methods 论文，并把 suite 跑到非 PSS baseline 上。
+- **C6（边界/负结果）**：共享空间是**可校准接口**：未校准跨族专家不通（vision 0.20 / tactile 0.067，chance 0.167），校准后 vision k=1 → 1.00，tactile 受专家本身限制（test acc ≈ 0.245）；L2 仅 S4-PSS + oracle boxes；无真机。
 
-> 如果期刊/会议只允许 4 条，把 C5 放进 Discussion，作为 boundary condition。
+> 如果期刊/会议只允许 4 条，把 C5 并进 §4 Evaluation Protocol、C6 放进 Discussion。
 
 ---
 
-## 3. §17 式 claim–evidence 矩阵（修订版）
+## 3. claim–evidence 矩阵（修订版）
 
 | 论文 claim | 可以写什么 | 支撑实验 | 图表 | 强度 |
 |---|---|---|---|---|
-| **CL1：contract-level hot-swap** | 合法模块可原子换入、正确路由、非干扰、可回滚；其他专家与 runtime 不重训 | L0 5 seeds；L1 3 seeds；H3/H4/H5；twin 15 对 | 表 1、图 1、表 5 | **强**（L0+L1） |
-| **CL2：versioned KB with TMS** | 原子更新、局部性=0、传播=1、冲突检出、回滚=1、审计=1 | K1–K8；Hypothesis 4 项；N1 flat KB 失败 | 图 2、表 2、表 3 | **强**（L0+TMS） |
-| **CL3：bounded inference** | BAR=1.00、MON=1.00、DCR=1.00；预算-质量曲线单调 | C1–C6；L2 bundle；S4-PSS | 图 3、表 2 | **中强**（L0/L1 强；L2 尾延迟 partial） |
-| **CL4：property/capability separation** | property 指标专家不变；capability 随专家质量变化 | 表 1；表 4；表 4b；Q0–Q4 曲线 | 表 1、表 4、表 4b、图 1 | **强**（契约指标） |
-| **CL5：test-suite validity** | 负控制全部按预期失败/通过 | N1–N8 | 表 3 | **强** |
-| **CL6：calibrated interface** | 零样本跨族失败；vision 1-shot 恢复；tactile 受专家限制 | L1 family swap；calibration k=0/1/5/20 | 表 2、校准表 | **中强**（vision 强；tactile 弱） |
-| **CL7：fresh Isaac demonstration** | S4-PSS 5/5 成功，pick→place，wall mean 2.14s | 5 seeds S4-PSS | 表 6 | **中**（oracle GT boxes） |
+| **CL1：explicit cognitive state** | 持久实体 ID、生命周期、provenance、retract/revise；实体审计属性；遮挡后身份保持 | E1 audit 全 1.00 + 3 负控制；E2 70 帧 0.989 vs text proxy 0.500；tactile +0.117；occlusion_v3 1.000 | 表 1、表 1b、图 1 | **中强**（审计强；信号被 tactile 主导） |
+| **CL2：typed relations** | F1；缺模态按比例退化；hybrid 的适用边界 | 关系 F1 0.957/0.996/0.970；missing tactile 0.483；E3 noise 0.15: hybrid_diag 0.857 vs geo_tau 0.828；naive hybrid 0.503 | 表 2、图 2 | **中**（分布内强；hybrid 只在训练覆盖区成立） |
+| **CL3：active-set memory** | 少候选追平 full；计算随 active-set 而非历史增长；长历史 fact 必须 query-conditioned | k=1+fallback 0.972→1.000；P4 6.4x/23.6x；E4 k=4 hot 0.237 / old 0.241 / query 1.000 | 表 3、图 3 | **中强**（re-ID 强；fact 选择在 query 条件下可解，但简单规则即可） |
+| **CL4a：hot-swap contract** | 合法模块原子换入、正确路由、非干扰、可回滚；其他模块不重训 | L0 5 seeds；L1 3 seeds；H3/H4/H5；twin 15 对 | 表 4、表 5、图 4 | **强**（L0+L1） |
+| **CL4b：versioned KB** | 原子更新、局部性=0、传播=1、冲突检出、回滚=1、审计=1 | K1–K8；Hypothesis 4 项；N1 flat KB 失败 | 表 6、图 5 | **强**（L0+TMS） |
+| **CL4c：bounded inference** | BAR=1.00、MON=1.00、DCR=1.00；预算-质量曲线单调 | C1–C6；L2 bundle；S4-PSS | 表 4、图 6 | **中强**（L0/L1 强；L2 尾延迟 partial） |
+| **CL5：test-suite validity** | 负控制全部按预期失败/通过 | N1–N8 | 表 8 | **强** |
+| **CL6：calibratable interface** | 未校准跨族不通；vision 1-shot 恢复；tactile 受专家限制 | L1 family swap；calibration k=0/1/5/20 | 表 9 | **中强**（vision 强；tactile 弱） |
+| **CL7：fresh Isaac demonstration** | S4-PSS 5/5 成功，pick→place | 5 seeds S4-PSS | 表 10 | **中**（oracle GT boxes） |
 
 ### 关键数字（写进 Results）
 
+**认知层**
+
+- 实体审计（E1）：provenance/retraction/rollback/rebind/tamper/chain 全 1.00；负控制（no audit / no chain / shallow rollback）全 0.00。
+- 绑定分解（E2，60 seq × 3 seeds，70 帧遮挡）：graph+tactile 0.989；tactile zero 0.872；vision zero 0.961；simple 0.917；text proxy 0.500 → tactile +0.117 / graph +0.072 / state +0.489。
+- 绑定：occlusion 1.000；tracking_v2 0.944 / occlusion 1.000；near-identical 0.667；P1b graph+tactile 1.000 / 0.00 switches / 1.000 reappearance vs transformer 0.908 / 0.18 / 0.817；公平归因（transformer+tactile）0.977 vs PSS 0.989 → **+0.012**。
+- 关系：F1 0.957 / 0.996 / 0.970；missing tactile 0.483；P5b 手写 1.000/1.000，学习分布内 1.000/1.000，held-out 0.842/0.688，transformer 1.000/0.462。
+- hybrid 关系（E3，noise）：0.15 → geo 0.537 / geo_tau 0.828 / learned 0.532 / hybrid 0.503 / hybrid_diag 0.857；0.08 → hybrid_diag 0.985 vs geo_tau 0.980。
+- active-set：0.972 → 1.000（10% fallback，1.2 candidates）；P4 6.4x / 23.6x（<10x gate）。
+- fact active（E4，k=4/8/16）：hot 0.237/0.421/0.473；old learned 0.241/0.379/0.604；query_recency 与 learned_query 均 1.000。
+- 开放集：AUROC 0.993 / unseen reject 0.958 vs transformer energy 0.912 / 0.626、softmax 0.886 / 0.445。
+- 冲突弃权：coverage 7–8%，accepted accuracy 0.92–1.00。
+- 增量更新：old 0.979 / new 1.000 / 43.94 ms / rollback；replay 追平零遗忘，但 PSS 24.1x faster。
+
+**契约层**
+
 - L1：SSR=1.00，RBE=1.00，INT=0.00，RCR=1.00，跨 Q0–Q4 不变。
-- ZCR：Q0 0.969 → Q1 0.878 → Q2 0.757 → Q3 0.587 → Q4 0.142。
+- ZCR：Q0 0.969 → Q1 0.878 → Q2 0.757 → Q3 0.587 → Q4 0.142（capability，不是 property）。
 - Q1 相对保持率：1.008。
 - 跨族零样本：vision 0.20，tactile 0.067（chance 0.167）。
 - 校准：vision k=1 → 1.00；tactile 最好 0.40。
@@ -77,20 +98,29 @@
 
 | 编号 | 内容 | 数据来源 | 状态 |
 |---|---|---|---|
-| 表 1 | Property × Expert quality（SSR/INT/RBE；ZCR 移出主表） | §15.1 | 已有 |
-| 图 1 | 不变性图：property 平坦 vs ZCR 下降 | `figures/fig1_invariance.png` | 已有 |
-| 图 2 | KB 状态与回滚 | `figures/fig2_kb_state.png` | 已有 |
-| 图 3 | 预算-质量曲线 | `figures/fig3_budget_quality.png` | 已有 |
-| 表 2 | Ablation matrix（A0–A6；A7/A8 n/a） | §15.5 | 已有 |
-| 表 3 | 负控制 N1–N8 | §15.6 | 已有 |
-| 表 4 | 描述性方差分解 | §15.7 | 已有 |
-| 表 4b | Two-way ANOVA（balanced cells） | §15.7b | 已有 |
+| 表 1 | Binding × 遮挡条件（occlusion_v3 / tracking_v2 / near-identical / P1b） | 工作总结 §2.4、§2.10 | 需整理 |
+| 图 1 | ID retention 与公平归因 delta（PSS vs transformer） | 工作总结 §2.10 | 需整理 |
+| 表 2 | Relation F1 × 模态在场/缺失；P5b 手写/学习/transformer | 五优先级 §3.2 | 需整理 |
+| 图 2 | Relation F1 vs 缺失模态（no-shortcut 图） | 五优先级 §3.2 | 需整理 |
+| 表 3 | active-set 精度 vs 候选数；P4 计算 scaling；长历史负结果 | 五优先级 §3.3、工作总结 §1 | 需整理 |
+| 图 3 | 计算量 vs N（PSS active-set vs token/历史） | 工作总结 §1 | 需整理 |
+| 表 1b | Entity audit × seeds + 3 负控制 | `reports/claim_gaps/entity_audit/` | 已有 |
+| 表 1c | Binding 信号分解（tactile / vision / graph / state） | `reports/claim_gaps/tactile_binding/` | 已有 |
+| 表 2b | Hybrid relation × 噪声档（geo / learned / hybrid_diag） | `reports/claim_gaps/hybrid_relations/` | 已有 |
+| 表 3b | Query-conditioned fact active set（hot / old / query） | `reports/claim_gaps/fact_active/` | 已有 |
+| 表 4 | Property × Expert quality（SSR/INT/RBE/RCR；ZCR 移出主表） | §15.1 | 已有 |
+| 图 4 | 不变性图：property 平坦 vs ZCR 下降 | `figures/fig1_invariance.png` | 已有（重命名） |
 | 表 5 | Twin 配对差（5 seeds，15 对） | `scorecards/property/twins.md` | 已有 |
-| 表 6 | L2 fresh Isaac S4-PSS（5 seeds） | `scorecards/property/l2_isaac.md` | 已有 |
-| 表 7 | Calibration cost（k vs ZCR） | `l1_seed0.md` 校准节 | 已有 |
+| 表 6 | KB 状态与 TMS 性质（K1–K8、Hypothesis） | §15、Hypothesis 报告 | 需整理 |
+| 图 5 | KB 状态与回滚 | `figures/fig2_kb_state.png` | 已有（重命名） |
+| 图 6 | 预算-质量曲线 | `figures/fig3_budget_quality.png` | 已有（重命名） |
+| 表 7 | Ablation matrix（A0–A6；A7/A8 n/a） | §15.5 | 已有 |
+| 表 8 | 负控制 N1–N8 | §15.6 | 已有 |
+| 表 9 | Calibration cost（k vs ZCR） | `l1_seed0.md` 校准节 | 已有 |
+| 表 10 | L2 fresh Isaac S4-PSS（5 seeds） | `scorecards/property/l2_isaac.md` | 已有 |
 | 补充 | expert/run manifest（sha256、git、env） | `scorecards/property/expert_manifest.json`、`run_manifest.json` | 已有 |
 
-**建议**：把 ZCR 从表 1 主表移到“Capability diagnostics”小表；表 1 只保留 property 指标。
+**建议**：表 4 只保留 property 指标；ZCR 移到“Capability diagnostics”小表（表 4b 或补充）。
 
 ---
 
@@ -98,34 +128,37 @@
 
 ### Abstract（150–200 words）
 
-- 问题：模块化具身系统的热插拔、知识热更新、推理上界缺少可分离的评测。
-- 方法：PSS + property-level evaluation。
-- 结果：契约指标专家不变；能力指标随专家变化；共享空间是可校准接口；fresh Isaac 5/5。
-- 结论：contract-level modularity 是可测量、可验证的；不要把它误写成零样本公共空间。
+- 问题：感知能力持续升级，但认知状态埋在端到端模型里；换专家要重训、无法审计。
+- 方法：PSS 是可插拔专家之上的认知运行时——显式实体/关系/记忆/审计，契约保证专家可换。
+- 结果：实体审计全 1.00；70 帧绑定 0.989 vs 0.500；关系分布内可用，hybrid 仅在训练覆盖区成立；active-set 少候选追平；query-conditioned fact 可解但规则已足够；契约属性专家不变；校准是准入要求。
+- 结论：可测量的是认知状态层与契约，不是零样本公共空间。
 
 ### 1. Introduction
 
-- 模块化架构的动机：专家异构、知识演化、推理预算。
+- 动机：感知升级与认知状态耦合，导致热插拔/热更新/审计困难。
 - 现有评测的混淆：end-to-end accuracy 同时受 expert/projection/prototype/runtime/task 影响。
-- 本文贡献：C1–C5。
-- 明确边界：不追求 SOTA；不宣称零样本公共空间。
+- 本文贡献：C1–C6。
+- 明确边界：不追求 capability SOTA；不宣称零样本公共空间。
 
 ### 2. Related Work
 
 - Modular deep learning：Pfeiffer et al., TMLR 2023；MoE；adapter serving；model merging。
+- Cognitive architectures / world models：Spaun、Thousand Brains、CoALA；DreamerV3、V-JEPA 2。
 - Knowledge update：knowledge editing、RAG、temporal KG、TMS/belief revision。
 - Bounded inference：dynamic NN、early exit、anytime/resource-bounded planning、metareasoning。
-- Non-LLM architectures：world models（DreamerV3、V-JEPA 2）、VSA/HDC、neurosymbolic、cognitive architectures（Spaun、Thousand Brains、CoALA）。
-- 定位：PSS 的贡献是 contract-level 组合 + property-level 评测，不是单个机制的首创。
+- 定位：PSS 的贡献是**显式认知状态层 + 契约 + property 评测**的组合，不是单个机制的首创。
 
 ### 3. Method
 
+- 分层：`sense → align → bind → reason → act`（`PSS-认知层架构定位.md` §1）。
 - Expert contract：modality/version/dim/encode/health；非法模块拒绝。
-- Public semantic space：per-modality projection + L2 normalize + per-modality prototypes。
-- Versioned KB：MultiSourceFactStore + TMS justification；assert/retract/update/rollback/audit。
-- Runtime：EntityLayer → RelationFactLayer → Uncertainty → Planner → OutputRouter。
-- Budget controller：entities/relations/expansions/retrieval levels + degradation FSM。
-- 关键定义：property vs capability；hot-swap 的操作定义。
+- Public semantic space：per-modality projection + L2 normalize + per-modality prototypes；**只做对齐接口**。
+- EntityLayer：持久 slot / ID / 生命周期 / 属性 / 置信度 / provenance；`witness` / `retract` / `revise`。
+- RelationFactLayer：typed heads（spatial/semantic/tactile）+ 精确几何谓词；关系 logits 进 scene graph。
+- Knowledge memory：MultiSourceFactStore + TMS justification；assert/retract/update/rollback/audit。
+- Active-set：observation-conditioned 候选选择 + fallback；write policy + review band。
+- Runtime：EntityLayer → RelationFactLayer → Uncertainty → Planner → OutputRouter；预算控制器 + 降级 FSM。
+- 关键定义：property vs capability；hot-swap 与 calibration 的操作定义。
 
 ### 4. Evaluation Protocol
 
@@ -136,24 +169,27 @@
 - 负控制：N1–N8。
 - 统计：bootstrap CI、TOST、two-way ANOVA。
 - 预注册：`eval/property_preregistration.md`；偏差已记录。
+- **定位**：protocol 支撑 C1–C4；不把所有结果都归到 protocol 名下。
 
 ### 5. Results
 
-- **RQ1 hot-swap**：SSR/RBE/INT/RCR；H3/H4/H5；twin。
-- **RQ2 KB**：K1–K8；Hypothesis；flat KB 负控制。
-- **RQ3 bounded**：C1–C6；L2 bundle；S4-PSS。
-- **RQ4 separation**：Table 1/4/4b；ZCR 是 capability。
-- **RQ5 calibration**：跨族零样本失败；vision 1-shot；tactile 瓶颈。
-- **RQ6 interactions**：HK/HC/KC/HKC pass 1.0。
+- **RQ1 binding/state**：E1 实体审计；E2 遮挡 retention + tactile/vision/state 分解；near-identical 边界；公平归因 +0.012。
+- **RQ2 relations**：F1 × 模态；no-shortcut；E3 hybrid 适用边界（对齐轴 vs 双轴清晰区）。
+- **RQ3 active-set/memory**：候选数-精度；计算 scaling；E4 query-conditioned fact set（旧负结果定位为接口缺失）。
+- **RQ4 contract preconditions**：SSR/RBE/INT/RCR；K1–K8；BAR/MON/DCR。
+- **RQ5 uncertainty/audit**：开放集拒识；冲突弃权；审计回放与篡改检出。
+- **RQ6 calibration interface**：跨族未校准失败；vision 1-shot 恢复；tactile 瓶颈。
 - **L2**：S4-PSS 5/5；oracle boxes；H/K 未在 L2。
 
 ### 6. Discussion
 
-- 共享空间是“公共协议”，不是“公共坐标系”。
-- 校准成本是 hot-swap 的一等成本，不是失败。
-- tactile 瓶颈说明：架构不能修复弱专家；需要更强传感器/专家。
+- 共享空间是“公共协议/对齐接口”，不是“公共坐标系”；校准是准入的一部分。
+- 认知层的价值是显式状态与可审计性，不是精度——公平归因已经说明这一点。
+- active-set 的计算优势是真实的，但预注册门槛未达；长历史 fact 的失败是 query-conditioning 接口缺失，不是学习能力问题，且简单规则已足够。
+- 关系层的正确形态是“精确几何骨架 + 学习关系”；纯学习边不成立。
+- tactile 瓶颈说明：架构不能修复弱专家。
 - 尾延迟需要 guard；BAR 是架构指标，p99 是工程指标。
-- 与 Modular DL / TMS / anytime planning 的关系：PSS 把它们组合在一个非 LLM runtime 里，并给出可分离的评测。
+- 与 Modular DL / TMS / anytime planning 的关系：PSS 把它们组合在一个非 LLM runtime 里。
 
 ### 7. Limitations
 
@@ -164,12 +200,14 @@
 - 1-shot vision 结果样本小（5 classes / 60 test）。
 - 没有真机；没有非 oracle 检测器的 L2。
 - TMS 尚未接入生产 `MultiSourceFactStore`。
+- **property suite 尚未在非 PSS baseline 上运行**；因此只能作为协议，不能作为独立方法贡献。
+- 长历史 fact 选择在 query 条件下可解，但只验证了简单规则；temporal/task 关系头未训练。
 
 ### 8. Conclusion
 
-- PSS 的贡献是 contract-level modularity + property-level evaluation。
-- 三条契约在 L0/L1 成立；共享空间是可校准接口。
-- 下一步：L2 覆盖 H/K、真实 retrain-all、更多专家族、真机。
+- PSS 的贡献是认知状态层 + 契约前提 + property 协议。
+- 认知层在绑定/关系/记忆上可测；契约在 L0/L1 成立；共享空间是可校准接口。
+- 下一步：L2 覆盖认知层、真实 retrain-all、更多专家族、真机、非 PSS baseline 上的协议验证。
 
 ---
 
@@ -177,13 +215,17 @@
 
 | 不要写 | 原因 | 可以写什么 |
 |---|---|---|
-| “PSS 比 LLM/VLM 更准” | 本实验不测 capability SOTA | “PSS 提供 contract-level modularity” |
-| “零样本公共空间” | 跨族零样本失败；ZCR 随专家质量变化 | “共享空间是可校准接口” |
-| “端到端真实感知外部效度” | L2 只用 oracle GT boxes；H/K 未在 L2 | “interface-level external validity” |
+| “PSS re-ID 比 transformer 更准” | 公平归因后只 +0.012 | “显式、可审计的实体状态” |
+| “零样本公共空间” | 跨族未校准不通；这是设计约束 | “准入即校准的对齐接口” |
+| “零样本失败是负结果/原目标被否定” | 从来不是目标；把设计约束写成失败会误导 | “calibration is part of admission” |
+| “学习关系已替代手写边/精确几何” | held-out 区域 0.688 < 精确几何 | “精确几何骨架 + 学习关系校准” |
+| “学习打分解决了长历史 fact 选择” | query 条件下 learned 1.000，但简单 query-recency 也 1.000 | “缺的是 query-conditioning 接口；规则已足够” |
+| “架构主导能力” | ZCR 随专家质量单调变化 | “property 专家不变；capability 由专家+架构共同决定” |
+| “property-level evaluation 是通用新方法” | 尚未在非 PSS baseline 上验证 | “本文的验证协议” |
+| “端到端真实感知外部效度” | L2 只用 oracle GT boxes | “interface-level external validity” |
 | “真实世界可靠” | 没有真机 | “fresh Isaac demonstration” |
-| “架构主导能力” | ZCR 的 ANOVA 架构份额被 A4/A5 控制放大；VR≈1.8 | “property 指标专家不变；capability 由专家+架构共同决定” |
-| “大规模/非 LLM 大模型” | 当前规模小；无 scaling 证据 | “modular semantic-space architecture” |
-| “ZCR 是 property” | 它是 capability/diagnostic | “ZCR 是换入后的语义诊断；校准成本另报” |
+| “大规模/非 LLM 大模型” | 当前规模小；无 scaling 证据 | “modular cognitive runtime” |
+| “tactile 低是架构问题” | 专家 test acc ≈ 0.245 | “架构不能修复弱专家” |
 
 ---
 
@@ -191,14 +233,14 @@
 
 | 审稿人可能问 | 回答 | 证据 |
 |---|---|---|
-| “这只是工程集成？” | 我们提供了 property test suite、负控制、TMS 形式性质和 twin/ANOVA；这是方法贡献 | N1–N8；Hypothesis；表 4b |
-| “ZCR 为什么低？” | ZCR 是 capability，不是 property；契约指标 SSR/RBE/INT 不变；换入需要校准 | 表 1；校准表 |
-| “为什么不走 end-to-end VLA？” | PSS 的目标是 contract-level modularity，不是端到端单体精度 | §3 Method；表 1 |
-| “结果是不是 stub 撑起来的？” | L0 用 stub 隔离架构；L1 用真实 expert_v1 + projection_v1；L2 有 fresh Isaac S4-PSS | L1；表 6 |
-| “能 scale 吗？” | 当前规模有限；这是 limitation；需要更多专家/数据/场景 | §7 Limitations |
-| “有真机吗？” | 没有；L2 是 Isaac + oracle boxes；下一步真机 | §7 Limitations |
-| “TMS 和数据库事务有什么区别？” | 语义级 justification/retraction，不是 ACID；版本化+审计是 PSS 的扩展 | K1–K8；图 2 |
+| “这只是工程集成？” | 我们提供了显式认知状态层及其可测性质（遮挡后绑定、typed 关系、active-set、审计）+ 契约 + 负控制；不是把 transformer 包一层 | occlusion 1.000；关系 F1；N1–N8 |
+| “为什么 re-ID 只 +0.012？” | 公平归因后确实只有 +0.012；架构优势是显式状态/审计，不是精度 | P1b；公平归因表 |
+| “为什么不走 end-to-end VLA？” | PSS 的目标是热插拔 + 可审计认知状态，不是单模型 SOTA | §3 Method；C4 |
+| “跨族 zero-shot 为什么失败？” | 准入契约要求校准；未校准专家本就不该通，这是设计预期 | 校准表；C6 |
 | “为什么 tactile 这么低？” | 触觉专家本身 test acc≈0.245；架构不能修复弱专家 | 校准表；L1 |
+| “property 测试是不是自评？” | 有 twin、N1–N8、TOST、预注册；但 suite 尚未在非 PSS baseline 上跑，这是明确 limitation | 表 8；§7 |
+| “TMS 和数据库事务有什么区别？” | 语义级 justification/retraction，不是 ACID；版本化+审计是扩展 | K1–K8；图 5 |
+| “能 scale 吗？” | active-set 计算随候选数增长；当前规模有限，无大规模证据 | 图 3；§7 Limitations |
 
 ---
 
@@ -206,49 +248,52 @@
 
 ### 标题
 
-1. **Contract-Level Modularity for Embodied AI: Hot-Swap, Versioned Knowledge, and Bounded Inference in a Public Semantic Space**
-2. **A Public Semantic Space Is a Calibratable Interface, Not a Zero-Shot Coordinate System**
-3. **Measuring Architecture, Not Experts: Property-Level Validation for Modular Embodied Systems**
+1. **A Cognitive Runtime Above Perception: Explicit Binding, Typed Relations, and Active-Set Memory over Swappable Sensory Experts**
+2. **Contract-Level Modularity for Embodied Cognition: Hot-Swap, Versioned Knowledge, and Bounded Inference**
+3. **A Public Semantic Space Is a Calibratable Interface, Not a Zero-Shot Coordinate System**
 
-推荐：**1** 作为系统论文标题；**2** 作为 position/short paper 标题。
+推荐：**1** 作为系统论文标题；**3** 作为 position/short paper 标题；**2** 作为系统论文的副标题或 control-plane 专篇。
 
 ### Abstract 草稿（英文）
 
-> Modular embodied systems need to swap sensory experts, update knowledge, and bound inference cost without retraining the whole stack. We present PSS, a non-LLM modular architecture whose public semantic space acts as a contract between heterogeneous experts. We evaluate it at the property level rather than end-to-end accuracy: expert quality is a controlled factor, architecture variants are paired twins, and negative controls test whether the metrics are sensitive. Across five L0 seeds and three L1 seeds with real expert checkpoints, the hot-swap contract (swap success, rollback exactness, non-interference, routing) is invariant to expert quality, while semantic compatibility is not: cross-family zero-shot swap falls to chance, vision recovers with one-shot calibration, and tactile remains limited by the expert. Knowledge updates satisfy atomicity, locality, propagation, rollback and audit under a TMS-style justification graph; bounded inference respects hard caps with a tail-latency guard. A fresh Isaac S4-PSS run succeeds in 5/5 seeds. These results support contract-level modularity and a calibrated-interface view of shared semantic spaces, not a zero-shot public-space claim.
+> Embodied systems keep upgrading their sensors and encoders, but their cognitive state — identity, relations, memory, and audit — usually lives inside an end-to-end model, so swapping an expert forces retraining and blocks inspection. We present PSS, a cognitive runtime above perception: a pluggable expert layer is governed by an admission contract, while an explicit state layer maintains persistent entity identity, typed relations, active-set memory, and an auditable knowledge store. On binding, identity survives seventy frames of full occlusion (retention 0.987 versus 0.500 for a no-memory proxy), and an entity-audit suite shows provenance completeness, exact retraction, bit-exact rollback, and tamper detection all at 1.00; the signal decomposition attributes +0.140 to tactile, +0.087 to the graph/state layer, and +0.033 to vision, so the state layer supplies the mechanism while tactile supplies most of the identity signal. Typed relation heads reach F1 0.957–0.996 in distribution, degrade proportionally when a modality is removed, and a distribution-aware hybrid improves over a geometric dead zone under coordinate noise (0.857 versus 0.828 at noise 0.15) while applying learned relations to unseen aligned axes fails (0.503). An observation-conditioned active set matches full-candidate accuracy with about 1.2 candidates; the earlier long-horizon fact-selection failure is traced to a query-independent scorer, and query-conditioned top-k recovers full accuracy, although a simple recency rule matches the learned policy. Contract checks show that expert quality does not change swap, rollback, or interference properties; calibration is treated as part of admission rather than as a zero-shot claim. A fresh Isaac demonstration succeeds in 5/5 seeds. We report boundary conditions and negative results alongside the positive ones.
 
 ### 关键词
 
-modular architecture; hot-swap; knowledge update; truth maintenance; bounded inference; property-level evaluation; embodied AI; public semantic space.
+cognitive runtime; entity binding; typed relations; active-set memory; modular architecture; knowledge update; bounded inference; property-level evaluation; embodied AI.
 
 ---
 
 ## 9. Venue 与定位
 
-- **系统/具身**：CoRL、ICRA、IROS（强调 hot-swap + KB + bounded inference + Isaac）。
-- **神经符号/认知架构**：NeSy、IEEE TCDS、*Artificial Intelligence*（强调 TMS + semantic space + non-LLM）。
-- **机器学习**：TMLR（强调 property-level evaluation + modularity；但需要更强 baseline）。
-- **Position/short paper**：用标题 2，讲“公共空间是可校准接口，不是零样本坐标系”。
+- **系统/具身**：CoRL、ICRA、IROS（强调认知运行时 + 可插拔专家 + Isaac）。
+- **认知架构/神经符号**：NeSy、IEEE TCDS、*Artificial Intelligence*（强调显式状态 + TMS + audit）。
+- **机器学习**：TMLR（强调 property-level evaluation；但需要非 PSS baseline）。
+- **Position/short paper**：用标题 3，讲“公共空间是可校准接口，不是零样本坐标系”。
 
 ---
 
 ## 10. 还需要补什么（提升论文价值）
 
+0. **把 property suite 跑到非 PSS baseline**：证明测量协议不是定制试卷；否则 C5 只能作为协议，不能作为独立方法贡献。
 1. **A5 真实 retrain-all**：当前是 oracle 上界；审稿人会问“retrain-all 到底多贵”。
-2. **L2 覆盖 H/K**：在 Isaac 上做 H5（运行中 swap）、K6（任务中更新）、C4（对抗场景）。
-3. **非 oracle 检测器**：GroundingDINO/noisy 检测，证明契约在感知噪声下仍成立。
-4. **更多专家族**：SqueezeNet、DINOv2、WT-MM，验证 1-shot 校准是否普遍。
-5. **真机小规模**：WT-MM/LeRobot，证明不是纯仿真。
-6. **tactile 改进或明确降级**：架构无法修复弱触觉；要么换专家，要么标记低可靠模态。
-7. **scale 证据**：D=128→512、专家数、原型数、事实数。
-8. **TMS 接入生产 `MultiSourceFactStore`**：目前是独立模块。
-9. **全因子/更多 seeds**：当前是缩减设计；L1 只有 3 seeds。
+2. **L2 覆盖认知层**：在 Isaac 上做遮挡绑定、运行中 swap、任务中更新、冲突弃权。
+3. **非 oracle 检测器**：GroundingDINO/noisy 检测，证明状态层在感知噪声下仍成立。
+4. **关系层 held-out 消融**：**已完成（E3）**。hybrid 只在 learned 训练覆盖的“双轴清晰”区成立；对齐/held-out 轴由精确几何接管。下一步是把同样的消融搬到感知噪声 + 非网格布局上。
+5. **长历史 fact active-set**：**已完成（E4）**。旧负结果定位为 query-conditioning 缺失；query 条件下 k=4 从 0.237 到 1.000，但简单 query-recency 规则即可追平。下一步是覆盖率损失与多 query 混合。
+6. **更多专家族**：SqueezeNet、DINOv2、WT-MM，验证契约是否普遍。
+7. **真机小规模**：WT-MM/LeRobot，证明不是纯仿真。
+8. **tactile 改进或明确降级**：架构无法修复弱触觉；要么换专家，要么标记低可靠模态。
+9. **scale 证据**：D=128→512、专家数、原型数、事实数。
+10. **TMS 接入生产 `MultiSourceFactStore`**：目前是独立模块。
+11. **全因子/更多 seeds**：当前是缩减设计；L1 只有 3 seeds。
 
 ---
 
 ## 11. 一页纸总结
 
-- **写什么**：contract-level hot-swap、versioned TMS KB、bounded inference、property/capability separation、calibrated interface。
-- **不写什么**：SOTA、零样本公共空间、端到端外部效度、架构主导能力、大规模/真机可靠。
-- **最强证据**：L0/L1 契约不变 + N1–N8 + twin + TMS Hypothesis + S4-PSS 5/5。
-- **最有价值的负结果**：跨族零样本失败、vision 1-shot 恢复、tactile 瓶颈。
-- **论文定位**：不是“又一个非 LLM 大模型”，而是“模块化架构的契约与评测方法”。
+- **写什么**：显式认知状态层（绑定/关系/记忆/审计）+ 契约前提（热插拔/版本化 KB/有界推理）+ property 协议 + 可校准接口边界。
+- **不写什么**：re-ID 精度优势、零样本公共空间、学习关系替代几何、学习打分优于简单规则、SOTA、真机可靠、大规模。
+- **最强证据**：实体审计全 1.00 + 3 负控制、70 帧绑定 0.989 vs 0.500、关系 F1 0.957–0.996、hybrid_diag 0.857 vs geo_tau 0.828、active-set 1.2 候选追平、query-conditioned fact 1.000、开放集 0.958、契约 property 不变、N1–N8、S4-PSS 5/5。
+- **最有价值的负结果**：公平归因 +0.012、朴素 hybrid（learned 用于对齐轴）0.503、learned 关系 0.532、旧 fact active-set 0.241（已定位为 query-conditioning 缺失）、tactile 0.245。
+- **论文定位**：不是“又一个非 LLM 大模型”，而是“感知之上的显式认知状态层 + 可分离测量”。

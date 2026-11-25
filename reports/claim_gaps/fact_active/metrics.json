@@ -1,0 +1,219 @@
+{
+  "T": 1000,
+  "ks": [
+    4,
+    8,
+    16
+  ],
+  "n_keys": 50,
+  "n_values": 16,
+  "seeds": 3,
+  "runs": [
+    {
+      "seed": 0,
+      "per_k": {
+        "4": {
+          "full": 1.0,
+          "recency": 0.08,
+          "hot": 0.248,
+          "random": 0.0,
+          "learned_old": 0.242,
+          "query_recency": 1.0,
+          "learned_query": 1.0
+        },
+        "8": {
+          "full": 1.0,
+          "recency": 0.27,
+          "hot": 0.43,
+          "random": 0.008,
+          "learned_old": 0.428,
+          "query_recency": 1.0,
+          "learned_query": 1.0
+        },
+        "16": {
+          "full": 1.0,
+          "recency": 0.324,
+          "hot": 0.48,
+          "random": 0.008,
+          "learned_old": 0.74,
+          "query_recency": 1.0,
+          "learned_query": 1.0
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "per_k": {
+        "4": {
+          "full": 1.0,
+          "recency": 0.088,
+          "hot": 0.254,
+          "random": 0.0,
+          "learned_old": 0.256,
+          "query_recency": 1.0,
+          "learned_query": 1.0
+        },
+        "8": {
+          "full": 1.0,
+          "recency": 0.284,
+          "hot": 0.444,
+          "random": 0.002,
+          "learned_old": 0.486,
+          "query_recency": 1.0,
+          "learned_query": 1.0
+        },
+        "16": {
+          "full": 1.0,
+          "recency": 0.34,
+          "hot": 0.486,
+          "random": 0.002,
+          "learned_old": 0.694,
+          "query_recency": 1.0,
+          "learned_query": 1.0
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "per_k": {
+        "4": {
+          "full": 1.0,
+          "recency": 0.054,
+          "hot": 0.208,
+          "random": 0.002,
+          "learned_old": 0.224,
+          "query_recency": 1.0,
+          "learned_query": 1.0
+        },
+        "8": {
+          "full": 1.0,
+          "recency": 0.224,
+          "hot": 0.388,
+          "random": 0.002,
+          "learned_old": 0.224,
+          "query_recency": 1.0,
+          "learned_query": 1.0
+        },
+        "16": {
+          "full": 1.0,
+          "recency": 0.274,
+          "hot": 0.452,
+          "random": 0.014,
+          "learned_old": 0.378,
+          "query_recency": 1.0,
+          "learned_query": 1.0
+        }
+      }
+    }
+  ],
+  "summary": {
+    "4": {
+      "full": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "recency": {
+        "mean": 0.074,
+        "std": 0.01451436070471816
+      },
+      "hot": {
+        "mean": 0.23666666666666666,
+        "std": 0.020417857108151412
+      },
+      "random": {
+        "mean": 0.0006666666666666666,
+        "std": 0.0009428090415820634
+      },
+      "learned_old": {
+        "mean": 0.24066666666666667,
+        "std": 0.013097921802925667
+      },
+      "query_recency": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "learned_query": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    },
+    "8": {
+      "full": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "recency": {
+        "mean": 0.25933333333333336,
+        "std": 0.02562984371565477
+      },
+      "hot": {
+        "mean": 0.4206666666666667,
+        "std": 0.023795424396766324
+      },
+      "random": {
+        "mean": 0.004,
+        "std": 0.00282842712474619
+      },
+      "learned_old": {
+        "mean": 0.3793333333333333,
+        "std": 0.11236053083217828
+      },
+      "query_recency": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "learned_query": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    },
+    "16": {
+      "full": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "recency": {
+        "mean": 0.3126666666666667,
+        "std": 0.028110891523077355
+      },
+      "hot": {
+        "mean": 0.4726666666666666,
+        "std": 0.014817407180595233
+      },
+      "random": {
+        "mean": 0.008,
+        "std": 0.004898979485566357
+      },
+      "learned_old": {
+        "mean": 0.604,
+        "std": 0.16090576952572788
+      },
+      "query_recency": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "learned_query": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    }
+  },
+  "verdict": {
+    "4": {
+      "learned_query_beats_hot": true,
+      "learned_query_beats_old": true,
+      "query_recency_beats_hot": true
+    },
+    "8": {
+      "learned_query_beats_hot": true,
+      "learned_query_beats_old": true,
+      "query_recency_beats_hot": true
+    },
+    "16": {
+      "learned_query_beats_hot": true,
+      "learned_query_beats_old": true,
+      "query_recency_beats_hot": true
+    }
+  },
+  "generated": "2026-11-25 14:53:57 UTC"
+}

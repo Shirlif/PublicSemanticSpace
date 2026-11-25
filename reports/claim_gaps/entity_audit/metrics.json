@@ -1,0 +1,142 @@
+{
+  "seeds": 5,
+  "dim": 128,
+  "rows": [
+    {
+      "seed": 0,
+      "provenance_completeness": 1.0,
+      "retraction_correctness": 1.0,
+      "id_rollback_exactness": 1.0,
+      "rebind_identity": 1.0,
+      "tamper_detection": 1.0,
+      "audit_chain_valid": 1.0,
+      "stale_provenance_rate": 0.0,
+      "n_entities": 12,
+      "n_audit_entries": 36
+    },
+    {
+      "seed": 1,
+      "provenance_completeness": 1.0,
+      "retraction_correctness": 1.0,
+      "id_rollback_exactness": 1.0,
+      "rebind_identity": 1.0,
+      "tamper_detection": 1.0,
+      "audit_chain_valid": 1.0,
+      "stale_provenance_rate": 0.0,
+      "n_entities": 12,
+      "n_audit_entries": 36
+    },
+    {
+      "seed": 2,
+      "provenance_completeness": 1.0,
+      "retraction_correctness": 1.0,
+      "id_rollback_exactness": 1.0,
+      "rebind_identity": 1.0,
+      "tamper_detection": 1.0,
+      "audit_chain_valid": 1.0,
+      "stale_provenance_rate": 0.0,
+      "n_entities": 12,
+      "n_audit_entries": 36
+    },
+    {
+      "seed": 3,
+      "provenance_completeness": 1.0,
+      "retraction_correctness": 1.0,
+      "id_rollback_exactness": 1.0,
+      "rebind_identity": 1.0,
+      "tamper_detection": 1.0,
+      "audit_chain_valid": 1.0,
+      "stale_provenance_rate": 0.0,
+      "n_entities": 12,
+      "n_audit_entries": 36
+    },
+    {
+      "seed": 4,
+      "provenance_completeness": 1.0,
+      "retraction_correctness": 1.0,
+      "id_rollback_exactness": 1.0,
+      "rebind_identity": 1.0,
+      "tamper_detection": 1.0,
+      "audit_chain_valid": 1.0,
+      "stale_provenance_rate": 0.0,
+      "n_entities": 12,
+      "n_audit_entries": 36
+    }
+  ],
+  "summary": {
+    "provenance_completeness": {
+      "mean": 1.0,
+      "min": 1.0,
+      "std": 0.0
+    },
+    "retraction_correctness": {
+      "mean": 1.0,
+      "min": 1.0,
+      "std": 0.0
+    },
+    "id_rollback_exactness": {
+      "mean": 1.0,
+      "min": 1.0,
+      "std": 0.0
+    },
+    "rebind_identity": {
+      "mean": 1.0,
+      "min": 1.0,
+      "std": 0.0
+    },
+    "tamper_detection": {
+      "mean": 1.0,
+      "min": 1.0,
+      "std": 0.0
+    },
+    "audit_chain_valid": {
+      "mean": 1.0,
+      "min": 1.0,
+      "std": 0.0
+    },
+    "stale_provenance_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "std": 0.0
+    }
+  },
+  "thresholds": {
+    "provenance_completeness": 1.0,
+    "retraction_correctness": 1.0,
+    "id_rollback_exactness": 1.0,
+    "rebind_identity": 1.0,
+    "tamper_detection": 1.0,
+    "audit_chain_valid": 1.0
+  },
+  "pass": {
+    "provenance_completeness": true,
+    "retraction_correctness": true,
+    "id_rollback_exactness": true,
+    "rebind_identity": true,
+    "tamper_detection": true,
+    "audit_chain_valid": true
+  },
+  "all_pass": true,
+  "controls": {
+    "no_audit": {
+      "metric": "provenance_completeness",
+      "mean": 0.0,
+      "expected": "fail",
+      "detected": true
+    },
+    "no_chain": {
+      "metric": "tamper_detection",
+      "mean": 0.0,
+      "expected": "fail",
+      "detected": true
+    },
+    "shallow_rollback": {
+      "metric": "id_rollback_exactness",
+      "mean": 0.0,
+      "expected": "fail",
+      "detected": true
+    }
+  },
+  "controls_valid": true,
+  "generated": "2026-11-25 14:51:33 UTC"
+}
