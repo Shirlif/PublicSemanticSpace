@@ -37,8 +37,14 @@ def build_vision_encoder(
     allow_download: bool = False,
     pool: str = "cls",
     codebook: str | Path | None = None,
+    model_id: str | None = None,
 ):
-    """Return a frozen vision encoder object with ``encode``/``image_size``."""
+    """Return a frozen vision encoder object with ``encode``/``image_size``.
+
+    ``model_id`` selects an alternative Hugging Face backbone for the
+    ``dinov2``/``clip`` kinds (e.g. ``openai/clip-vit-base-patch16`` for a
+    768-d CLIP tower).  It is ignored by the task-trained ``smallcnn``.
+    """
     kind = str(kind)
     if kind == "smallcnn":
         from pss.encoders.vision import load_vision_expert
@@ -49,25 +55,28 @@ def build_vision_encoder(
     if kind in ("dinov2", "dinov2_patchmean"):
         from pss.encoders.vision.dinov2 import load_dinov2_encoder
 
-        return load_dinov2_encoder(
-            device=device, local_files_only=not allow_download, pool=pool
-        )
+        kwargs = {"device": device, "local_files_only": not allow_download, "pool": pool}
+        if model_id is not None:
+            kwargs["model_id"] = model_id
+        return load_dinov2_encoder(**kwargs)
     if kind == "dinov2_vlad":
         from pss.encoders.vision.dinov2 import load_dinov2_encoder
         from pss.encoders.vision.local import load_vlad
 
         if codebook is None:
             raise ValueError("dinov2_vlad requires a fitted VLAD codebook path")
-        backbone = load_dinov2_encoder(
-            device=device, local_files_only=not allow_download, pool=pool
-        )
+        kwargs = {"device": device, "local_files_only": not allow_download, "pool": pool}
+        if model_id is not None:
+            kwargs["model_id"] = model_id
+        backbone = load_dinov2_encoder(**kwargs)
         return load_vlad(codebook, backbone, device=device)
     if kind == "clip":
         from pss.encoders.vision.clip import load_clip_vision_encoder
 
-        return load_clip_vision_encoder(
-            device=device, local_files_only=not allow_download, pool=pool
-        )
+        kwargs = {"device": device, "local_files_only": not allow_download, "pool": pool}
+        if model_id is not None:
+            kwargs["model_id"] = model_id
+        return load_clip_vision_encoder(**kwargs)
     raise ValueError(f"unknown vision encoder {kind!r}")
 
 

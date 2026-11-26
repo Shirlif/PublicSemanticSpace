@@ -1,0 +1,336 @@
+{
+  "base": {
+    "data": "data/category_pretrain",
+    "experts": "checkpoints/expert_v1",
+    "wtmm": "checkpoints/tactile_wtmm",
+    "prototypes": "checkpoints/prototypes_v1",
+    "device": "cuda"
+  },
+  "ks": [
+    0,
+    1,
+    5,
+    20
+  ],
+  "seed": 0,
+  "epochs": 80,
+  "rows": [
+    {
+      "name": "vision_dinov2_384",
+      "modality": "vision",
+      "kind": "dinov2",
+      "in_dim": 384,
+      "model_id": "facebook/dinov2-small",
+      "pool": "cls",
+      "control": false,
+      "note": "frozen DINOv2-small CLS",
+      "head": {
+        "in_dim": 384,
+        "out_dim": 128,
+        "hidden": 256,
+        "epochs": 80,
+        "seed": 0
+      },
+      "counts": {
+        "head_fit": 180,
+        "calib_per_class": {
+          "block": 36,
+          "bottle": 36,
+          "box": 36,
+          "cup": 36,
+          "plate": 36
+        },
+        "test": 60,
+        "present_classes": [
+          "block",
+          "bottle",
+          "box",
+          "cup",
+          "plate"
+        ],
+        "head_views": [
+          0,
+          1
+        ],
+        "calib_views": [
+          2,
+          3
+        ]
+      },
+      "curves": {
+        "ridge_to_frozen": {
+          "0": 0.16666666666666666,
+          "1": 0.9833333333333333,
+          "5": 0.9833333333333333,
+          "20": 0.9833333333333333
+        },
+        "few_shot_prototype": {
+          "0": 0.16666666666666666,
+          "1": 0.9833333333333333,
+          "5": 0.9833333333333333,
+          "20": 0.9833333333333333
+        }
+      },
+      "admission": {
+        "modality": "vision",
+        "near_class": "block",
+        "far_class": "plate",
+        "near_threshold": 0.3287954330444336,
+        "far_threshold": 0.3287954330444336,
+        "min_samples": 20,
+        "max_variance": 0.35,
+        "near_dup": {
+          "decision": "reject",
+          "reasons": [
+            "inter_distance_low:vision"
+          ],
+          "sample_count": 24,
+          "variance": 0.02213827227564796,
+          "min_inter_distance": 0.0006998099352248932
+        },
+        "novel_class": {
+          "decision": "accept",
+          "reasons": [],
+          "sample_count": 24,
+          "variance": 0.0018729251310515792,
+          "min_inter_distance": 0.7546283655954705
+        },
+        "insufficient": {
+          "decision": "review",
+          "reasons": [
+            "insufficient_samples"
+          ],
+          "sample_count": 5,
+          "variance": 0.0009598262642438015,
+          "min_inter_distance": 0.7428400867118327
+        },
+        "consistent_with_expected": true
+      }
+    },
+    {
+      "name": "vision_clip_768",
+      "modality": "vision",
+      "kind": "clip",
+      "in_dim": 768,
+      "model_id": "openai/clip-vit-base-patch16",
+      "pool": "cls",
+      "control": false,
+      "note": "frozen CLIP ViT-B/16 vision tower",
+      "head": {
+        "in_dim": 768,
+        "out_dim": 128,
+        "hidden": 256,
+        "epochs": 80,
+        "seed": 0
+      },
+      "counts": {
+        "head_fit": 180,
+        "calib_per_class": {
+          "block": 36,
+          "bottle": 36,
+          "box": 36,
+          "cup": 36,
+          "plate": 36
+        },
+        "test": 60,
+        "present_classes": [
+          "block",
+          "bottle",
+          "box",
+          "cup",
+          "plate"
+        ],
+        "head_views": [
+          0,
+          1
+        ],
+        "calib_views": [
+          2,
+          3
+        ]
+      },
+      "curves": {
+        "ridge_to_frozen": {
+          "0": 0.0,
+          "1": 1.0,
+          "5": 1.0,
+          "20": 1.0
+        },
+        "few_shot_prototype": {
+          "0": 0.0,
+          "1": 1.0,
+          "5": 1.0,
+          "20": 1.0
+        }
+      },
+      "admission": {
+        "modality": "vision",
+        "near_class": "block",
+        "far_class": "plate",
+        "near_threshold": 0.36038559675216675,
+        "far_threshold": 0.36038559675216675,
+        "min_samples": 20,
+        "max_variance": 0.35,
+        "near_dup": {
+          "decision": "reject",
+          "reasons": [
+            "inter_distance_low:vision"
+          ],
+          "sample_count": 24,
+          "variance": 0.010785362690153769,
+          "min_inter_distance": 0.0005080361439537828
+        },
+        "novel_class": {
+          "decision": "accept",
+          "reasons": [],
+          "sample_count": 24,
+          "variance": 0.0025204813234846655,
+          "min_inter_distance": 0.7745282839253058
+        },
+        "insufficient": {
+          "decision": "review",
+          "reasons": [
+            "insufficient_samples"
+          ],
+          "sample_count": 5,
+          "variance": 0.0019320520748818514,
+          "min_inter_distance": 0.7413497216723324
+        },
+        "consistent_with_expected": true
+      }
+    },
+    {
+      "name": "tactile_wtmm_64",
+      "modality": "tactile",
+      "kind": "wtmm",
+      "in_dim": 64,
+      "model_id": null,
+      "pool": "cls",
+      "control": false,
+      "note": "WT-MM tactile CNN (domain-bridge adapter)",
+      "head": {
+        "in_dim": 64,
+        "out_dim": 128,
+        "hidden": 256,
+        "epochs": 80,
+        "seed": 0
+      },
+      "counts": {
+        "head_fit": 180,
+        "calib_per_class": {
+          "block": 36,
+          "bottle": 36,
+          "box": 36,
+          "cup": 36,
+          "plate": 36
+        },
+        "test": 60,
+        "present_classes": [
+          "block",
+          "bottle",
+          "box",
+          "cup",
+          "plate"
+        ],
+        "head_views": [
+          0,
+          1
+        ],
+        "calib_views": [
+          2,
+          3
+        ]
+      },
+      "curves": {
+        "ridge_to_frozen": {
+          "0": 0.2,
+          "1": 0.38333333333333336,
+          "5": 0.3333333333333333,
+          "20": 0.43333333333333335
+        },
+        "few_shot_prototype": {
+          "0": 0.2,
+          "1": 0.45,
+          "5": 0.5333333333333333,
+          "20": 0.6166666666666667
+        }
+      },
+      "admission": {
+        "modality": "tactile",
+        "near_class": "block",
+        "far_class": "plate",
+        "near_threshold": 0.01,
+        "far_threshold": 0.01,
+        "min_samples": 20,
+        "max_variance": 0.35,
+        "near_dup": {
+          "decision": "reject",
+          "reasons": [
+            "inter_distance_low:tactile"
+          ],
+          "sample_count": 24,
+          "variance": 0.04586075292370704,
+          "min_inter_distance": 0.0031662347432387383
+        },
+        "novel_class": {
+          "decision": "accept",
+          "reasons": [],
+          "sample_count": 24,
+          "variance": 0.01608029456053672,
+          "min_inter_distance": 0.0234374746163738
+        },
+        "insufficient": {
+          "decision": "review",
+          "reasons": [
+            "insufficient_samples"
+          ],
+          "sample_count": 5,
+          "variance": 0.006953461755779822,
+          "min_inter_distance": 0.024834158135907947
+        },
+        "consistent_with_expected": true
+      }
+    }
+  ],
+  "summary": {
+    "required_experts": [
+      "vision_dinov2_384",
+      "vision_clip_768",
+      "tactile_wtmm_64"
+    ],
+    "widths": [
+      64,
+      384,
+      768
+    ],
+    "vision_k1": {
+      "vision_dinov2_384": 0.9833333333333333,
+      "vision_clip_768": 1.0
+    },
+    "vision_k1_ge_0_90": true,
+    "contract_expected": {
+      "near_dup": "reject",
+      "novel_class": "accept",
+      "insufficient": "review"
+    },
+    "contract_decisions": {
+      "vision_dinov2_384": {
+        "near_dup": "reject",
+        "novel_class": "accept",
+        "insufficient": "review"
+      },
+      "vision_clip_768": {
+        "near_dup": "reject",
+        "novel_class": "accept",
+        "insufficient": "review"
+      },
+      "tactile_wtmm_64": {
+        "near_dup": "reject",
+        "novel_class": "accept",
+        "insufficient": "review"
+      }
+    },
+    "contract_consistent": true
+  },
+  "generated": "2026-11-26 06:44:17 UTC"
+}
