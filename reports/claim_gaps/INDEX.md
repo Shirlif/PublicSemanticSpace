@@ -28,6 +28,9 @@
 | E19 | Can the runtime update knowledge / swap a module mid-task? | KB update and planner swap both replan 100%, baseline 0% | `l2_runtime_updates/REPORT.md` |
 | E20 | Does the runtime cross-layer depend on its components? | `no_entity` cannot plan; `no_uncertainty` misses conflict; `no_audit` cannot rollback | `runtime_cross_layer/runtime.md` |
 | E21 | Does a deadline guard bound L2 tail latency? | injected 30 ms overruns: BAR 0.944 → 0.999, p99 31.3 → 8.9 ms, retention 1.000; residual spikes are OS preemption | `latency_guard/REPORT.md` |
+| F7 | Does the production runtime use TMS, and how does it scale? | runtime defaults to TMSFactStore; 10k facts update 0.014 ms (delta) vs 580.8 ms (full); K3/K4/K5 unchanged | `tms_scale/REPORT.md` |
+| F8 | Does a learned relation gate beat geometry under noise? | gate+OOD 0.969 vs tuned fixed dead zone 0.972 at noise 0.15; no-fallback gates below geo0.25; E3 hybrid_diag gain looks like an under-tuned dead zone | `relation_gating/REPORT.md` |
+| F9 | Does multi-query coverage selection beat per-query union? | greedy coverage up to +0.833 over per-query union at same budget (conflict Q=4,k=4: 1.000 vs 0.167) | `fact_multi_query/REPORT.md` |
 | F10 | Can ObjectFolder 2.0 serve as a real-data replay source? | object-level replay enters `pss_eval` (contract props pass); zero-shot binding at chance (R@1 0.05/0.01, p≈0.66); trained encoder held-out R@1 0.22 / R@5 0.73; no L2/sim2real | `real_replay/SPIKE.md` |
 
 ## Reading guide

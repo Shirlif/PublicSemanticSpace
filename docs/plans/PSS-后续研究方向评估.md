@@ -173,6 +173,12 @@
 | F9 | 多 query + coverage loss 的 fact 选择 | E4 只测了单 query |
 | F10 | 真实数据回放 / 真机 | 先接 R-Gate 或真实 RGB-D，再谈硬件 |
 
+> **F7 状态（2026-11-26）**：已完成并合入 master（`55b15d6`）。runtime `RelationFactLayer` 默认改用 `TMSFactStore`，增量依赖传播 + delta 快照。10k facts：update 中位数 0.014 ms（full 580.8 ms），增量传播 0.013 ms（全量 78.5 ms，约 5906×）；K3/K4/K5/AUD 与 E12/E19/E20 回归不变。限制：delta rollback 与回滚后首次查询仍为 O(N)。报告：`reports/claim_gaps/tms_scale/`。
+
+> **F8 状态（2026-11-26）**：已完成并合入 master（`b971a7e`）。learned gate 在 A/B/C 拟合良好但不迁移到 D/G；noise 0.15 下 gate+OOD 0.969 vs 调参固定 dead zone 0.972，未超过；无 fallback 的 gate 均低于 `geometry(0.25)`。结论：E3 的 `hybrid_diag` 优势疑似 dead-zone 未调好的 artifact，唯一安全收益来自更宽/自适应几何 dead zone。缩减跑：3 seeds、no CV。报告：`reports/claim_gaps/relation_gating/`。
+
+> **F9 状态（2026-11-26）**：已完成并合入 master（`8724221`）。多 query 子模 greedy coverage 在同预算下最多超 per-query union 0.833（`conflict Q=4,k=4`：1.000 vs 0.167）；给出饱和条件与 Q/k 延迟曲线。限制：合成流、coverage 不衡量答案正确性、greedy 用规则诱导 support。报告：`reports/claim_gaps/fact_multi_query/`。
+
 > **F10 状态（2026-11-26）**：可行性 spike 完成，见 `reports/claim_gaps/real_replay/SPIKE.md`。结论：ObjectFolder 2.0 可作为 **object-level 跨模态回放源**（GO, limited），能把真实公开渲染特征送进 `pss_eval` 路径；但不能替代 R-Gate/真机（NO-GO），不支持 L2 identity/tracking 或 sim2real。R-Gate 与真实 RGB-D 因无硬件/无同步数据均 NO-GO。工作量：集成 spike 1 天（已完成），生产级 addendum 2–4 天；R-Gate 需 4–8 周 + 硬件。
 
 ---
@@ -207,6 +213,10 @@
 | F4 异构宽度 | `reports/claim_gaps/families_width/REPORT.md` |
 | F5 协议包 | `pss_eval/`、`docs/plans/PSS-F5-协议包与预注册.md`、`reports/claim_gaps/protocol_pss/REPORT.md` |
 | F6 在线校准 | `reports/claim_gaps/online_calibration/REPORT.md` |
+| F7 TMS 迁移 | `reports/claim_gaps/tms_scale/REPORT.md` |
+| F8 关系 gating | `reports/claim_gaps/relation_gating/REPORT.md` |
+| F9 多 query | `reports/claim_gaps/fact_multi_query/REPORT.md` |
+| F10 真实数据 spike | `reports/claim_gaps/real_replay/SPIKE.md` |
 | 可复现性缺口 | `.gitignore`（`bundles/`、`data/`、`checkpoints/`、`_external/`） |
 
 ---
@@ -227,4 +237,4 @@
 - F2 依赖 F1 的数据包和 F3 的延迟基线；
 - F4/F5/F6 再进入“协议作为方法贡献”的阶段。
 
-**进度（2026-11-26）**：F1–F6 全部完成（F5 前后半段均已合入）。剩余 P2 扩展（F7–F10）。
+**进度（2026-11-26）**：F1–F9 全部完成，F10 完成可行性 spike（GO limited；R-Gate/真实 RGB-D 仍 NO-GO）。P0/P1/P2 既定任务已闭合。
