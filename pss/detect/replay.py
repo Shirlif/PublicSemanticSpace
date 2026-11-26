@@ -8,6 +8,7 @@ The PSS process consumes only ``obs_detections.parquet``; it never opens
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -161,6 +162,8 @@ def replay_bundle(
     slow_stage_ms: float = 0.0,
     slow_burn_ms: float = 0.0,
     slow_every: int = 1,
+    appearance_provider: Callable[[int, int, pd.DataFrame], list[np.ndarray]] | None = None,
+    frame_hook: Callable[[int, int], None] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Replay a bundle through the runtime.
 
@@ -173,6 +176,14 @@ def replay_bundle(
     ``slow_stage_ms`` / ``slow_burn_ms`` / ``slow_every`` are deterministic test
     hooks for the guard; normal replay leaves them at zero.  ``slow_stage_ms``
     sleeps (releases the GIL), ``slow_burn_ms`` busy-loops (holds the GIL).
+
+    ``frame_hook`` is called once per frame, after any timed-out worker has
+    been joined and before observations are built; it can swap the active
+    perception expert for that frame.  ``appearance_provider`` then supplies
+    the embeddings actually fed to PSS for that frame (one row per detection,
+    in detection-table order).  When ``appearance_provider`` is ``None`` the
+    bundle's ``emb`` column (or the oracle one-hot fallback) is used, exactly
+    as before.  Neither hook may read ``gt.parquet``.
     """
     root = Path(bundle_dir)
     detections = pd.read_parquet(root / "obs_detections.parquet")
@@ -226,15 +237,26 @@ def replay_bundle(
         frame_start = time.perf_counter()
         if guard is not None:
             guard.wait_pending()
+        if frame_hook is not None:
+            frame_hook(frame_idx, step)
         frame_rows = list(group.iterrows())
-        appearances = []
-        for _, row in frame_rows:
-            identity = str(row["emb_ref"])
-            embedding = row.get("emb")
-            if embedding is not None and len(embedding) > 0:
-                appearances.append(np.asarray(embedding, dtype=float))
-            else:
-                appearances.append(_one_hot(index[identity], len(identity_ids)))
+        if appearance_provider is not None:
+            provided = appearance_provider(frame_idx, step, group)
+            if len(provided) != len(frame_rows):
+                raise ValueError(
+                    f"appearance_provider returned {len(provided)} rows for "
+                    f"{len(frame_rows)} detections at frame {frame_idx}"
+                )
+            appearances = [np.asarray(vector, dtype=float) for vector in provided]
+        else:
+            appearances = []
+            for _, row in frame_rows:
+                identity = str(row["emb_ref"])
+                embedding = row.get("emb")
+                if embedding is not None and len(embedding) > 0:
+                    appearances.append(np.asarray(embedding, dtype=float))
+                else:
+                    appearances.append(_one_hot(index[identity], len(identity_ids)))
         if shuffle_embeddings and len(appearances) > 1:
             appearances = list(rng.permutation(np.stack(appearances)))
         observations = []

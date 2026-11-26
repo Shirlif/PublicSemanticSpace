@@ -1,0 +1,957 @@
+{
+  "generated": "2026-11-26 07:05:19 UTC",
+  "config": {
+    "bundles": [
+      "D:\\PublicSemanticSpace\\bundles\\dev\\s1_hard\\37f0c8b8\\seed0",
+      "D:\\PublicSemanticSpace\\bundles\\dev\\s1_occlusion_real\\16ea9f38\\seed0",
+      "D:\\PublicSemanticSpace\\bundles\\dev\\s2_twins\\3d49ce1b\\seed0",
+      "D:\\PublicSemanticSpace\\bundles\\dev\\s1_camera_real\\b4bb5f0e\\seed0"
+    ],
+    "ridge": 0.01,
+    "deadline_ms": 10.0,
+    "swap_fraction": 0.5,
+    "rollback_fraction": 0.1,
+    "calib_fraction": 0.6,
+    "calib_val_fraction": 0.85
+  },
+  "bundles": [
+    {
+      "bundle": "D:\\PublicSemanticSpace\\bundles\\dev\\s1_hard\\37f0c8b8\\seed0",
+      "name": "s1_hard/37f0c8b8/seed0",
+      "n_frames": 100,
+      "n_detections": 556,
+      "swap_frame": 50,
+      "rollback_frame": 60,
+      "swap_step": 600,
+      "rollback_step": 720,
+      "dino_source": "bundle.emb (detector DINOv2 ViT-S/14 CLS)",
+      "calibration": {
+        "n": 24,
+        "cos_mean": 0.8806334554165142,
+        "cos_median": 0.9255721134598188,
+        "cos_min": 0.21799964485942508,
+        "cos_p10": 0.7503323642919516,
+        "ridge": 0.01,
+        "cal_frames": 30,
+        "val_frames": 12
+      },
+      "positive": {
+        "SSR": 1.0,
+        "RBE": 1.0,
+        "INT_post": 1.0,
+        "INT_all": 0.9835164835164836,
+        "RCR": 1.0,
+        "RCR_assign": 0.8963963963963963,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.19020000036107376,
+        "rollback_latency_ms": 0.0022999993234407157,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.19020000036107376,
+          "error": ""
+        },
+        "rollback": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "new_version": "vision-smallcnn-256-v1",
+          "latency_ms": 0.0022999993234407157,
+          "error": ""
+        }
+      },
+      "positive_guard": {
+        "SSR": 1.0,
+        "RBE": 1.0,
+        "INT_post": 1.0,
+        "INT_all": 0.9835164835164836,
+        "RCR": 1.0,
+        "RCR_assign": 0.8963963963963963,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.21159999960218556,
+        "rollback_latency_ms": 0.0036999990697950125,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.21159999960218556,
+          "error": ""
+        },
+        "rollback": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "new_version": "vision-smallcnn-256-v1",
+          "latency_ms": 0.0036999990697950125,
+          "error": ""
+        }
+      },
+      "naive": {
+        "SSR": 0.0,
+        "RBE": 0.0,
+        "INT_post": 0.9303327391562686,
+        "INT_all": 0.7709080163899389,
+        "RCR": 0.0,
+        "RCR_assign": 0.32432432432432434,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.0,
+        "rollback_latency_ms": 0.0,
+        "active_versions": {
+          "vision": "vision-dinov2-384-ridgecal-30f-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": false,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.0,
+          "error": "naive: direct module-dict mutation (validation bypassed)",
+          "bypassed_validation": true
+        },
+        "rollback": {
+          "success": false,
+          "modality": "",
+          "old_version": null,
+          "new_version": null,
+          "latency_ms": 0.0,
+          "error": "empty swap stack"
+        }
+      },
+      "baseline": {
+        "stock_retention": 1.0,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        }
+      },
+      "latency": {
+        "encode": {
+          "p50": 3.7443000019266037,
+          "p99": 11.02819099960584,
+          "max": 231.19339999902877
+        },
+        "ingest_off": {
+          "p50": 0.9327000007033348,
+          "p99": 1.8580319979446362,
+          "max": 1.9304999987070914
+        },
+        "ingest_guard": {
+          "p50": 1.4373499998328043,
+          "p99": 3.1954139995286837,
+          "max": 3.49379999897792
+        },
+        "ingest_baseline": {
+          "p50": 0.9513499990134733,
+          "p99": 1.92746399963653,
+          "max": 1.993199999560602
+        },
+        "degraded_frames": 0,
+        "guard_snapshot": {
+          "budget_ms": 10.0,
+          "overhead_target_ms": 1.5,
+          "spin": true,
+          "switch_interval": 0.0005,
+          "frames": 100,
+          "timeouts": 0,
+          "timeout_rate": 0.0,
+          "max_consecutive_timeouts": 0,
+          "degraded_cooldown_frames": 3,
+          "degraded_frames": 0,
+          "elapsed_ms": {
+            "p50": 1.4373499998328043,
+            "p95": 2.571185000488185,
+            "p99": 3.1954139995286837,
+            "p999": 3.4639613990329994,
+            "max": 3.49379999897792
+          },
+          "worker_late_ms": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "max": 0.0
+          },
+          "errors": 0,
+          "relations_skipped": 0
+        }
+      },
+      "pose_delta": {
+        "matched": 555,
+        "total": 556,
+        "match_rate": 0.9982014388489209,
+        "pos_mean_m": 0.031830052965673636,
+        "pos_median_m": 0.009515156043461382,
+        "pos_p95_m": 0.20538160397093938,
+        "pos_max_m": 0.21987606170144736,
+        "quat_mean_deg": 0.0,
+        "quat_p95_deg": 0.0
+      },
+      "audit": {
+        "positive": [
+          {
+            "action": "register",
+            "modality": "vision",
+            "version": "vision-smallcnn-256-v1"
+          },
+          {
+            "action": "register",
+            "modality": "geometry",
+            "version": "geometry-fixed-stub-v1"
+          },
+          {
+            "action": "swap",
+            "success": true,
+            "modality": "vision",
+            "old_version": "vision-smallcnn-256-v1",
+            "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+            "latency_ms": 0.19020000036107376,
+            "error": ""
+          },
+          {
+            "action": "rollback",
+            "success": true,
+            "modality": "vision",
+            "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+            "new_version": "vision-smallcnn-256-v1",
+            "latency_ms": 0.0022999993234407157,
+            "error": ""
+          }
+        ],
+        "naive": [
+          {
+            "action": "register",
+            "modality": "vision",
+            "version": "vision-smallcnn-256-v1"
+          },
+          {
+            "action": "register",
+            "modality": "geometry",
+            "version": "geometry-fixed-stub-v1"
+          }
+        ]
+      }
+    },
+    {
+      "bundle": "D:\\PublicSemanticSpace\\bundles\\dev\\s1_occlusion_real\\16ea9f38\\seed0",
+      "name": "s1_occlusion_real/16ea9f38/seed0",
+      "n_frames": 100,
+      "n_detections": 460,
+      "swap_frame": 50,
+      "rollback_frame": 60,
+      "swap_step": 600,
+      "rollback_step": 720,
+      "dino_source": "bundle.emb (detector DINOv2 ViT-S/14 CLS)",
+      "calibration": {
+        "n": 51,
+        "cos_mean": 0.9982072871865774,
+        "cos_median": 0.9989292249306021,
+        "cos_min": 0.9907231881942772,
+        "cos_p10": 0.9960936027581375,
+        "ridge": 0.01,
+        "cal_frames": 30,
+        "val_frames": 12
+      },
+      "positive": {
+        "SSR": 1.0,
+        "RBE": 1.0,
+        "INT_post": 1.0,
+        "INT_all": 1.0,
+        "RCR": 1.0,
+        "RCR_assign": 1.0,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.16840000171214342,
+        "rollback_latency_ms": 0.0015000005078036338,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.16840000171214342,
+          "error": ""
+        },
+        "rollback": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "new_version": "vision-smallcnn-256-v1",
+          "latency_ms": 0.0015000005078036338,
+          "error": ""
+        }
+      },
+      "positive_guard": {
+        "SSR": 1.0,
+        "RBE": 1.0,
+        "INT_post": 1.0,
+        "INT_all": 1.0,
+        "RCR": 1.0,
+        "RCR_assign": 1.0,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.1928000019688625,
+        "rollback_latency_ms": 0.0017999991541728377,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.1928000019688625,
+          "error": ""
+        },
+        "rollback": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "new_version": "vision-smallcnn-256-v1",
+          "latency_ms": 0.0017999991541728377,
+          "error": ""
+        }
+      },
+      "naive": {
+        "SSR": 0.0,
+        "RBE": 0.0,
+        "INT_post": 1.0,
+        "INT_all": 1.0,
+        "RCR": 0.0,
+        "RCR_assign": 1.0,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.0,
+        "rollback_latency_ms": 0.0,
+        "active_versions": {
+          "vision": "vision-dinov2-384-ridgecal-30f-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": false,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.0,
+          "error": "naive: direct module-dict mutation (validation bypassed)",
+          "bypassed_validation": true
+        },
+        "rollback": {
+          "success": false,
+          "modality": "",
+          "old_version": null,
+          "new_version": null,
+          "latency_ms": 0.0,
+          "error": "empty swap stack"
+        }
+      },
+      "baseline": {
+        "stock_retention": 1.0,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        }
+      },
+      "latency": {
+        "encode": {
+          "p50": 3.050499999517342,
+          "p99": 4.150811001491094,
+          "max": 4.409299999679206
+        },
+        "ingest_off": {
+          "p50": 0.7738999993307516,
+          "p99": 1.345787002173894,
+          "max": 1.59200000052806
+        },
+        "ingest_guard": {
+          "p50": 1.1908999986189883,
+          "p99": 1.6802179996375401,
+          "max": 2.8106000027037226
+        },
+        "ingest_baseline": {
+          "p50": 0.747649999539135,
+          "p99": 1.7023540006266582,
+          "max": 2.1730000007664785
+        },
+        "degraded_frames": 0,
+        "guard_snapshot": {
+          "budget_ms": 10.0,
+          "overhead_target_ms": 1.5,
+          "spin": true,
+          "switch_interval": 0.0005,
+          "frames": 100,
+          "timeouts": 0,
+          "timeout_rate": 0.0,
+          "max_consecutive_timeouts": 0,
+          "degraded_cooldown_frames": 3,
+          "degraded_frames": 0,
+          "elapsed_ms": {
+            "p50": 1.1908999986189883,
+            "p95": 1.5820599985090666,
+            "p99": 1.6802179996375404,
+            "p999": 2.6975618023971157,
+            "max": 2.8106000027037226
+          },
+          "worker_late_ms": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "max": 0.0
+          },
+          "errors": 0,
+          "relations_skipped": 0
+        }
+      },
+      "pose_delta": {
+        "matched": 400,
+        "total": 460,
+        "match_rate": 0.8695652173913043,
+        "pos_mean_m": 0.002874947812059543,
+        "pos_median_m": 0.002137280203874307,
+        "pos_p95_m": 0.01421610342497809,
+        "pos_max_m": 0.015129103727145325,
+        "quat_mean_deg": 0.0,
+        "quat_p95_deg": 0.0
+      },
+      "audit": {
+        "positive": [
+          {
+            "action": "register",
+            "modality": "vision",
+            "version": "vision-smallcnn-256-v1"
+          },
+          {
+            "action": "register",
+            "modality": "geometry",
+            "version": "geometry-fixed-stub-v1"
+          },
+          {
+            "action": "swap",
+            "success": true,
+            "modality": "vision",
+            "old_version": "vision-smallcnn-256-v1",
+            "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+            "latency_ms": 0.16840000171214342,
+            "error": ""
+          },
+          {
+            "action": "rollback",
+            "success": true,
+            "modality": "vision",
+            "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+            "new_version": "vision-smallcnn-256-v1",
+            "latency_ms": 0.0015000005078036338,
+            "error": ""
+          }
+        ],
+        "naive": [
+          {
+            "action": "register",
+            "modality": "vision",
+            "version": "vision-smallcnn-256-v1"
+          },
+          {
+            "action": "register",
+            "modality": "geometry",
+            "version": "geometry-fixed-stub-v1"
+          }
+        ]
+      }
+    },
+    {
+      "bundle": "D:\\PublicSemanticSpace\\bundles\\dev\\s2_twins\\3d49ce1b\\seed0",
+      "name": "s2_twins/3d49ce1b/seed0",
+      "n_frames": 100,
+      "n_detections": 407,
+      "swap_frame": 50,
+      "rollback_frame": 60,
+      "swap_step": 600,
+      "rollback_step": 720,
+      "dino_source": "bundle.emb (detector DINOv2 ViT-S/14 CLS)",
+      "calibration": {
+        "n": 48,
+        "cos_mean": 0.9963612209706548,
+        "cos_median": 0.9979981526121384,
+        "cos_min": 0.9865014264181929,
+        "cos_p10": 0.9907762876875145,
+        "ridge": 0.01,
+        "cal_frames": 30,
+        "val_frames": 12
+      },
+      "positive": {
+        "SSR": 1.0,
+        "RBE": 1.0,
+        "INT_post": 1.0,
+        "INT_all": 1.0,
+        "RCR": 1.0,
+        "RCR_assign": 1.0,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.2796000007947441,
+        "rollback_latency_ms": 0.0011999982234556228,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.2796000007947441,
+          "error": ""
+        },
+        "rollback": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "new_version": "vision-smallcnn-256-v1",
+          "latency_ms": 0.0011999982234556228,
+          "error": ""
+        }
+      },
+      "positive_guard": {
+        "SSR": 1.0,
+        "RBE": 1.0,
+        "INT_post": 0.9800000000000001,
+        "INT_all": 0.9942857142857143,
+        "RCR": 1.0,
+        "RCR_assign": 0.975609756097561,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.2122999976563733,
+        "rollback_latency_ms": 0.0013999997463542968,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.2122999976563733,
+          "error": ""
+        },
+        "rollback": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "new_version": "vision-smallcnn-256-v1",
+          "latency_ms": 0.0013999997463542968,
+          "error": ""
+        }
+      },
+      "naive": {
+        "SSR": 0.0,
+        "RBE": 0.0,
+        "INT_post": 1.0,
+        "INT_all": 1.0,
+        "RCR": 0.0,
+        "RCR_assign": 1.0,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.0,
+        "rollback_latency_ms": 0.0,
+        "active_versions": {
+          "vision": "vision-dinov2-384-ridgecal-30f-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": false,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.0,
+          "error": "naive: direct module-dict mutation (validation bypassed)",
+          "bypassed_validation": true
+        },
+        "rollback": {
+          "success": false,
+          "modality": "",
+          "old_version": null,
+          "new_version": null,
+          "latency_ms": 0.0,
+          "error": "empty swap stack"
+        }
+      },
+      "baseline": {
+        "stock_retention": 1.0,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        }
+      },
+      "latency": {
+        "encode": {
+          "p50": 2.9248499995446764,
+          "p99": 4.690505999715243,
+          "max": 4.8593999999866355
+        },
+        "ingest_off": {
+          "p50": 0.7655499994143611,
+          "p99": 1.3393320003160698,
+          "max": 2.7680999992298894
+        },
+        "ingest_guard": {
+          "p50": 1.2072499994246755,
+          "p99": 3.100231997850924,
+          "max": 57.662299997900845
+        },
+        "ingest_baseline": {
+          "p50": 0.8436500011157477,
+          "p99": 1.3388619997567734,
+          "max": 1.4044000017747749
+        },
+        "degraded_frames": 1,
+        "guard_snapshot": {
+          "budget_ms": 10.0,
+          "overhead_target_ms": 1.5,
+          "spin": true,
+          "switch_interval": 0.0005,
+          "frames": 100,
+          "timeouts": 1,
+          "timeout_rate": 0.01,
+          "max_consecutive_timeouts": 1,
+          "degraded_cooldown_frames": 3,
+          "degraded_frames": 0,
+          "elapsed_ms": {
+            "p50": 1.2072499994246755,
+            "p95": 1.7592900003364775,
+            "p99": 3.100231997850924,
+            "p999": 52.2060931978964,
+            "max": 57.662299997900845
+          },
+          "worker_late_ms": {
+            "p50": 58.22500000067521,
+            "p95": 58.22500000067521,
+            "p99": 58.22500000067521,
+            "max": 58.22500000067521
+          },
+          "errors": 0,
+          "relations_skipped": 2
+        }
+      },
+      "pose_delta": {
+        "matched": 400,
+        "total": 407,
+        "match_rate": 0.9828009828009828,
+        "pos_mean_m": 0.0016874199269610174,
+        "pos_median_m": 0.0015677843461688987,
+        "pos_p95_m": 0.002632219216222733,
+        "pos_max_m": 0.01746771773166275,
+        "quat_mean_deg": 0.0,
+        "quat_p95_deg": 0.0
+      },
+      "audit": {
+        "positive": [
+          {
+            "action": "register",
+            "modality": "vision",
+            "version": "vision-smallcnn-256-v1"
+          },
+          {
+            "action": "register",
+            "modality": "geometry",
+            "version": "geometry-fixed-stub-v1"
+          },
+          {
+            "action": "swap",
+            "success": true,
+            "modality": "vision",
+            "old_version": "vision-smallcnn-256-v1",
+            "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+            "latency_ms": 0.2796000007947441,
+            "error": ""
+          },
+          {
+            "action": "rollback",
+            "success": true,
+            "modality": "vision",
+            "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+            "new_version": "vision-smallcnn-256-v1",
+            "latency_ms": 0.0011999982234556228,
+            "error": ""
+          }
+        ],
+        "naive": [
+          {
+            "action": "register",
+            "modality": "vision",
+            "version": "vision-smallcnn-256-v1"
+          },
+          {
+            "action": "register",
+            "modality": "geometry",
+            "version": "geometry-fixed-stub-v1"
+          }
+        ]
+      }
+    },
+    {
+      "bundle": "D:\\PublicSemanticSpace\\bundles\\dev\\s1_camera_real\\b4bb5f0e\\seed0",
+      "name": "s1_camera_real/b4bb5f0e/seed0",
+      "n_frames": 100,
+      "n_detections": 285,
+      "swap_frame": 50,
+      "rollback_frame": 60,
+      "swap_step": 600,
+      "rollback_step": 720,
+      "dino_source": "bundle.emb (detector DINOv2 ViT-S/14 CLS)",
+      "calibration": {
+        "n": 20,
+        "cos_mean": 0.954637229712431,
+        "cos_median": 0.9790131663995827,
+        "cos_min": 0.7277171137233005,
+        "cos_p10": 0.8861107176983041,
+        "ridge": 0.01,
+        "cal_frames": 30,
+        "val_frames": 12
+      },
+      "positive": {
+        "SSR": 1.0,
+        "RBE": 1.0,
+        "INT_post": 1.0,
+        "INT_all": 1.0,
+        "RCR": 1.0,
+        "RCR_assign": 1.0,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.23829999918234535,
+        "rollback_latency_ms": 0.0012999989849049598,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.23829999918234535,
+          "error": ""
+        },
+        "rollback": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "new_version": "vision-smallcnn-256-v1",
+          "latency_ms": 0.0012999989849049598,
+          "error": ""
+        }
+      },
+      "positive_guard": {
+        "SSR": 1.0,
+        "RBE": 1.0,
+        "INT_post": 1.0,
+        "INT_all": 1.0,
+        "RCR": 1.0,
+        "RCR_assign": 1.0,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.19670000256155618,
+        "rollback_latency_ms": 0.0018999999156221747,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.19670000256155618,
+          "error": ""
+        },
+        "rollback": {
+          "success": true,
+          "modality": "vision",
+          "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "new_version": "vision-smallcnn-256-v1",
+          "latency_ms": 0.0018999999156221747,
+          "error": ""
+        }
+      },
+      "naive": {
+        "SSR": 0.0,
+        "RBE": 0.0,
+        "INT_post": 0.9428571428571428,
+        "INT_all": 0.886920211169377,
+        "RCR": 0.0,
+        "RCR_assign": 0.5952380952380952,
+        "INT_interference": 0.0,
+        "stock_retention": 1.0,
+        "swap_latency_ms": 0.0,
+        "rollback_latency_ms": 0.0,
+        "active_versions": {
+          "vision": "vision-dinov2-384-ridgecal-30f-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        },
+        "swap": {
+          "success": false,
+          "modality": "vision",
+          "old_version": "vision-smallcnn-256-v1",
+          "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+          "latency_ms": 0.0,
+          "error": "naive: direct module-dict mutation (validation bypassed)",
+          "bypassed_validation": true
+        },
+        "rollback": {
+          "success": false,
+          "modality": "",
+          "old_version": null,
+          "new_version": null,
+          "latency_ms": 0.0,
+          "error": "empty swap stack"
+        }
+      },
+      "baseline": {
+        "stock_retention": 1.0,
+        "active_versions": {
+          "vision": "vision-smallcnn-256-v1",
+          "geometry": "geometry-fixed-stub-v1"
+        }
+      },
+      "latency": {
+        "encode": {
+          "p50": 2.7712499995686812,
+          "p99": 4.500301998850775,
+          "max": 4.8172999995586
+        },
+        "ingest_off": {
+          "p50": 0.7091999996191589,
+          "p99": 1.3113979994886935,
+          "max": 1.9250000004831236
+        },
+        "ingest_guard": {
+          "p50": 1.1467499989521457,
+          "p99": 1.9367809996401781,
+          "max": 2.07349999982398
+        },
+        "ingest_baseline": {
+          "p50": 0.7707000004302245,
+          "p99": 1.458144998068751,
+          "max": 2.3337999991781544
+        },
+        "degraded_frames": 0,
+        "guard_snapshot": {
+          "budget_ms": 10.0,
+          "overhead_target_ms": 1.5,
+          "spin": true,
+          "switch_interval": 0.0005,
+          "frames": 100,
+          "timeouts": 0,
+          "timeout_rate": 0.0,
+          "max_consecutive_timeouts": 0,
+          "degraded_cooldown_frames": 3,
+          "degraded_frames": 0,
+          "elapsed_ms": {
+            "p50": 1.1467499989521457,
+            "p95": 1.7996549986492028,
+            "p99": 1.9367809996401781,
+            "p999": 2.059828099805601,
+            "max": 2.07349999982398
+          },
+          "worker_late_ms": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "max": 0.0
+          },
+          "errors": 0,
+          "relations_skipped": 0
+        }
+      },
+      "pose_delta": {
+        "matched": 271,
+        "total": 285,
+        "match_rate": 0.9508771929824561,
+        "pos_mean_m": 0.02391588183476277,
+        "pos_median_m": 0.006701522098182234,
+        "pos_p95_m": 0.06637253153351434,
+        "pos_max_m": 0.3389915832984201,
+        "quat_mean_deg": 0.0,
+        "quat_p95_deg": 0.0
+      },
+      "audit": {
+        "positive": [
+          {
+            "action": "register",
+            "modality": "vision",
+            "version": "vision-smallcnn-256-v1"
+          },
+          {
+            "action": "register",
+            "modality": "geometry",
+            "version": "geometry-fixed-stub-v1"
+          },
+          {
+            "action": "swap",
+            "success": true,
+            "modality": "vision",
+            "old_version": "vision-smallcnn-256-v1",
+            "new_version": "vision-dinov2-384-ridgecal-30f-v1",
+            "latency_ms": 0.23829999918234535,
+            "error": ""
+          },
+          {
+            "action": "rollback",
+            "success": true,
+            "modality": "vision",
+            "old_version": "vision-dinov2-384-ridgecal-30f-v1",
+            "new_version": "vision-smallcnn-256-v1",
+            "latency_ms": 0.0012999989849049598,
+            "error": ""
+          }
+        ],
+        "naive": [
+          {
+            "action": "register",
+            "modality": "vision",
+            "version": "vision-smallcnn-256-v1"
+          },
+          {
+            "action": "register",
+            "modality": "geometry",
+            "version": "geometry-fixed-stub-v1"
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "positive": {
+      "SSR": 1.0,
+      "RBE": 1.0,
+      "INT_post": 1.0,
+      "INT_all": 0.9958791208791209,
+      "RCR": 1.0,
+      "RCR_assign": 0.9740990990990991
+    },
+    "naive": {
+      "SSR": 0.0,
+      "RBE": 0.0,
+      "INT_post": 0.9682974705033529,
+      "INT_all": 0.9144570568898289,
+      "RCR": 0.0,
+      "RCR_assign": 0.729890604890605
+    }
+  }
+}
