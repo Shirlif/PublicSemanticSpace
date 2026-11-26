@@ -163,7 +163,7 @@ PSS 的 claim 本身是**操作不变量**，不是端到端精度：
 - **实体审计**（E1）：provenance 完整性、retraction 正确性、rollback 精确性、rebind 身份、tamper 检出全部 **1.00**；三个负控制（禁用审计日志 / 禁用哈希链 / 浅快照回滚）目标指标全 **0.00**。
 - **绑定持久性**（E2，70 帧全遮挡）：graph+tactile retention **0.989** vs 无状态代理 **0.500**。
 - **信号分解**（E2）：tactile **+0.117**、graph/state **+0.072**、vision **+0.028**。状态层提供持久化机制，但身份信号主要来自 tactile。
-- **L2 bundle replay**（E12，有效 19/33 bundles）：full **1.000** / no_memory **0.827** / no_entity **0.270**。
+- **L2 bundle replay**（E12，有效 19/33 bundles）：full **1.000** / no_memory **0.827** / no_entity **0.270**。公开复现包与一键脚本见 `docs/reproducibility.md`。
 - **S4-PSS 认知变体**（E18）：`full`/`no_memory`/`no_entity` 3/3，`no_relations` **0/3**——这个 demo 测关系，不测记忆。
 
 边界：公平归因后 re-ID 相对 transformer 只剩 **+0.012**；PSS 不宣称识别精度优势。
@@ -228,7 +228,7 @@ PSS 的 claim 本身是**操作不变量**，不是端到端精度：
 ## 6. 边界与限制
 
 - **没有真机**：所有证据来自 MuJoCo 渲染、Isaac 仿真、离线 bundle replay。
-- **L2 是 oracle pose**：S4-PSS 使用 GT boxes/poses；H/K（hot-swap / KB update）没有在 Isaac 任务中执行。E12/E19/E20 补了 bundle replay 和 runtime 级证据，但感知驱动的 expert swap 仍需新的 L2 bundle（当前 dev bundles 的 `obs_detections.emb` 为空）。
+- **L2 是 oracle pose**：S4-PSS 使用 GT boxes/poses；H/K（hot-swap / KB update）没有在 Isaac 任务中执行。E12/E19/E20 补了 bundle replay 和 runtime 级证据；33 个 dev bundle 中 4 个带 GroundingDINO/DINOv2 embedding，但感知级 mid-stream expert swap 仍未执行。复现包见 `docs/reproducibility.md`。
 - **专家族有限**：只接了 3 个同宽度族；DINOv2/SqueezeNet/WT-MM 因投影宽度不兼容未接。
 - **全因子未跑**：当前是缩减设计；L0 10 seeds、L1 5 seeds。
 - **TMS 未替换全部调用点**：`TMSFactStore` 是新包装，生产路径未全部迁移。
@@ -271,6 +271,11 @@ python -m pss.eval.scripts.run_gap_rag_exact --seeds 1 --epochs 100
 python -m pss.eval.scripts.run_gap_space_ablation
 python scripts/run_claim_gaps_followups.py   # 汇总；先运行对应实验
 
+# L2 公开复现包（E12）；先下载并校验 bundle 归档
+python scripts/fetch_repro_bundles.py --url <release asset URL> --out bundles/repro
+python scripts/reproduce_l2.py --root bundles/repro --out reports/repro
+# 或：make reproduce-l2（假设 bundle 已在 bundles/repro）
+
 # 感知层 demo（不是完整 runtime）
 python -m pss.demos.public_semantic_space_demo \
   --image data/demo_input.png --tactile data/demo_tactile.npy
@@ -288,6 +293,9 @@ python -m pss.demos.public_semantic_space_demo \
 | `pss/property/` | L0/L1 property suites、entity audit、契约注册表 |
 | `pss/eval/scripts/` | 实验入口（L1/L2、claim-gap） |
 | `reports/claim_gaps/` | claim-gap 报告、`INDEX.md`、`FOLLOWUPS.md` |
+| `reports/repro/` | L2 复现包运行结果与 PASS/FAIL |
+| `scripts/reproduce_l2.py` | 复现包入口（E12 + 感知子集） |
+| `docs/reproducibility.md` | 复现包下载、SHA256 校验、期望结果 |
 | `scorecards/property/` | 原始 scorecards、manifests |
 | `notes/PAPER_WRITING_MAP.md` | claim–evidence 映射、写作口径 |
 | `notes/CLAIM_GAP_EXPERIMENTS.md` | 实验设计与结果 |
@@ -332,6 +340,7 @@ PSS 的贡献不是单个机制的首创，而是**在一个非 LLM runtime 里�
 - **优先权记录**：`docs/PRIORITY.md`（按日期记录 release、commit、DOI/预印本）。
 - **引用**：`CITATION.cff`，或 GitHub 的 “Cite this repository”。
 - **Zenodo DOI**：`10.5281/zenodo.24549223`（record：https://zenodo.org/records/24549223；concept DOI：`10.5281/zenodo.24549222`，始终指向最新版）。
+- **最新 release**：`v0.1.1`（L2 复现包；asset `pss-l2-bundles-v0.1.1.tar.gz`）；发布说明见 `docs/releases/RELEASE_NOTES_v0.1.1.md`。
 - **许可**：Apache-2.0（`LICENSE`）；归属声明见 `NOTICE`。
 - **学术使用**：如果使用本项目的想法、方法、结果、代码、数据、图表或文档，请引用本项目；请不要把本项目的成果作为他人的原创工作发表。
 - 设计文档：`notes/PAPER_WRITING_MAP.md`。

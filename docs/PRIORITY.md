@@ -31,6 +31,7 @@
 | 2026-11-26 | GitHub repository made public | <https://github.com/Shirlif/PublicSemanticSpace> |
 | 2026-11-26 | Technical report published on Zenodo | DOI `10.5281/zenodo.24549223` |
 | 2026-11-26 | `v0.1.0` tag created and pushed | `git tag -n` |
+| 2026-11-26 | `v0.1.1` L2 reproduction pack released | `gh release view v0.1.1`; asset `pss-l2-bundles-v0.1.1.tar.gz` |
 
 The commit timestamps and public release history are the first line of evidence
 for priority. A citable DOI or preprint is stronger; see "Recommended next
@@ -41,6 +42,7 @@ steps".
 | Version | Git tag | DOI | Date | Notes |
 |---|---|---|---|---|
 | 0.1.0 | `v0.1.0` | `10.5281/zenodo.24549223` | 2026-11-26 | paper + TeX source on Zenodo; concept DOI `10.5281/zenodo.24549222` |
+| 0.1.1 | `v0.1.1` | — | 2026-11-26 | L2 reproduction pack (`pss-l2-bundles-v0.1.1.tar.gz`); report unchanged |
 
 The Zenodo DOI above is the assigned record DOI for version 0.1.0. The
 concept DOI (`10.5281/zenodo.24549222`) always resolves to the latest version;

@@ -33,6 +33,7 @@
 | `PSS-优化任务清单.md` | 长期优化任务清单与逐项验收记录（约 90 KB） |
 | `PSS-IsaacSim-实施计划.md` | Isaac Sim 评测平台的实施计划 |
 | `PSS-IsaacSim-评测平台设计.md` | Isaac Sim 平台的 spec、bundle、指标设计 |
+| `PSS-后续研究方向评估.md` | 对照论文 §7–§8 与 claim-gap 证据，对外部未来方向清单做事实核对与任务优先级排序 |
 
 ### 阶段报告 — `docs/phases/`
 
@@ -49,6 +50,15 @@
 | 文档 | 内容 |
 |---|---|
 | `RELEASE_NOTES_v0.1.0.md` | v0.1.0 发布说明 |
+| `RELEASE_NOTES_v0.1.1.md` | v0.1.1：L2 公开复现包与校验脚本 |
+
+### 复现 — `docs/reproducibility.md`
+
+| 文档 | 内容 |
+|---|---|
+| `reproducibility.md` | L2 复现包的下载、SHA256 校验、`make reproduce-l2` 与期望结果 |
+| `repro/PSS_BUNDLES_v0.1.1.json` | 复现包清单与逐文件哈希 |
+| `repro/SHA256SUMS` | 归档 SHA256 |
 
 ### 其他既有目录
 

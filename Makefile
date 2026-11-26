@@ -1,4 +1,4 @@
-.PHONY: demo test bench bench-quick bench-phase1 data expert-data train-experts projection prototypes memory phase7 phase8 phase9 phase10 hard-occlusion rd2-mock pretrained-expert public-smoke-wt public-smoke-opengraph public-smoke-daimon tactile-wtmm projection-wtmm t1-instance t1-diagnostics public-space-bank public-space-demo category-pretrain-data category-pretrain-train category-pretrain-projection category-pretrain-prototypes category-pretrain encoder-priority encoder-priority-smoke typed-relations active-policy language-head bilevel runtime runtime-phase17 runtime-defaults runtime-encoder runtime-binding runtime-rules runtime-planning runtime-language runtime-audit suite-smoke suite clevr-image tao-frames tao-pss all
+.PHONY: demo test bench bench-quick bench-phase1 data expert-data train-experts projection prototypes memory phase7 phase8 phase9 phase10 hard-occlusion rd2-mock pretrained-expert public-smoke-wt public-smoke-opengraph public-smoke-daimon tactile-wtmm projection-wtmm t1-instance t1-diagnostics public-space-bank public-space-demo category-pretrain-data category-pretrain-train category-pretrain-projection category-pretrain-prototypes category-pretrain encoder-priority encoder-priority-smoke typed-relations active-policy language-head bilevel runtime runtime-phase17 runtime-defaults runtime-encoder runtime-binding runtime-rules runtime-planning runtime-language runtime-audit suite-smoke suite clevr-image tao-frames tao-pss repro-pack repro-fetch reproduce-l2 all
 
 demo:
 	python -m pss.demos.semantic_space_demo
@@ -362,5 +362,14 @@ spatial-s1-smoke:
 
 spatial-s1-tools-smoke:
 	python -m pss.eval.spatial.scripts.run_s1 --out eval/results/spatial_s1_tools_smoke --n-per-family 3 --seed 0 --split test_id:id --llm-model Qwen/Qwen2.5-1.5B-Instruct --llm-device cuda --llm-max-new-tokens 128 --llm-tools mid --llm-max-steps 4
+
+repro-pack:
+	python scripts/pack_repro_bundles.py --root bundles/dev --out dist/repro --version 0.1.1
+
+repro-fetch:
+	python scripts/fetch_repro_bundles.py --out bundles/repro
+
+reproduce-l2:
+	python scripts/reproduce_l2.py --root bundles/repro --out reports/repro
 
 all: test demo bench bench-phase1

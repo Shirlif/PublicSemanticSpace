@@ -22,7 +22,7 @@ repository-code: "https://github.com/Shirlif/PublicSemanticSpace"
 url: "https://github.com/Shirlif/PublicSemanticSpace"
 doi: 10.5281/zenodo.24549223
 license: Apache-2.0
-version: 0.1.0
+version: 0.1.1
 date-released: 2026-11-26
 keywords:
   - modular architecture
