@@ -301,3 +301,66 @@ def train_write_policy(
             opt.step()
     policy.eval()
     return policy
+
+
+# ── multi-query coverage selection ─────────────────────────────────────────
+
+
+def allocate_budget(k: int, priorities: np.ndarray | None = None) -> np.ndarray:
+    """Split an integer budget over items.
+
+    Every item receives ``k // n``. The ``k % n`` remainder goes to the items
+    with the highest ``priorities`` (stable order). When ``k < n`` this yields
+    a 0/1 allocation to the top-``k`` items, which is the budget-matched
+    per-query baseline used for multi-query fact selection.
+    """
+    n = 0 if priorities is None else len(priorities)
+    if n == 0:
+        return np.zeros(0, dtype=np.int64)
+    k = max(0, int(k))
+    alloc = np.full(n, k // n, dtype=np.int64)
+    rem = k % n
+    if rem:
+        order = np.argsort(-np.asarray(priorities, dtype=np.float32), kind="stable")
+        alloc[order[:rem]] += 1
+    return alloc
+
+
+def greedy_max_coverage(
+    support: np.ndarray,
+    k: int,
+    priority: np.ndarray | None = None,
+) -> np.ndarray:
+    """Greedy ``(1 - 1/e)`` maximisation of multi-query coverage.
+
+    ``support`` is ``(n_facts, n_queries)`` boolean: ``support[i, j]`` is True
+    when fact ``i`` is evidence for query ``j``. Returns ``min(k, n_facts)``
+    distinct fact indices. Marginal-gain ties are broken by ``priority``
+    (higher first). Query coverage is monotone submodular, so the greedy
+    choice is within ``1 - 1/e`` of the optimum.
+    """
+    support = np.asarray(support, dtype=bool)
+    n, m = support.shape
+    take = min(max(0, int(k)), n)
+    if take == 0:
+        return np.zeros(0, dtype=np.int64)
+    if priority is None:
+        priority = np.zeros(n, dtype=np.float32)
+    else:
+        priority = np.asarray(priority, dtype=np.float32)
+    available = np.ones(n, dtype=bool)
+    covered = np.zeros(m, dtype=bool)
+    selected = np.empty(take, dtype=np.int64)
+    for step in range(take):
+        gain = support @ (~covered).astype(np.float32)
+        masked = np.where(available, gain, -1.0)
+        best = float(masked.max())
+        if best > 0.0:
+            cand = np.flatnonzero(available & (gain == best))
+        else:
+            cand = np.flatnonzero(available)
+        idx = int(cand[np.argmax(priority[cand])])
+        selected[step] = idx
+        available[idx] = False
+        covered |= support[idx]
+    return selected
