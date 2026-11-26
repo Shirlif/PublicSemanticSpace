@@ -95,7 +95,7 @@
 
 #### F1 公开复现包
 
-- **状态（2026-11-26）**：代码、本地归档、校验脚本与 `make reproduce-l2` 已完成；E12 在临时目录复现 PASS。剩余动作是把 `dist/repro/pss-l2-bundles-v0.1.1.tar.gz` 上传到 GitHub Release / Zenodo，并回填 URL。
+- **状态（2026-11-26）**：已完成并发布到 GitHub Release `v0.1.1`；E12 在干净临时目录从公开 URL 下载、校验、复现 PASS。归档：`pss-l2-bundles-v0.1.1.tar.gz`，SHA256 `9bd50f41…7984e`。
 - **问题**：公开仓库缺少 bundle，E12/E7 不可复现。
 - **做法**：
   - 发布 33 个 bundle（约 5.5 MB 压缩后）到 GitHub Release / Zenodo / Hugging Face，不提交进 git；

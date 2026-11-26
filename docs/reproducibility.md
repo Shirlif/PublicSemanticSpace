@@ -147,10 +147,15 @@ python scripts/pack_repro_bundles.py --root bundles/dev --out dist/repro --versi
 - `dist/repro/SHA256SUMS`
 - 同时写入 `docs/repro/`，供仓库引用
 
-发布步骤（需要维护者手动执行）：
+发布记录：
 
-1. 把 `dist/repro/pss-l2-bundles-v0.1.1.tar.gz` 上传到 GitHub Release 或 Zenodo；
-2. 用上传后的 URL 替换文档中的 `<release asset URL>`；
+- **v0.1.1** 已发布：<https://github.com/Shirlif/PublicSemanticSpace/releases/tag/v0.1.1>，
+  asset 为 `pss-l2-bundles-v0.1.1.tar.gz`。
+
+后续版本的发布步骤（需要维护者手动执行）：
+
+1. 把 `dist/repro/pss-l2-bundles-vX.Y.Z.tar.gz` 上传到 GitHub Release 或 Zenodo；
+2. 用上传后的 URL 更新 `docs/reproducibility.md` 和 release notes；
 3. 确认 `docs/repro/SHA256SUMS` 与上传文件一致；
 4. 如果版本变化，更新 `docs/repro/PSS_BUNDLES_vX.Y.Z.json` 和本页数字。
 
