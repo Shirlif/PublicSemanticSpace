@@ -30,6 +30,7 @@
 | 2026-11-26 | L2 cognitive-layer completion (E19–E20) | commit `570d315` |
 | 2026-11-26 | GitHub repository made public | <https://github.com/Shirlif/PublicSemanticSpace> |
 | 2026-11-26 | Technical report published on Zenodo | DOI `10.5281/zenodo.24549223` |
+| 2026-11-26 | `v0.1.0` tag created and pushed | `git tag -n` |
 
 The commit timestamps and public release history are the first line of evidence
 for priority. A citable DOI or preprint is stronger; see "Recommended next
@@ -39,7 +40,7 @@ steps".
 
 | Version | Git tag | DOI | Date | Notes |
 |---|---|---|---|---|
-| 0.1.0 | not yet created | `10.5281/zenodo.24549223` | 2026-11-26 | paper + TeX source on Zenodo; concept DOI `10.5281/zenodo.24549222` |
+| 0.1.0 | `v0.1.0` | `10.5281/zenodo.24549223` | 2026-11-26 | paper + TeX source on Zenodo; concept DOI `10.5281/zenodo.24549222` |
 
 The Zenodo DOI above is the assigned record DOI for version 0.1.0. The
 concept DOI (`10.5281/zenodo.24549222`) always resolves to the latest version;
@@ -49,12 +50,8 @@ use it when citing "all versions".
 
 These make the priority record much stronger:
 
-1. **Tag the release** (annotated tag; signed if you have a signing key):
-
-   ```bash
-   git tag -a v0.1.0 102ff6f -m "PSS v0.1.0: technical report + property validation"
-   git push origin v0.1.0
-   ```
+1. **Release tag**: `v0.1.0` is created at the release commit and pushed to
+   origin. Future releases should use `v0.1.1`, `v0.1.2`, etc.
 
 2. **Optional: connect GitHub–Zenodo for the software artifact.** The paper
    record is already published (`10.5281/zenodo.24549223`); a separate software
