@@ -1,0 +1,940 @@
+{
+  "spike": "F10 ObjectFolder real-data replay",
+  "dataset": {
+    "renders_root": "D:\\PublicSemanticSpace\\eval\\results\\objectfolder\\renders",
+    "objects_csv": "D:\\PublicSemanticSpace\\_external\\ObjectFolder\\objects.csv",
+    "objects": 20,
+    "object_ids": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20"
+    ],
+    "materials": [
+      "Polycarbonate",
+      "Steel",
+      "Wood"
+    ],
+    "license": "CC-BY-4.0",
+    "citation": "Gao et al., ObjectFolder 2.0, CVPR 2022",
+    "object_metadata": [
+      {
+        "object_id": "1",
+        "name": "GothicCabinet_01",
+        "material": "Wood",
+        "size_m": 2.361,
+        "source_url": "https://3dmodelhaven.com/model/?m=GothicCabinet_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "2",
+        "name": "Barrel_01",
+        "material": "Steel",
+        "size_m": 0.88,
+        "source_url": "https://3dmodelhaven.com/model/?m=Barrel_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "3",
+        "name": "Lantern_01",
+        "material": "Steel",
+        "size_m": 0.294,
+        "source_url": "https://3dmodelhaven.com/model/?m=Lantern_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "4",
+        "name": "Television_01",
+        "material": "Steel",
+        "size_m": 0.6,
+        "source_url": "https://3dmodelhaven.com/model/?m=Television_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "5",
+        "name": "GreenChair_01",
+        "material": "Wood",
+        "size_m": 1.059,
+        "source_url": "https://3dmodelhaven.com/model/?m=GreenChair_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "6",
+        "name": "GothicCommode_01",
+        "material": "Wood",
+        "size_m": 1.212,
+        "source_url": "https://3dmodelhaven.com/model/?m=GothicCommode_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "7",
+        "name": "WoodenTable_01",
+        "material": "Wood",
+        "size_m": 1.8,
+        "source_url": "https://3dmodelhaven.com/model/?m=WoodenTable_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "8",
+        "name": "Ukulele_01",
+        "material": "Wood",
+        "size_m": 0.527,
+        "source_url": "https://3dmodelhaven.com/model/?m=Ukulele_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "9",
+        "name": "ClassicConsole_01",
+        "material": "Wood",
+        "size_m": 1.543,
+        "source_url": "https://3dmodelhaven.com/model/?m=ClassicConsole_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "10",
+        "name": "Barrel_02",
+        "material": "Polycarbonate",
+        "size_m": 0.88,
+        "source_url": "https://3dmodelhaven.com/model/?m=Barrel_02",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "11",
+        "name": "Rockingchair_01",
+        "material": "Wood",
+        "size_m": 0.995,
+        "source_url": "https://3dmodelhaven.com/model/?m=Rockingchair_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "12",
+        "name": "WoodenTable_02",
+        "material": "Wood",
+        "size_m": 0.418,
+        "source_url": "https://3dmodelhaven.com/model/?m=WoodenTable_02",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "13",
+        "name": "WetFloorSign_01",
+        "material": "Polycarbonate",
+        "size_m": 0.63,
+        "source_url": "https://3dmodelhaven.com/model/?m=WetFloorSign_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "14",
+        "name": "ClassicNightstand_01",
+        "material": "Wood",
+        "size_m": 0.7,
+        "source_url": "https://3dmodelhaven.com/model/?m=ClassicNightstand_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "15",
+        "name": "CoffeeTable_01",
+        "material": "Wood",
+        "size_m": 1.54,
+        "source_url": "https://3dmodelhaven.com/model/?m=CoffeeTable_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "16",
+        "name": "WoodenTable_03",
+        "material": "Wood",
+        "size_m": 1.327,
+        "source_url": "https://3dmodelhaven.com/model/?m=WoodenTable_03",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "17",
+        "name": "Shelf_01",
+        "material": "Wood",
+        "size_m": 2.08,
+        "source_url": "https://3dmodelhaven.com/model/?m=Shelf_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "18",
+        "name": "WoodenChair_01",
+        "material": "Wood",
+        "size_m": 2.274,
+        "source_url": "https://3dmodelhaven.com/model/?m=WoodenChair_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "19",
+        "name": "Megaphone_01",
+        "material": "Polycarbonate",
+        "size_m": 0.371,
+        "source_url": "https://3dmodelhaven.com/model/?m=Megaphone_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "20",
+        "name": "CheeseBox_01",
+        "material": "Wood",
+        "size_m": 0.24,
+        "source_url": "https://3dmodelhaven.com/model/?m=CheeseBox_01",
+        "vision_images": 2,
+        "touch_images": 12
+      }
+    ]
+  },
+  "features": {
+    "encoder": "facebook/dinov2-small (AutoModel, pooler/mean)",
+    "dim": 384,
+    "device": "cuda",
+    "cached": true,
+    "vision_images_per_object": [
+      2
+    ],
+    "touch_images_per_object": [
+      12
+    ]
+  },
+  "binding": {
+    "n": 20,
+    "chance_r1": 0.05,
+    "chance_r5": 0.25,
+    "zero_shot": {
+      "vision_to_touch": {
+        "r1": 0.05,
+        "r5": 0.3,
+        "n": 20,
+        "chance": 0.05
+      },
+      "touch_to_vision": {
+        "r1": 0.05,
+        "r5": 0.3,
+        "n": 20,
+        "chance": 0.05
+      }
+    },
+    "ridge_half_split": {
+      "vision_to_touch": {
+        "r1": 0.0,
+        "r5": 0.7,
+        "n": 10,
+        "chance": 0.1
+      },
+      "touch_to_vision": {
+        "r1": 0.1,
+        "r5": 0.5,
+        "n": 10,
+        "chance": 0.1
+      }
+    },
+    "cosine": {
+      "same_object_mean": 0.04934502765536308,
+      "cross_object_mean": 0.04365026578307152,
+      "gap": 0.005694761872291565
+    },
+    "permutation": {
+      "observed_r1": 0.05,
+      "null_mean": 0.04995,
+      "null_p95": 0.15,
+      "p_value": 0.6623376623376623,
+      "permutations": 1000
+    }
+  },
+  "pss_eval": {
+    "seeds": [
+      0
+    ],
+    "stream": {
+      "n": 40,
+      "dim": 384,
+      "seed": 0,
+      "categories": [
+        "Polycarbonate",
+        "Steel",
+        "Wood"
+      ]
+    },
+    "runs": [
+      {
+        "seed": 0,
+        "stream": {
+          "n": 40,
+          "dim": 384,
+          "seed": 0,
+          "categories": [
+            "Polycarbonate",
+            "Steel",
+            "Wood"
+          ]
+        },
+        "results": [
+          {
+            "system": "pss-runtime",
+            "property": "determinism",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "agreement": 1.0,
+              "observation_id_match": 1.0,
+              "final_state_match": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "reset_exactness",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "reset_exact": 1.0,
+              "replay_agreement": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "state_hygiene",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "finite_arrays": 1.0,
+              "digest_ok": 1.0,
+              "within_size_bound": 1.0,
+              "state_bytes": 612.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "contract",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "swap_accepted": 1.0,
+              "invalid_rejected": 1.0,
+              "invalid_keeps_state": 1.0,
+              "rollback_exact": 1.0,
+              "audit_present": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "swap_rollback",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "swap_success_rate": 1.0,
+              "swap_changed_state": 1.0,
+              "rollback_exact": 1.0,
+              "post_rollback_swap": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "label_accuracy",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "stream has no scalar labels"
+          },
+          {
+            "system": "pss-runtime",
+            "property": "budget",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "budget_ms": 50.0,
+              "elapsed_p50_ms": 1.030400000672671,
+              "elapsed_p99_ms": 1.637490000539401,
+              "timeout_rate": 0.0,
+              "frames": 40.0,
+              "errors": 0.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "latency",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "p50_ms": 1.1217499995836988,
+              "p99_ms": 1.9843439981195843,
+              "max_ms": 2.0078999987163115,
+              "n": 40.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "cross_modal_binding",
+            "status": "fail",
+            "smoke": false,
+            "metrics": {
+              "r1": 0.1,
+              "r5": 0.3,
+              "chance": 0.05,
+              "chance_r5": 0.25,
+              "n": 20.0,
+              "touch_to_vision_r1": 0.05,
+              "touch_to_vision_r5": 0.2,
+              "permutation_p": 0.2885572139303483,
+              "permutations": 200.0
+            },
+            "notes": "object-level cross-modal retrieval; pass means R@1 > chance and permutation p < 0.05"
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "determinism",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "agreement": 1.0,
+              "observation_id_match": 1.0,
+              "final_state_match": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "reset_exactness",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "reset_exact": 1.0,
+              "replay_agreement": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "state_hygiene",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "finite_arrays": 1.0,
+              "digest_ok": 1.0,
+              "within_size_bound": 1.0,
+              "state_bytes": 58.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "contract",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capabilities: audit, snapshot, swap"
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "swap_rollback",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capabilities: snapshot, swap"
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "label_accuracy",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "stream has no scalar labels"
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "budget",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capability: budget"
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "latency",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "p50_ms": 0.0024000000848900527,
+              "p99_ms": 0.004542000242508946,
+              "max_ms": 0.00540000110049732,
+              "n": 40.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "cross_modal_binding",
+            "status": "fail",
+            "smoke": false,
+            "metrics": {
+              "r1": 0.05,
+              "r5": 0.3,
+              "chance": 0.05,
+              "chance_r5": 0.25,
+              "n": 20.0,
+              "touch_to_vision_r1": 0.05,
+              "touch_to_vision_r5": 0.3,
+              "permutation_p": 0.6716417910447762,
+              "permutations": 200.0
+            },
+            "notes": "object-level cross-modal retrieval; pass means R@1 > chance and permutation p < 0.05"
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "determinism",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "agreement": 1.0,
+              "observation_id_match": 1.0,
+              "final_state_match": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "reset_exactness",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "reset_exact": 1.0,
+              "replay_agreement": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "state_hygiene",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "finite_arrays": 1.0,
+              "digest_ok": 1.0,
+              "within_size_bound": 1.0,
+              "state_bytes": 998.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "contract",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capabilities: audit, snapshot, swap"
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "swap_rollback",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capabilities: snapshot, swap"
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "label_accuracy",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "stream has no scalar labels"
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "budget",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capability: budget"
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "latency",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "p50_ms": 0.024700000722077675,
+              "p99_ms": 0.05528599947865586,
+              "max_ms": 0.060200000007171184,
+              "n": 40.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "cross_modal_binding",
+            "status": "fail",
+            "smoke": false,
+            "metrics": {
+              "r1": 0.05,
+              "r5": 0.3,
+              "chance": 0.05,
+              "chance_r5": 0.25,
+              "n": 20.0,
+              "touch_to_vision_r1": 0.05,
+              "touch_to_vision_r5": 0.3,
+              "permutation_p": 0.6716417910447762,
+              "permutations": 200.0
+            },
+            "notes": "object-level cross-modal retrieval; pass means R@1 > chance and permutation p < 0.05"
+          }
+        ],
+        "summary": {
+          "systems": {
+            "pss-runtime": {
+              "statuses": {
+                "determinism": "pass",
+                "reset_exactness": "pass",
+                "state_hygiene": "pass",
+                "contract": "pass",
+                "swap_rollback": "pass",
+                "label_accuracy": "skip",
+                "budget": "pass",
+                "latency": "pass",
+                "cross_modal_binding": "fail"
+              },
+              "counts": {
+                "pass": 7,
+                "fail": 1,
+                "skip": 1
+              },
+              "smoke_pass": true,
+              "properties": [
+                "determinism",
+                "reset_exactness",
+                "state_hygiene",
+                "contract",
+                "swap_rollback",
+                "label_accuracy",
+                "budget",
+                "latency",
+                "cross_modal_binding"
+              ]
+            },
+            "objectfolder-passthrough": {
+              "statuses": {
+                "determinism": "pass",
+                "reset_exactness": "pass",
+                "state_hygiene": "pass",
+                "contract": "skip",
+                "swap_rollback": "skip",
+                "label_accuracy": "skip",
+                "budget": "skip",
+                "latency": "pass",
+                "cross_modal_binding": "fail"
+              },
+              "counts": {
+                "pass": 4,
+                "fail": 1,
+                "skip": 4
+              },
+              "smoke_pass": true,
+              "properties": [
+                "determinism",
+                "reset_exactness",
+                "state_hygiene",
+                "contract",
+                "swap_rollback",
+                "label_accuracy",
+                "budget",
+                "latency",
+                "cross_modal_binding"
+              ]
+            },
+            "objectfolder-nn-binding": {
+              "statuses": {
+                "determinism": "pass",
+                "reset_exactness": "pass",
+                "state_hygiene": "pass",
+                "contract": "skip",
+                "swap_rollback": "skip",
+                "label_accuracy": "skip",
+                "budget": "skip",
+                "latency": "pass",
+                "cross_modal_binding": "fail"
+              },
+              "counts": {
+                "pass": 4,
+                "fail": 1,
+                "skip": 4
+              },
+              "smoke_pass": true,
+              "properties": [
+                "determinism",
+                "reset_exactness",
+                "state_hygiene",
+                "contract",
+                "swap_rollback",
+                "label_accuracy",
+                "budget",
+                "latency",
+                "cross_modal_binding"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "summary": {
+      "systems": {
+        "pss-runtime": {
+          "statuses": {
+            "determinism": "pass",
+            "reset_exactness": "pass",
+            "state_hygiene": "pass",
+            "contract": "pass",
+            "swap_rollback": "pass",
+            "label_accuracy": "skip",
+            "budget": "pass",
+            "latency": "pass",
+            "cross_modal_binding": "fail"
+          },
+          "metrics": {
+            "determinism": {
+              "agreement": 1.0,
+              "final_state_match": 1.0,
+              "observation_id_match": 1.0
+            },
+            "reset_exactness": {
+              "replay_agreement": 1.0,
+              "reset_exact": 1.0
+            },
+            "state_hygiene": {
+              "digest_ok": 1.0,
+              "finite_arrays": 1.0,
+              "state_bytes": 612.0,
+              "within_size_bound": 1.0
+            },
+            "contract": {
+              "audit_present": 1.0,
+              "invalid_keeps_state": 1.0,
+              "invalid_rejected": 1.0,
+              "rollback_exact": 1.0,
+              "swap_accepted": 1.0
+            },
+            "swap_rollback": {
+              "post_rollback_swap": 1.0,
+              "rollback_exact": 1.0,
+              "swap_changed_state": 1.0,
+              "swap_success_rate": 1.0
+            },
+            "label_accuracy": {},
+            "budget": {
+              "budget_ms": 50.0,
+              "elapsed_p50_ms": 1.030400000672671,
+              "elapsed_p99_ms": 1.637490000539401,
+              "errors": 0.0,
+              "frames": 40.0,
+              "timeout_rate": 0.0
+            },
+            "latency": {
+              "max_ms": 2.0078999987163115,
+              "n": 40.0,
+              "p50_ms": 1.1217499995836988,
+              "p99_ms": 1.9843439981195843
+            },
+            "cross_modal_binding": {
+              "chance": 0.05,
+              "chance_r5": 0.25,
+              "n": 20.0,
+              "permutation_p": 0.2885572139303483,
+              "permutations": 200.0,
+              "r1": 0.1,
+              "r5": 0.3,
+              "touch_to_vision_r1": 0.05,
+              "touch_to_vision_r5": 0.2
+            }
+          },
+          "smoke": {
+            "determinism": true,
+            "reset_exactness": true,
+            "state_hygiene": true,
+            "contract": false,
+            "swap_rollback": false,
+            "label_accuracy": false,
+            "budget": false,
+            "latency": false,
+            "cross_modal_binding": false
+          },
+          "smoke_pass": true
+        },
+        "objectfolder-passthrough": {
+          "statuses": {
+            "determinism": "pass",
+            "reset_exactness": "pass",
+            "state_hygiene": "pass",
+            "contract": "skip",
+            "swap_rollback": "skip",
+            "label_accuracy": "skip",
+            "budget": "skip",
+            "latency": "pass",
+            "cross_modal_binding": "fail"
+          },
+          "metrics": {
+            "determinism": {
+              "agreement": 1.0,
+              "final_state_match": 1.0,
+              "observation_id_match": 1.0
+            },
+            "reset_exactness": {
+              "replay_agreement": 1.0,
+              "reset_exact": 1.0
+            },
+            "state_hygiene": {
+              "digest_ok": 1.0,
+              "finite_arrays": 1.0,
+              "state_bytes": 58.0,
+              "within_size_bound": 1.0
+            },
+            "contract": {},
+            "swap_rollback": {},
+            "label_accuracy": {},
+            "budget": {},
+            "latency": {
+              "max_ms": 0.00540000110049732,
+              "n": 40.0,
+              "p50_ms": 0.0024000000848900527,
+              "p99_ms": 0.004542000242508946
+            },
+            "cross_modal_binding": {
+              "chance": 0.05,
+              "chance_r5": 0.25,
+              "n": 20.0,
+              "permutation_p": 0.6716417910447762,
+              "permutations": 200.0,
+              "r1": 0.05,
+              "r5": 0.3,
+              "touch_to_vision_r1": 0.05,
+              "touch_to_vision_r5": 0.3
+            }
+          },
+          "smoke": {
+            "determinism": true,
+            "reset_exactness": true,
+            "state_hygiene": true,
+            "contract": false,
+            "swap_rollback": false,
+            "label_accuracy": false,
+            "budget": false,
+            "latency": false,
+            "cross_modal_binding": false
+          },
+          "smoke_pass": true
+        },
+        "objectfolder-nn-binding": {
+          "statuses": {
+            "determinism": "pass",
+            "reset_exactness": "pass",
+            "state_hygiene": "pass",
+            "contract": "skip",
+            "swap_rollback": "skip",
+            "label_accuracy": "skip",
+            "budget": "skip",
+            "latency": "pass",
+            "cross_modal_binding": "fail"
+          },
+          "metrics": {
+            "determinism": {
+              "agreement": 1.0,
+              "final_state_match": 1.0,
+              "observation_id_match": 1.0
+            },
+            "reset_exactness": {
+              "replay_agreement": 1.0,
+              "reset_exact": 1.0
+            },
+            "state_hygiene": {
+              "digest_ok": 1.0,
+              "finite_arrays": 1.0,
+              "state_bytes": 998.0,
+              "within_size_bound": 1.0
+            },
+            "contract": {},
+            "swap_rollback": {},
+            "label_accuracy": {},
+            "budget": {},
+            "latency": {
+              "max_ms": 0.060200000007171184,
+              "n": 40.0,
+              "p50_ms": 0.024700000722077675,
+              "p99_ms": 0.05528599947865586
+            },
+            "cross_modal_binding": {
+              "chance": 0.05,
+              "chance_r5": 0.25,
+              "n": 20.0,
+              "permutation_p": 0.6716417910447762,
+              "permutations": 200.0,
+              "r1": 0.05,
+              "r5": 0.3,
+              "touch_to_vision_r1": 0.05,
+              "touch_to_vision_r5": 0.3
+            }
+          },
+          "smoke": {
+            "determinism": true,
+            "reset_exactness": true,
+            "state_hygiene": true,
+            "contract": false,
+            "swap_rollback": false,
+            "label_accuracy": false,
+            "budget": false,
+            "latency": false,
+            "cross_modal_binding": false
+          },
+          "smoke_pass": true
+        }
+      }
+    },
+    "preregistration": {
+      "ok": true,
+      "mismatches": []
+    }
+  },
+  "caveats": [
+    "ObjectFolder is a public dataset of implicit object representations; rendered vision/tactile images are not raw robot sensor captures.",
+    "No poses, depth, segmentation, scenes, or synchronized multi-frame stream: L2 identity/tracking and sim2real claims are out of scope.",
+    "The standard identity_retention property is not applicable: with no poses every detection collapses to one track (degenerate pass). It was removed; cross_modal_binding is used instead.",
+    "The PSS runtime's projection here is a random adapter projection, not a projection head trained on real ObjectFolder pairs; its binding R@1 is a path-connectivity measurement, not a PSS capability result.",
+    "Historical 100-object ObjectFolder results (zero-shot R@1 ~chance; trained tactile encoder held-out R@1 ~0.22) are the stronger evidence and should be cited instead of this 20-object spike for capability."
+  ],
+  "generated": "2026-11-26 08:21:03 UTC"
+}

@@ -209,7 +209,14 @@ def run_objectfolder(
     seed: int = 0,
     render: bool = True,
     render_only: bool = False,
+    renders_root: str | Path | None = None,
 ) -> dict:
+    """Render and score object-level cross-modal R@1.
+
+    ``renders_root`` lets a caller reuse an existing render tree (for example a
+    read-only checkout) instead of writing under ``out_dir``.  This is what the
+    F10 real-data replay spike uses to avoid copying the ~9.4 GB dataset.
+    """
     root = Path(root).resolve()
     renderer_dir = Path(renderer_dir).resolve()
     out = Path(out_dir).resolve()
@@ -223,7 +230,9 @@ def run_objectfolder(
     if not objects:
         raise SystemExit(f"no ObjectFile.pth found under {root}")
 
-    renders_root = out / "renders"
+    renders_root = (
+        Path(renders_root).resolve() if renders_root is not None else out / "renders"
+    )
     render_reports = {}
     for i, object_dir in enumerate(objects):
         key = object_dir.name

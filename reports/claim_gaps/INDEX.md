@@ -28,6 +28,7 @@
 | E19 | Can the runtime update knowledge / swap a module mid-task? | KB update and planner swap both replan 100%, baseline 0% | `l2_runtime_updates/REPORT.md` |
 | E20 | Does the runtime cross-layer depend on its components? | `no_entity` cannot plan; `no_uncertainty` misses conflict; `no_audit` cannot rollback | `runtime_cross_layer/runtime.md` |
 | E21 | Does a deadline guard bound L2 tail latency? | injected 30 ms overruns: BAR 0.944 → 0.999, p99 31.3 → 8.9 ms, retention 1.000; residual spikes are OS preemption | `latency_guard/REPORT.md` |
+| F10 | Can ObjectFolder 2.0 serve as a real-data replay source? | object-level replay enters `pss_eval` (contract props pass); zero-shot binding at chance (R@1 0.05/0.01, p≈0.66); trained encoder held-out R@1 0.22 / R@5 0.73; no L2/sim2real | `real_replay/SPIKE.md` |
 
 ## Reading guide
 

@@ -173,6 +173,8 @@
 | F9 | 多 query + coverage loss 的 fact 选择 | E4 只测了单 query |
 | F10 | 真实数据回放 / 真机 | 先接 R-Gate 或真实 RGB-D，再谈硬件 |
 
+> **F10 状态（2026-11-26）**：可行性 spike 完成，见 `reports/claim_gaps/real_replay/SPIKE.md`。结论：ObjectFolder 2.0 可作为 **object-level 跨模态回放源**（GO, limited），能把真实公开渲染特征送进 `pss_eval` 路径；但不能替代 R-Gate/真机（NO-GO），不支持 L2 identity/tracking 或 sim2real。R-Gate 与真实 RGB-D 因无硬件/无同步数据均 NO-GO。工作量：集成 spike 1 天（已完成），生产级 addendum 2–4 天；R-Gate 需 4–8 周 + 硬件。
+
 ---
 
 ## 5. 不建议现在做

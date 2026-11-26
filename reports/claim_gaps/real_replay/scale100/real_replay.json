@@ -1,0 +1,1752 @@
+{
+  "spike": "F10 ObjectFolder real-data replay",
+  "dataset": {
+    "renders_root": "D:\\PublicSemanticSpace\\eval\\results\\objectfolder\\renders",
+    "objects_csv": "D:\\PublicSemanticSpace\\_external\\ObjectFolder\\objects.csv",
+    "objects": 100,
+    "object_ids": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42",
+      "43",
+      "44",
+      "45",
+      "46",
+      "47",
+      "48",
+      "49",
+      "50",
+      "51",
+      "52",
+      "53",
+      "54",
+      "55",
+      "56",
+      "57",
+      "58",
+      "59",
+      "60",
+      "61",
+      "62",
+      "63",
+      "64",
+      "65",
+      "66",
+      "67",
+      "68",
+      "69",
+      "70",
+      "71",
+      "72",
+      "73",
+      "74",
+      "75",
+      "76",
+      "77",
+      "78",
+      "79",
+      "80",
+      "81",
+      "82",
+      "83",
+      "84",
+      "85",
+      "86",
+      "87",
+      "88",
+      "89",
+      "90",
+      "91",
+      "92",
+      "93",
+      "94",
+      "95",
+      "96",
+      "97",
+      "98",
+      "99",
+      "100"
+    ],
+    "materials": [
+      "Ceramic",
+      "Glass",
+      "Iron",
+      "Plastic",
+      "Polycarbonate",
+      "Steel",
+      "Wood"
+    ],
+    "license": "CC-BY-4.0",
+    "citation": "Gao et al., ObjectFolder 2.0, CVPR 2022",
+    "object_metadata": [
+      {
+        "object_id": "1",
+        "name": "GothicCabinet_01",
+        "material": "Wood",
+        "size_m": 2.361,
+        "source_url": "https://3dmodelhaven.com/model/?m=GothicCabinet_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "2",
+        "name": "Barrel_01",
+        "material": "Steel",
+        "size_m": 0.88,
+        "source_url": "https://3dmodelhaven.com/model/?m=Barrel_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "3",
+        "name": "Lantern_01",
+        "material": "Steel",
+        "size_m": 0.294,
+        "source_url": "https://3dmodelhaven.com/model/?m=Lantern_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "4",
+        "name": "Television_01",
+        "material": "Steel",
+        "size_m": 0.6,
+        "source_url": "https://3dmodelhaven.com/model/?m=Television_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "5",
+        "name": "GreenChair_01",
+        "material": "Wood",
+        "size_m": 1.059,
+        "source_url": "https://3dmodelhaven.com/model/?m=GreenChair_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "6",
+        "name": "GothicCommode_01",
+        "material": "Wood",
+        "size_m": 1.212,
+        "source_url": "https://3dmodelhaven.com/model/?m=GothicCommode_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "7",
+        "name": "WoodenTable_01",
+        "material": "Wood",
+        "size_m": 1.8,
+        "source_url": "https://3dmodelhaven.com/model/?m=WoodenTable_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "8",
+        "name": "Ukulele_01",
+        "material": "Wood",
+        "size_m": 0.527,
+        "source_url": "https://3dmodelhaven.com/model/?m=Ukulele_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "9",
+        "name": "ClassicConsole_01",
+        "material": "Wood",
+        "size_m": 1.543,
+        "source_url": "https://3dmodelhaven.com/model/?m=ClassicConsole_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "10",
+        "name": "Barrel_02",
+        "material": "Polycarbonate",
+        "size_m": 0.88,
+        "source_url": "https://3dmodelhaven.com/model/?m=Barrel_02",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "11",
+        "name": "Rockingchair_01",
+        "material": "Wood",
+        "size_m": 0.995,
+        "source_url": "https://3dmodelhaven.com/model/?m=Rockingchair_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "12",
+        "name": "WoodenTable_02",
+        "material": "Wood",
+        "size_m": 0.418,
+        "source_url": "https://3dmodelhaven.com/model/?m=WoodenTable_02",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "13",
+        "name": "WetFloorSign_01",
+        "material": "Polycarbonate",
+        "size_m": 0.63,
+        "source_url": "https://3dmodelhaven.com/model/?m=WetFloorSign_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "14",
+        "name": "ClassicNightstand_01",
+        "material": "Wood",
+        "size_m": 0.7,
+        "source_url": "https://3dmodelhaven.com/model/?m=ClassicNightstand_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "15",
+        "name": "CoffeeTable_01",
+        "material": "Wood",
+        "size_m": 1.54,
+        "source_url": "https://3dmodelhaven.com/model/?m=CoffeeTable_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "16",
+        "name": "WoodenTable_03",
+        "material": "Wood",
+        "size_m": 1.327,
+        "source_url": "https://3dmodelhaven.com/model/?m=WoodenTable_03",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "17",
+        "name": "Shelf_01",
+        "material": "Wood",
+        "size_m": 2.08,
+        "source_url": "https://3dmodelhaven.com/model/?m=Shelf_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "18",
+        "name": "WoodenChair_01",
+        "material": "Wood",
+        "size_m": 2.274,
+        "source_url": "https://3dmodelhaven.com/model/?m=WoodenChair_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "19",
+        "name": "Megaphone_01",
+        "material": "Polycarbonate",
+        "size_m": 0.371,
+        "source_url": "https://3dmodelhaven.com/model/?m=Megaphone_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "20",
+        "name": "CheeseBox_01",
+        "material": "Wood",
+        "size_m": 0.24,
+        "source_url": "https://3dmodelhaven.com/model/?m=CheeseBox_01",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "21",
+        "name": "019_pitcher_base",
+        "material": "Plastic",
+        "size_m": 0.235,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "22",
+        "name": "024_bowl",
+        "material": "Steel",
+        "size_m": 0.159,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "23",
+        "name": "025_mug",
+        "material": "Steel",
+        "size_m": 0.082,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "24",
+        "name": "029_plate",
+        "material": "Steel",
+        "size_m": 0.258,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "25",
+        "name": "030_fork",
+        "material": "Steel",
+        "size_m": 0.198,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "26",
+        "name": "031_spoon",
+        "material": "Steel",
+        "size_m": 0.195,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "27",
+        "name": "032_knife",
+        "material": "Steel",
+        "size_m": 0.215,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "28",
+        "name": "033_spatula",
+        "material": "Polycarbonate",
+        "size_m": 0.35,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "29",
+        "name": "036_wood_block",
+        "material": "Wood",
+        "size_m": 0.2,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "30",
+        "name": "038_padlock",
+        "material": "Iron",
+        "size_m": 0.065,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "31",
+        "name": "040_large_marker",
+        "material": "Plastic",
+        "size_m": 0.121,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "32",
+        "name": "042_adjustable_wrench",
+        "material": "Iron",
+        "size_m": 0.205,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "33",
+        "name": "050_medium_clamp",
+        "material": "Iron",
+        "size_m": 0.115,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "34",
+        "name": "051_large_clamp",
+        "material": "Iron",
+        "size_m": 0.165,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "35",
+        "name": "052_extra_large_clamp",
+        "material": "Iron",
+        "size_m": 0.213,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "36",
+        "name": "062_dice",
+        "material": "Polycarbonate",
+        "size_m": 0.0162,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "37",
+        "name": "065-a_cups",
+        "material": "Polycarbonate",
+        "size_m": 0.06,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "38",
+        "name": "065-b_cups",
+        "material": "Polycarbonate",
+        "size_m": 0.062,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "39",
+        "name": "065-c_cups",
+        "material": "Polycarbonate",
+        "size_m": 0.065,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "40",
+        "name": "065-d_cups",
+        "material": "Polycarbonate",
+        "size_m": 0.07,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "41",
+        "name": "065-e_cups",
+        "material": "Polycarbonate",
+        "size_m": 0.075,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "42",
+        "name": "065-f_cups",
+        "material": "Polycarbonate",
+        "size_m": 0.08,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "43",
+        "name": "065-g_cups",
+        "material": "Polycarbonate",
+        "size_m": 0.085,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "44",
+        "name": "065-h_cups",
+        "material": "Polycarbonate",
+        "size_m": 0.09,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "45",
+        "name": "065-i_cups",
+        "material": "Polycarbonate",
+        "size_m": 0.095,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "46",
+        "name": "065-j_cups",
+        "material": "Polycarbonate",
+        "size_m": 0.1,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "47",
+        "name": "071_nine_hole_peg_test",
+        "material": "Wood",
+        "size_m": 1.2,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "48",
+        "name": "072-a_toy_airplane",
+        "material": "Polycarbonate",
+        "size_m": 0.28,
+        "source_url": "None",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "49",
+        "name": "Vtech_Stack_Sing_Rings_636_Months",
+        "material": "Plastic",
+        "size_m": 0.233,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Vtech_Stack_Sing_Rings_636_Months",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "50",
+        "name": "Vtech_Roll_Learn_Turtle",
+        "material": "Plastic",
+        "size_m": 0.232,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Vtech_Roll_Learn_Turtle",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "51",
+        "name": "Victor_Reversible_Bookend",
+        "material": "Wood",
+        "size_m": 0.236,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Victor_Reversible_Bookend",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "52",
+        "name": "Utana_5_Porcelain_Ramekin_Large",
+        "material": "Ceramic",
+        "size_m": 0.132,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Utana_5_Porcelain_Ramekin_Large",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "53",
+        "name": "Top_Paw_Dog_Bowl_Blue_Paw_Bone_Ceramic_25_fl_oz_total",
+        "material": "Ceramic",
+        "size_m": 0.153,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Top_Paw_Dog_Bowl_Blue_Paw_Bone_Ceramic_25_fl_oz_total",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "54",
+        "name": "Top_Paw_Dog_Bow_Bone_Ceramic_13_fl_oz_total",
+        "material": "Ceramic",
+        "size_m": 0.186,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Top_Paw_Dog_Bow_Bone_Ceramic_13_fl_oz_total",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "55",
+        "name": "Threshold_Tray_Rectangle_Porcelain",
+        "material": "Ceramic",
+        "size_m": 0.314,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Threshold_Tray_Rectangle_Porcelain",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "56",
+        "name": "Threshold_Salad_Plate_Square_Rim_Porcelain",
+        "material": "Ceramic",
+        "size_m": 0.212,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Threshold_Salad_Plate_Square_Rim_Porcelain",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "57",
+        "name": "Threshold_Porcelain_Teapot_White",
+        "material": "Ceramic",
+        "size_m": 0.187,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Threshold_Porcelain_Teapot_White",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "58",
+        "name": "Threshold_Porcelain_Spoon_Rest_White",
+        "material": "Ceramic",
+        "size_m": 0.237,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Threshold_Porcelain_Spoon_Rest_White",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "59",
+        "name": "Threshold_Porcelain_Pitcher_White",
+        "material": "Ceramic",
+        "size_m": 0.278,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Threshold_Porcelain_Pitcher_White",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "60",
+        "name": "Threshold_Porcelain_Coffee_Mug_All_Over_Bead_White",
+        "material": "Ceramic",
+        "size_m": 0.131,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Threshold_Porcelain_Coffee_Mug_All_Over_Bead_White",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "61",
+        "name": "Threshold_Bistro_Ceramic_Dinner_Plate_Ruby_Ring",
+        "material": "Ceramic",
+        "size_m": 0.274,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Threshold_Bistro_Ceramic_Dinner_Plate_Ruby_Ring",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "62",
+        "name": "Threshold_Bead_Cereal_Bowl_White",
+        "material": "Ceramic",
+        "size_m": 0.17,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Threshold_Bead_Cereal_Bowl_White",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "63",
+        "name": "Sterilite_Caddy_Blue_Sky_17_58_x_12_58_x_9_14",
+        "material": "Polycarbonate",
+        "size_m": 0.447,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Sterilite_Caddy_Blue_Sky_17_58_x_12_58_x_9_14",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "64",
+        "name": "Spritz_Easter_Basket_Plastic_Teal",
+        "material": "Plastic",
+        "size_m": 0.191,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Spritz_Easter_Basket_Plastic_Teal",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "65",
+        "name": "Sonny_School_Bus",
+        "material": "Plastic",
+        "size_m": 0.24,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Sonny_School_Bus",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "66",
+        "name": "Now_Designs_Bowl_Akita_Black",
+        "material": "Ceramic",
+        "size_m": 0.16,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Now_Designs_Bowl_Akita_Black",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "67",
+        "name": "Chef_Style_Round_Cake_Pan_9_inch_pan",
+        "material": "Steel",
+        "size_m": 0.246,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Chef_Style_Round_Cake_Pan_9_inch_pan",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "68",
+        "name": "5_HTP",
+        "material": "Polycarbonate",
+        "size_m": 0.089,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/5_HTP",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "69",
+        "name": "60_CONSTRUCTION_SET",
+        "material": "Wood",
+        "size_m": 0.344,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/60_CONSTRUCTION_SET",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "70",
+        "name": "Android_Figure_Orange",
+        "material": "Polycarbonate",
+        "size_m": 0.081,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Android_Figure_Orange",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "71",
+        "name": "BUNNY_RACER",
+        "material": "Polycarbonate",
+        "size_m": 0.112,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/BUNNY_RACER",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "72",
+        "name": "Black_Decker_Stainless_Steel_Toaster_4_Slice",
+        "material": "Steel",
+        "size_m": 0.318,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Black_Decker_Stainless_Steel_Toaster_4_Slice",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "73",
+        "name": "Black_and_Decker_TR3500SD_2Slice_Toaster",
+        "material": "Steel",
+        "size_m": 0.295,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Black_and_Decker_TR3500SD_2Slice_Toaster",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "74",
+        "name": "CHICKEN_RACER",
+        "material": "Polycarbonate",
+        "size_m": 0.099,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/CHICKEN_RACER",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "75",
+        "name": "Kanex_MultiSync_Wireless_Keyboard",
+        "material": "Polycarbonate",
+        "size_m": 0.442,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Kanex_MultiSync_Wireless_Keyboard",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "76",
+        "name": "Pony_C_Clamp_1440",
+        "material": "Iron",
+        "size_m": 0.202,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Pony_C_Clamp_1440",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "77",
+        "name": "Poppin_File_Sorter_Blue",
+        "material": "Steel",
+        "size_m": 0.25,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Poppin_File_Sorter_Blue",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "78",
+        "name": "Pennington_Electric_Pot_Cabana_4",
+        "material": "Ceramic",
+        "size_m": 0.104,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Pennington_Electric_Pot_Cabana_4",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "79",
+        "name": "Kotobuki_Saucer_Dragon_Fly",
+        "material": "Ceramic",
+        "size_m": 0.097,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Kotobuki_Saucer_Dragon_Fly",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "80",
+        "name": "Nordic_Ware_Original_Bundt_Pan",
+        "material": "Steel",
+        "size_m": 0.264,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Nordic_Ware_Original_Bundt_Pan",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "81",
+        "name": "InterDesign_Over_Door",
+        "material": "Steel",
+        "size_m": 0.291,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/InterDesign_Over_Door",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "82",
+        "name": "Grreat_Choice_Dog_Double_Dish_Plastic_Blue",
+        "material": "Plastic",
+        "size_m": 0.338,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Grreat_Choice_Dog_Double_Dish_Plastic_Blue",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "83",
+        "name": "Grreatv_Choice_Dog_Bowl_Gray_Bones_Plastic_20_fl_oz_total",
+        "material": "Plastic",
+        "size_m": 0.184,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Grreatv_Choice_Dog_Bowl_Gray_Bones_Plastic_20_fl_oz_total",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "84",
+        "name": "Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+        "material": "Ceramic",
+        "size_m": 0.133,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "85",
+        "name": "Down_To_Earth_Orchid_Pot_Ceramic_Red",
+        "material": "Ceramic",
+        "size_m": 0.131,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Down_To_Earth_Orchid_Pot_Ceramic_Red",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "86",
+        "name": "Cole_Hardware_School_Bell_Solid_Brass_38",
+        "material": "Steel",
+        "size_m": 0.16,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Cole_Hardware_School_Bell_Solid_Brass_38",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "87",
+        "name": "Chefmate_8_Frypan",
+        "material": "Steel",
+        "size_m": 0.356,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Chefmate_8_Frypan",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "88",
+        "name": "ACE_Coffee_Mug_Kristen_16_oz_cup",
+        "material": "Ceramic",
+        "size_m": 0.135,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/ACE_Coffee_Mug_Kristen_16_oz_cup",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "89",
+        "name": "Thomas_Friends_Wooden_Railway_Ascending_Track_Riser_Pack",
+        "material": "Wood",
+        "size_m": 0.425,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Thomas_Friends_Wooden_Railway_Ascending_Track_Riser_Pack",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "90",
+        "name": "MINI_ROLLER",
+        "material": "Wood",
+        "size_m": 0.144,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/MINI_ROLLER",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "91",
+        "name": "Marvel_Avengers_Titan_Hero_Series_Doctor_Doom",
+        "material": "Plastic",
+        "size_m": 0.292,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Marvel_Avengers_Titan_Hero_Series_Doctor_Doom",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "92",
+        "name": "Seagate_3TB_Central_shared_storage",
+        "material": "Polycarbonate",
+        "size_m": 0.217,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Seagate_3TB_Central_shared_storage",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "93",
+        "name": "LTyrosine",
+        "material": "Polycarbonate",
+        "size_m": 0.111,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/LTyrosine",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "94",
+        "name": "Thomas_Friends_Wooden_Railway_Deluxe_Track_Accessory_Pack",
+        "material": "Wood",
+        "size_m": 0.357,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Thomas_Friends_Wooden_Railway_Deluxe_Track_Accessory_Pack",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "95",
+        "name": "Weston_No_22_Cajun_Jerky_Tonic_12_fl_oz_nLj64ZnGwDh",
+        "material": "Glass",
+        "size_m": 0.199,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Weston_No_22_Cajun_Jerky_Tonic_12_fl_oz_nLj64ZnGwDh",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "96",
+        "name": "Wilton_Pearlized_Sugar_Sprinkles_525_oz_Gold",
+        "material": "Glass",
+        "size_m": 0.134,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Wilton_Pearlized_Sugar_Sprinkles_525_oz_Gold",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "97",
+        "name": "Baby_Elements_Stacking_Cups",
+        "material": "Plastic",
+        "size_m": 0.346,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Baby_Elements_Stacking_Cups",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "98",
+        "name": "Cole_Hardware_Bowl_Scirocco_YellowBlue",
+        "material": "Ceramic",
+        "size_m": 0.115,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Cole_Hardware_Bowl_Scirocco_YellowBlue",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "99",
+        "name": "Room_Essentials_Mug_White_Yellow",
+        "material": "Ceramic",
+        "size_m": 0.137,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Room_Essentials_Mug_White_Yellow",
+        "vision_images": 2,
+        "touch_images": 12
+      },
+      {
+        "object_id": "100",
+        "name": "Ocedar_Snap_On_Dust_Pan_And_Brush_1_ct",
+        "material": "Plastic",
+        "size_m": 0.331,
+        "source_url": "https://app.ignitionrobotics.org/GoogleResearch/fuel/models/Ocedar_Snap_On_Dust_Pan_And_Brush_1_ct",
+        "vision_images": 2,
+        "touch_images": 12
+      }
+    ]
+  },
+  "features": {
+    "encoder": "facebook/dinov2-small (AutoModel, pooler/mean)",
+    "dim": 384,
+    "device": "cuda",
+    "cached": true,
+    "vision_images_per_object": [
+      2
+    ],
+    "touch_images_per_object": [
+      12
+    ]
+  },
+  "binding": {
+    "n": 100,
+    "chance_r1": 0.01,
+    "chance_r5": 0.05,
+    "zero_shot": {
+      "vision_to_touch": {
+        "r1": 0.01,
+        "r5": 0.04,
+        "n": 100,
+        "chance": 0.01
+      },
+      "touch_to_vision": {
+        "r1": 0.02,
+        "r5": 0.06,
+        "n": 100,
+        "chance": 0.01
+      }
+    },
+    "ridge_half_split": {
+      "vision_to_touch": {
+        "r1": 0.04,
+        "r5": 0.28,
+        "n": 50,
+        "chance": 0.02
+      },
+      "touch_to_vision": {
+        "r1": 0.04,
+        "r5": 0.18,
+        "n": 50,
+        "chance": 0.02
+      }
+    },
+    "cosine": {
+      "same_object_mean": 0.03650851175189018,
+      "cross_object_mean": 0.032530710101127625,
+      "gap": 0.003977801650762558
+    },
+    "permutation": {
+      "observed_r1": 0.01,
+      "null_mean": 0.01005,
+      "null_p95": 0.03,
+      "p_value": 0.6593406593406593,
+      "permutations": 1000
+    }
+  },
+  "pss_eval": {
+    "seeds": [
+      0
+    ],
+    "stream": {
+      "n": 200,
+      "dim": 384,
+      "seed": 0,
+      "categories": [
+        "Ceramic",
+        "Glass",
+        "Iron",
+        "Plastic",
+        "Polycarbonate",
+        "Steel",
+        "Wood"
+      ]
+    },
+    "runs": [
+      {
+        "seed": 0,
+        "stream": {
+          "n": 200,
+          "dim": 384,
+          "seed": 0,
+          "categories": [
+            "Ceramic",
+            "Glass",
+            "Iron",
+            "Plastic",
+            "Polycarbonate",
+            "Steel",
+            "Wood"
+          ]
+        },
+        "results": [
+          {
+            "system": "pss-runtime",
+            "property": "determinism",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "agreement": 1.0,
+              "observation_id_match": 1.0,
+              "final_state_match": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "reset_exactness",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "reset_exact": 1.0,
+              "replay_agreement": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "state_hygiene",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "finite_arrays": 1.0,
+              "digest_ok": 1.0,
+              "within_size_bound": 1.0,
+              "state_bytes": 616.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "contract",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "swap_accepted": 1.0,
+              "invalid_rejected": 1.0,
+              "invalid_keeps_state": 1.0,
+              "rollback_exact": 1.0,
+              "audit_present": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "swap_rollback",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "swap_success_rate": 1.0,
+              "swap_changed_state": 1.0,
+              "rollback_exact": 1.0,
+              "post_rollback_swap": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "label_accuracy",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "stream has no scalar labels"
+          },
+          {
+            "system": "pss-runtime",
+            "property": "budget",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "budget_ms": 50.0,
+              "elapsed_p50_ms": 1.4132500000414439,
+              "elapsed_p99_ms": 3.0677400011336418,
+              "timeout_rate": 0.005,
+              "frames": 200.0,
+              "errors": 0.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "latency",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "p50_ms": 1.5975500009517418,
+              "p99_ms": 3.1919330013988634,
+              "max_ms": 3.708399999595713,
+              "n": 200.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "pss-runtime",
+            "property": "cross_modal_binding",
+            "status": "fail",
+            "smoke": false,
+            "metrics": {
+              "r1": 0.01,
+              "r5": 0.03,
+              "chance": 0.01,
+              "chance_r5": 0.05,
+              "n": 100.0,
+              "touch_to_vision_r1": 0.01,
+              "touch_to_vision_r5": 0.04,
+              "permutation_p": 0.6268656716417911,
+              "permutations": 200.0
+            },
+            "notes": "object-level cross-modal retrieval; pass means R@1 > chance and permutation p < 0.05"
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "determinism",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "agreement": 1.0,
+              "observation_id_match": 1.0,
+              "final_state_match": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "reset_exactness",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "reset_exact": 1.0,
+              "replay_agreement": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "state_hygiene",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "finite_arrays": 1.0,
+              "digest_ok": 1.0,
+              "within_size_bound": 1.0,
+              "state_bytes": 59.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "contract",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capabilities: audit, snapshot, swap"
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "swap_rollback",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capabilities: snapshot, swap"
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "label_accuracy",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "stream has no scalar labels"
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "budget",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capability: budget"
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "latency",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "p50_ms": 0.0021999985619913787,
+              "p99_ms": 0.003200998908141627,
+              "max_ms": 0.005300000339047983,
+              "n": 200.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-passthrough",
+            "property": "cross_modal_binding",
+            "status": "fail",
+            "smoke": false,
+            "metrics": {
+              "r1": 0.01,
+              "r5": 0.04,
+              "chance": 0.01,
+              "chance_r5": 0.05,
+              "n": 100.0,
+              "touch_to_vision_r1": 0.02,
+              "touch_to_vision_r5": 0.06,
+              "permutation_p": 0.6567164179104478,
+              "permutations": 200.0
+            },
+            "notes": "object-level cross-modal retrieval; pass means R@1 > chance and permutation p < 0.05"
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "determinism",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "agreement": 1.0,
+              "observation_id_match": 1.0,
+              "final_state_match": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "reset_exactness",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "reset_exact": 1.0,
+              "replay_agreement": 1.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "state_hygiene",
+            "status": "pass",
+            "smoke": true,
+            "metrics": {
+              "finite_arrays": 1.0,
+              "digest_ok": 1.0,
+              "within_size_bound": 1.0,
+              "state_bytes": 4762.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "contract",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capabilities: audit, snapshot, swap"
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "swap_rollback",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capabilities: snapshot, swap"
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "label_accuracy",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "stream has no scalar labels"
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "budget",
+            "status": "skip",
+            "smoke": false,
+            "metrics": {},
+            "notes": "missing capability: budget"
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "latency",
+            "status": "pass",
+            "smoke": false,
+            "metrics": {
+              "p50_ms": 0.07594999988214113,
+              "p99_ms": 0.17196499924466474,
+              "max_ms": 0.18970000019180588,
+              "n": 200.0
+            },
+            "notes": ""
+          },
+          {
+            "system": "objectfolder-nn-binding",
+            "property": "cross_modal_binding",
+            "status": "fail",
+            "smoke": false,
+            "metrics": {
+              "r1": 0.01,
+              "r5": 0.04,
+              "chance": 0.01,
+              "chance_r5": 0.05,
+              "n": 100.0,
+              "touch_to_vision_r1": 0.02,
+              "touch_to_vision_r5": 0.06,
+              "permutation_p": 0.6567164179104478,
+              "permutations": 200.0
+            },
+            "notes": "object-level cross-modal retrieval; pass means R@1 > chance and permutation p < 0.05"
+          }
+        ],
+        "summary": {
+          "systems": {
+            "pss-runtime": {
+              "statuses": {
+                "determinism": "pass",
+                "reset_exactness": "pass",
+                "state_hygiene": "pass",
+                "contract": "pass",
+                "swap_rollback": "pass",
+                "label_accuracy": "skip",
+                "budget": "pass",
+                "latency": "pass",
+                "cross_modal_binding": "fail"
+              },
+              "counts": {
+                "pass": 7,
+                "fail": 1,
+                "skip": 1
+              },
+              "smoke_pass": true,
+              "properties": [
+                "determinism",
+                "reset_exactness",
+                "state_hygiene",
+                "contract",
+                "swap_rollback",
+                "label_accuracy",
+                "budget",
+                "latency",
+                "cross_modal_binding"
+              ]
+            },
+            "objectfolder-passthrough": {
+              "statuses": {
+                "determinism": "pass",
+                "reset_exactness": "pass",
+                "state_hygiene": "pass",
+                "contract": "skip",
+                "swap_rollback": "skip",
+                "label_accuracy": "skip",
+                "budget": "skip",
+                "latency": "pass",
+                "cross_modal_binding": "fail"
+              },
+              "counts": {
+                "pass": 4,
+                "fail": 1,
+                "skip": 4
+              },
+              "smoke_pass": true,
+              "properties": [
+                "determinism",
+                "reset_exactness",
+                "state_hygiene",
+                "contract",
+                "swap_rollback",
+                "label_accuracy",
+                "budget",
+                "latency",
+                "cross_modal_binding"
+              ]
+            },
+            "objectfolder-nn-binding": {
+              "statuses": {
+                "determinism": "pass",
+                "reset_exactness": "pass",
+                "state_hygiene": "pass",
+                "contract": "skip",
+                "swap_rollback": "skip",
+                "label_accuracy": "skip",
+                "budget": "skip",
+                "latency": "pass",
+                "cross_modal_binding": "fail"
+              },
+              "counts": {
+                "pass": 4,
+                "fail": 1,
+                "skip": 4
+              },
+              "smoke_pass": true,
+              "properties": [
+                "determinism",
+                "reset_exactness",
+                "state_hygiene",
+                "contract",
+                "swap_rollback",
+                "label_accuracy",
+                "budget",
+                "latency",
+                "cross_modal_binding"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "summary": {
+      "systems": {
+        "pss-runtime": {
+          "statuses": {
+            "determinism": "pass",
+            "reset_exactness": "pass",
+            "state_hygiene": "pass",
+            "contract": "pass",
+            "swap_rollback": "pass",
+            "label_accuracy": "skip",
+            "budget": "pass",
+            "latency": "pass",
+            "cross_modal_binding": "fail"
+          },
+          "metrics": {
+            "determinism": {
+              "agreement": 1.0,
+              "final_state_match": 1.0,
+              "observation_id_match": 1.0
+            },
+            "reset_exactness": {
+              "replay_agreement": 1.0,
+              "reset_exact": 1.0
+            },
+            "state_hygiene": {
+              "digest_ok": 1.0,
+              "finite_arrays": 1.0,
+              "state_bytes": 616.0,
+              "within_size_bound": 1.0
+            },
+            "contract": {
+              "audit_present": 1.0,
+              "invalid_keeps_state": 1.0,
+              "invalid_rejected": 1.0,
+              "rollback_exact": 1.0,
+              "swap_accepted": 1.0
+            },
+            "swap_rollback": {
+              "post_rollback_swap": 1.0,
+              "rollback_exact": 1.0,
+              "swap_changed_state": 1.0,
+              "swap_success_rate": 1.0
+            },
+            "label_accuracy": {},
+            "budget": {
+              "budget_ms": 50.0,
+              "elapsed_p50_ms": 1.4132500000414439,
+              "elapsed_p99_ms": 3.0677400011336418,
+              "errors": 0.0,
+              "frames": 200.0,
+              "timeout_rate": 0.005
+            },
+            "latency": {
+              "max_ms": 3.708399999595713,
+              "n": 200.0,
+              "p50_ms": 1.5975500009517418,
+              "p99_ms": 3.1919330013988634
+            },
+            "cross_modal_binding": {
+              "chance": 0.01,
+              "chance_r5": 0.05,
+              "n": 100.0,
+              "permutation_p": 0.6268656716417911,
+              "permutations": 200.0,
+              "r1": 0.01,
+              "r5": 0.03,
+              "touch_to_vision_r1": 0.01,
+              "touch_to_vision_r5": 0.04
+            }
+          },
+          "smoke": {
+            "determinism": true,
+            "reset_exactness": true,
+            "state_hygiene": true,
+            "contract": false,
+            "swap_rollback": false,
+            "label_accuracy": false,
+            "budget": false,
+            "latency": false,
+            "cross_modal_binding": false
+          },
+          "smoke_pass": true
+        },
+        "objectfolder-passthrough": {
+          "statuses": {
+            "determinism": "pass",
+            "reset_exactness": "pass",
+            "state_hygiene": "pass",
+            "contract": "skip",
+            "swap_rollback": "skip",
+            "label_accuracy": "skip",
+            "budget": "skip",
+            "latency": "pass",
+            "cross_modal_binding": "fail"
+          },
+          "metrics": {
+            "determinism": {
+              "agreement": 1.0,
+              "final_state_match": 1.0,
+              "observation_id_match": 1.0
+            },
+            "reset_exactness": {
+              "replay_agreement": 1.0,
+              "reset_exact": 1.0
+            },
+            "state_hygiene": {
+              "digest_ok": 1.0,
+              "finite_arrays": 1.0,
+              "state_bytes": 59.0,
+              "within_size_bound": 1.0
+            },
+            "contract": {},
+            "swap_rollback": {},
+            "label_accuracy": {},
+            "budget": {},
+            "latency": {
+              "max_ms": 0.005300000339047983,
+              "n": 200.0,
+              "p50_ms": 0.0021999985619913787,
+              "p99_ms": 0.003200998908141627
+            },
+            "cross_modal_binding": {
+              "chance": 0.01,
+              "chance_r5": 0.05,
+              "n": 100.0,
+              "permutation_p": 0.6567164179104478,
+              "permutations": 200.0,
+              "r1": 0.01,
+              "r5": 0.04,
+              "touch_to_vision_r1": 0.02,
+              "touch_to_vision_r5": 0.06
+            }
+          },
+          "smoke": {
+            "determinism": true,
+            "reset_exactness": true,
+            "state_hygiene": true,
+            "contract": false,
+            "swap_rollback": false,
+            "label_accuracy": false,
+            "budget": false,
+            "latency": false,
+            "cross_modal_binding": false
+          },
+          "smoke_pass": true
+        },
+        "objectfolder-nn-binding": {
+          "statuses": {
+            "determinism": "pass",
+            "reset_exactness": "pass",
+            "state_hygiene": "pass",
+            "contract": "skip",
+            "swap_rollback": "skip",
+            "label_accuracy": "skip",
+            "budget": "skip",
+            "latency": "pass",
+            "cross_modal_binding": "fail"
+          },
+          "metrics": {
+            "determinism": {
+              "agreement": 1.0,
+              "final_state_match": 1.0,
+              "observation_id_match": 1.0
+            },
+            "reset_exactness": {
+              "replay_agreement": 1.0,
+              "reset_exact": 1.0
+            },
+            "state_hygiene": {
+              "digest_ok": 1.0,
+              "finite_arrays": 1.0,
+              "state_bytes": 4762.0,
+              "within_size_bound": 1.0
+            },
+            "contract": {},
+            "swap_rollback": {},
+            "label_accuracy": {},
+            "budget": {},
+            "latency": {
+              "max_ms": 0.18970000019180588,
+              "n": 200.0,
+              "p50_ms": 0.07594999988214113,
+              "p99_ms": 0.17196499924466474
+            },
+            "cross_modal_binding": {
+              "chance": 0.01,
+              "chance_r5": 0.05,
+              "n": 100.0,
+              "permutation_p": 0.6567164179104478,
+              "permutations": 200.0,
+              "r1": 0.01,
+              "r5": 0.04,
+              "touch_to_vision_r1": 0.02,
+              "touch_to_vision_r5": 0.06
+            }
+          },
+          "smoke": {
+            "determinism": true,
+            "reset_exactness": true,
+            "state_hygiene": true,
+            "contract": false,
+            "swap_rollback": false,
+            "label_accuracy": false,
+            "budget": false,
+            "latency": false,
+            "cross_modal_binding": false
+          },
+          "smoke_pass": true
+        }
+      }
+    },
+    "preregistration": {
+      "ok": true,
+      "mismatches": []
+    }
+  },
+  "caveats": [
+    "ObjectFolder is a public dataset of implicit object representations; rendered vision/tactile images are not raw robot sensor captures.",
+    "No poses, depth, segmentation, scenes, or synchronized multi-frame stream: L2 identity/tracking and sim2real claims are out of scope.",
+    "The standard identity_retention property is not applicable: with no poses every detection collapses to one track (degenerate pass). It was removed; cross_modal_binding is used instead.",
+    "The PSS runtime's projection here is a random adapter projection, not a projection head trained on real ObjectFolder pairs; its binding R@1 is a path-connectivity measurement, not a PSS capability result.",
+    "Historical 100-object ObjectFolder results (zero-shot R@1 ~chance; trained tactile encoder held-out R@1 ~0.22) are the stronger evidence and should be cited instead of this 20-object spike for capability."
+  ],
+  "generated": "2026-11-26 08:21:11 UTC"
+}
