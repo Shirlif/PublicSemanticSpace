@@ -1,7 +1,18 @@
-# PSS v0.1.0 — Property Validation Suite
+# PSS v0.1.0 — Technical Report + Property Validation
 
 First tagged release of **Public Semantic Space (PSS)**, a contract-level modular
 architecture for embodied AI.
+
+## Technical report
+
+- **PSS: A Cognitive Runtime Above Perception** — 12-page technical report
+  (`paper/main.tex`; PDF and TeX source attached to this release).
+- **DOI**: `10.5281/zenodo.24549223`
+  (<https://zenodo.org/records/24549223>); concept DOI
+  `10.5281/zenodo.24549222` (all versions).
+- The report separates the architecture claim from expert quality with a
+  property-level evaluation protocol, and reports boundary conditions and
+  negative results.
 
 ## Highlights
 
@@ -36,6 +47,8 @@ architecture for embodied AI.
 - `scripts/run_property_*.py`, `scripts/make_*_manifest.py`
 - `eval/EXPERIMENT_PLAN_PROPERTIES.md`, `eval/property_preregistration.md`
 - `reports/property_validation/REPORT.md` and `SECTION15_RESULTS.md` with figures
+- `reports/claim_gaps/` (E1–E20 evidence, `INDEX.md`, `FOLLOWUPS.md`)
+- `paper/` (technical report source; `supplement.tex` for additional diagnostics)
 - `scorecards/property/` (raw results, manifests, expert sha256)
 
 ## Known limitations
@@ -53,6 +66,11 @@ architecture for embodied AI.
 ## Citation
 
 Use `CITATION.cff` or the "Cite this repository" button on GitHub.
+
+Paper (APA):
+
+> Qi, J. (2026). *PSS: A Cognitive Runtime Above Perception* (Version 0.1.0).
+> Zenodo. https://doi.org/10.5281/zenodo.24549223
 
 ## License
 
