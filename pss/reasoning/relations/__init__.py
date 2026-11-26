@@ -12,6 +12,13 @@ import numpy as np
 
 from pss.binding import RelationEncoder, cosine
 
+from .closure import (
+    INVERSE,
+    PREDICATES,
+    SYMMETRIC,
+    ClosureTable,
+    default_closure,
+)
 from .contact import contact_pairs
 
 BIN_HALF = 0.06
@@ -194,3 +201,15 @@ def relations_from_frame(
             records.append(RelationRecord(a, "contact", b, 1.0, "collision_geometry"))
             records.append(RelationRecord(b, "contact", a, 1.0, "collision_geometry"))
     return records
+
+
+# Imported last on purpose: ``inference`` imports ``RelationRecord`` from this
+# package, so the symbol must already be defined when this line executes.
+from .inference import (  # noqa: E402
+    DerivedFact,
+    InferenceResult,
+    backward_chain,
+    derive,
+    derive_records,
+)
+

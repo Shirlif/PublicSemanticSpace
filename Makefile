@@ -1,4 +1,4 @@
-.PHONY: demo test bench bench-quick bench-phase1 data expert-data train-experts projection prototypes memory phase7 phase8 phase9 phase10 hard-occlusion rd2-mock pretrained-expert public-smoke-wt public-smoke-opengraph public-smoke-daimon tactile-wtmm projection-wtmm t1-instance t1-diagnostics public-space-bank public-space-demo category-pretrain-data category-pretrain-train category-pretrain-projection category-pretrain-prototypes category-pretrain encoder-priority encoder-priority-smoke typed-relations active-policy language-head bilevel runtime runtime-phase17 runtime-defaults runtime-encoder runtime-binding runtime-rules runtime-planning runtime-language runtime-audit suite-smoke suite clevr-image tao-frames tao-pss repro-pack repro-fetch reproduce-l2 all
+.PHONY: demo test bench bench-quick bench-phase1 data expert-data train-experts projection prototypes memory phase7 phase8 phase9 phase10 hard-occlusion rd2-mock pretrained-expert public-smoke-wt public-smoke-opengraph public-smoke-daimon tactile-wtmm projection-wtmm t1-instance t1-diagnostics public-space-bank public-space-demo category-pretrain-data category-pretrain-train category-pretrain-projection category-pretrain-prototypes category-pretrain encoder-priority encoder-priority-smoke typed-relations operator-derivation composition-loop active-policy language-head bilevel runtime runtime-phase17 runtime-defaults runtime-encoder runtime-binding runtime-rules runtime-planning runtime-language runtime-audit suite-smoke suite clevr-image tao-frames tao-pss repro-pack repro-fetch reproduce-l2 all
 
 demo:
 	python -m pss.demos.semantic_space_demo
@@ -187,6 +187,16 @@ encoder-priority-smoke:
 # vs hybrid edges, and runs P5b with a learned spatial relation predicate.
 typed-relations:
 	python -m pss.eval.scripts.run_typed_relations --stage all --device cuda
+
+# P0-P3 operator evaluation: closure derivation on the transitive family, frame
+# scoping on frame/perspective, and a holdout precision/recall check.
+operator-derivation:
+	python -m pss.eval.scripts.run_operator_derivation --out reports/claim_gaps/operator_derivation --n-per-family 200
+
+# Minimal typed composition loop: 25 laundry + 25 spatial tasks, four
+# strategies (direct, frame-blind, typed, typed+cache).
+composition-loop:
+	python -m pss.eval.scripts.run_composition_loop --out reports/claim_gaps/composition_loop --n-laundry 25 --n-spatial 25
 
 # Third priority: learned active-set and write policies. Trains a listwise
 # candidate selector with calibrated fallback, a write/review policy, and a

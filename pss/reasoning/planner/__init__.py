@@ -126,3 +126,14 @@ class AStarPlanner:
         confidence_weight: float = 0.5,
     ) -> PlanResult:
         return self.plan(current, goal, confidence, threshold, confidence_weight)
+
+
+# Imported last: ``decompose`` imports ``AStarPlanner`` and ``PlanResult`` from
+# this package, so those symbols must already be defined.
+from .decomposition import (  # noqa: E402
+    CompositionPlanner,
+    Decomposition,
+    Subgoal,
+    decompose,
+    simulate,
+)
