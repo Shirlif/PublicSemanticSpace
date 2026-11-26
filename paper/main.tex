@@ -1,15 +1,16 @@
 % PSS: A Cognitive Runtime Above Perception
-% arXiv skeleton. Compile with pdflatex + bibtex (or upload the whole
-% paper/ directory to arXiv/Overleaf). Replace TODO comments with the final
-% text before submission.
+% Technical report draft (target: 10--12 pages).
+% Compile with pdflatex + bibtex. Replace TODO comments before submission.
 
-\documentclass[11pt]{article}
+\documentclass[10pt]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{times}
-\usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+\usepackage[scaled=0.85]{newtxtt}
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{multirow}
@@ -22,12 +23,13 @@
 \usetikzlibrary{positioning,arrows.meta}
 \usepackage[numbers,round]{natbib}
 \usepackage{url}
+\usepackage{xurl}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 
 \newcommand{\pss}{PSS}
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
 
-\title{\pss: A Cognitive Runtime Above Perception\\[2pt]
+\title{\pss: A Cognitive Runtime Above Perception\\[3pt]
 \large Contract-Level Modularity and Property-Level Evaluation for Embodied AI}
 
 \author{Jiahe Qi\\
@@ -36,9 +38,12 @@ ORCID: 0009-0001-8379-631X\\
 \texttt{qijiaheX@126.com}\\
 \small Code and reports: \url{https://github.com/Shirlif/PublicSemanticSpace}}
 
-\date{}
+\date{November 2026}
 
 \begin{document}
+
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.05}
 
 \maketitle
 
@@ -49,118 +54,179 @@ end-to-end model. Swapping an expert then forces retraining the whole stack,
 knowledge updates cannot be inspected or rolled back, and inference cost has no
 hard bound. We present \pss, a cognitive runtime above perception: a pluggable
 expert layer governed by an admission contract, a public semantic space used as
-a calibratable interface rather than a zero-shot coordinate system, and an
-explicit state layer that maintains persistent entity identity, typed relations,
-active-set memory, a versioned truth-maintenance store, and bounded inference.
-We evaluate \pss at the property level, treating expert quality as a controlled
-factor, pairing architecture variants as twins, and testing the metrics with
-negative controls. Across L0/L1 experiments the hot-swap contract (swap
-success, rollback exactness, non-interference, routing) is invariant to expert
-quality, while semantic compatibility is not: cross-family zero-shot swap falls
-to chance, and one-shot calibration recovers vision but not tactile.
-Entity-state audit, typed relations, active-set selection, and bounded
-inference are measured separately, and an L2 bundle replay isolates the
-contribution of the memory layer from the perception stream. We report boundary
-conditions and negative results, including a $+0.012$ fair-attribution
-re-identification gain and a case where retraining experts is no better than
-rebuilding prototypes on frozen features. \pss is not a foundation model; it is
-a contract-level runtime and a measurement protocol.
+a calibratable alignment interface rather than a zero-shot coordinate system,
+and an explicit state layer that maintains persistent entity identity, typed
+relations, active-set memory, a versioned truth-maintenance store, uncertainty
+and abstention, and bounded inference. We evaluate \pss at the property level,
+treating expert quality as a controlled factor, pairing architecture variants
+as twins, and testing the metrics with negative controls. Across L0/L1
+experiments the hot-swap contract (swap success, rollback exactness,
+non-interference, routing) is invariant to expert quality, while semantic
+compatibility is not: cross-family zero-shot swap falls to chance, and one-shot
+calibration recovers vision but not tactile. Entity-state audit, typed
+relations, active-set selection, and bounded inference are measured separately,
+and a replay over the same detection stream isolates the contribution of the
+memory layer from perception. We report boundary conditions and negative
+results, including a $+0.012$ fair-attribution re-identification gain, a
+closed-set accuracy that is invariant to the projection space, and a case where
+retraining experts is no better than rebuilding prototypes on frozen features.
+\pss is not a foundation model; it is a contract-level runtime and a
+measurement protocol.
 \end{abstract}
 
 %-------------------------------------------------------------------------------
 \section{Introduction}
 \label{sec:intro}
 
+\subsection{The upgrade problem}
+
 Embodied systems are in a permanent upgrade cycle: encoders improve, modalities
 are added, sensors are replaced. The perception stack is expected to change.
 The cognitive state---who is who, what is related to what, what is remembered,
 what can be rolled back---is usually buried in the same end-to-end model. This
-creates three failures:
+creates three failures.
 
-\begin{enumerate}[leftmargin=*]
-  \item \textbf{No hot-swap.} Replacing one expert forces retraining or
-        fine-tuning the whole stack; it is hard to show that only the intended
-        module changed.
-  \item \textbf{No knowledge transaction.} Facts, rules, and prototypes are
-        updated by changing parameters or retraining, so locality, rollback,
-        and audit are undefined.
-  \item \textbf{No cost bound.} Inference grows with history or context, with
-        no hard cap and no graceful degradation.
-\end{enumerate}
+\textbf{No hot-swap.} Replacing one expert forces retraining or fine-tuning the
+whole stack. Even when the new system scores better, it is hard to show that
+only the intended module changed. The old capability may be forgotten
+\citep{kirkpatrick2017ewc}, and the new behavior is entangled with every other
+parameter.
 
-Existing evaluations often mix these properties with end-to-end accuracy. A
-higher score can come from a stronger encoder, a better-tuned projection, a
-different prototype, or the architecture itself. Without a controlled
-comparison, the architectural contribution is not identified.
+\textbf{No knowledge transaction.} Facts, rules, and prototypes are updated by
+changing parameters or retraining. Locality, rollback, and audit are undefined:
+an update may silently change unrelated beliefs, and there is no exact state to
+restore.
 
-\paragraph{This paper.}
+\textbf{No cost bound.} Inference grows with history or context. There is no
+hard cap, no anytime guarantee, and no explicit degradation path when the
+budget is exhausted.
+
+\subsection{The evaluation confound}
+
+The usual evaluation of such systems is end-to-end accuracy. A higher score can
+come from a stronger encoder, a better projection, a different prototype, a
+different runtime, or the task itself. Without a controlled comparison, the
+architectural contribution is not identified.
+
+This is not a hypothetical concern. In our own re-identification experiments, a
+graph-based matcher appeared to beat a transformer by $+0.081$. Giving the
+transformer the same tactile input and the same assignment procedure reduced the
+gap to $+0.012$. Most of the apparent architectural advantage was the sensory
+signal, not the association algorithm. A protocol that does not perform this
+control would have reported the larger number as an architecture result.
+
+\subsection{Our approach}
+
 \pss treats the cognitive state as a first-class, explicit layer above frozen
 sensory experts. The public semantic space is an alignment interface between
 experts and that layer, not a universal coordinate system. The architecture is
 governed by four contracts: expert admission, hot-swap, versioned knowledge, and
-bounded inference. The evaluation is property-level: expert quality is a
-controlled factor, architecture variants are paired twins, and negative
-controls test whether the metrics are sensitive.
+bounded inference.
 
-\paragraph{Contributions.}
+The evaluation is property-level. Expert quality is a controlled factor;
+architecture variants are paired twins; negative controls test whether the
+metrics are sensitive; equivalence tests ask whether a property is invariant,
+not merely whether a difference was detected. The goal is to make
+\emph{architecture} measurable separately from \emph{expert quality}.
+
+\subsection{Contributions}
+
 \begin{itemize}[leftmargin=*]
   \item \textbf{C1 (cognitive state).} An explicit entity layer with persistent
-        identity, lifecycle, provenance, and auditable retraction/rollback; a
+        identity, lifecycle, provenance, and auditable retraction/rollback. A
         property suite measures provenance completeness, retraction correctness,
-        rollback exactness, and tamper detection.
+        rollback exactness, rebind identity, and tamper detection.
   \item \textbf{C2 (typed relations).} Spatial, semantic, and tactile relation
-        heads; exact geometric predicates remain the backbone, and learned
+        heads. Exact geometric predicates remain the backbone; learned
         relations act as a calibration channel only inside their training
         regime.
   \item \textbf{C3 (active-set memory).} Observation-conditioned selection
-        matches full-candidate accuracy with a small number of candidates; the
+        matches full-candidate accuracy with a small number of candidates. The
         long-horizon fact-selection failure is traced to a missing
-        query-conditioning interface.
+        query-conditioning interface, not to insufficient learning.
   \item \textbf{C4 (contract preconditions).} Admission, atomic hot-swap,
         versioned knowledge with TMS justifications, and bounded inference are
-        measured independently of expert quality; a contract-free baseline
-        fails the same suite.
+        measured independently of expert quality. A contract-free baseline fails
+        the same suite.
   \item \textbf{C5 (evaluation protocol).} A property-level protocol with
         expert-quality control, twin pairing, negative controls, equivalence
         tests, variance decomposition, and preregistration.
-  \item \textbf{C6 (calibratable interface).} Cross-family zero-shot swap is
-        not assumed; calibration is part of admission, and its cost is reported
+  \item \textbf{C6 (calibratable interface).} Cross-family zero-shot swap is not
+        assumed. Calibration is part of admission, and its cost is reported
         separately from capability.
 \end{itemize}
 
-\paragraph{What this paper is not.}
+\subsection{What this report is not}
+
 It does not claim state-of-the-art perception, zero-shot semantic compatibility
 across expert families, real-robot reliability, or large-scale scaling. It is a
-systems and measurement paper.
+systems and measurement report. The negative results are part of the
+contribution: they show where the architecture stops and where the expert or
+the data begins.
+
+\subsection{Organization}
+
+Section~\ref{sec:related} positions the work. Section~\ref{sec:method} describes
+the architecture and contracts. Section~\ref{sec:evaluation} specifies the
+protocol. Section~\ref{sec:results} reports the experiments. Sections~\ref{sec:discussion}
+and~\ref{sec:limitations} discuss implications and boundaries.
 
 %-------------------------------------------------------------------------------
 \section{Related Work}
 \label{sec:related}
 
-\paragraph{Modular deep learning.}
-Adapters, mixture-of-experts, and model merging study how to train and combine
-modules \citep{pfeiffer2023modular}. \pss focuses on what happens \emph{after} a
-module is swapped: admission, routing, non-interference, rollback, and audit.
+\subsection{Modular deep learning}
 
-\paragraph{Knowledge update and truth maintenance.}
-Knowledge editing and retrieval-augmented models update or retrieve facts
-\citep{lewis2020rag,meng2022rome,decao2021editing}. Truth-maintenance systems
-maintain justifications and propagate retractions \citep{doyle1979tms}. \pss
-puts a TMS-style layer behind the production fact store and measures atomicity,
-locality, propagation, conflict detection, rollback, and audit.
+Adapters, mixture-of-experts layers, and model merging study how to train,
+route, and combine modules \citep{pfeiffer2023modular}. The focus is usually on
+training the modules or on the routing policy. \pss focuses on what happens
+\emph{after} a module is swapped: admission, routing, non-interference,
+rollback, and audit. The contract is the object of study, not only the module.
 
-\paragraph{Bounded inference.}
+\subsection{Knowledge update and truth maintenance}
+
+Knowledge editing changes facts in a model's parameters
+\citep{meng2022rome,decao2021editing}; retrieval-augmented models keep facts
+external and retrieve them at inference time \citep{lewis2020rag}. Truth
+maintenance systems maintain justifications and propagate retractions
+\citep{doyle1979tms}. \pss puts a TMS-style layer behind the production fact
+store and measures atomicity, locality, propagation, conflict detection,
+rollback, and audit. The difference from a database transaction is semantic:
+justifications are retracted and re-derived, not only rows.
+
+\subsection{Bounded inference}
+
 Anytime and resource-bounded reasoning trade quality for a hard budget
 \citep{zilberstein1996anytime}. \pss makes the budget a runtime contract:
 entity, relation, expansion, and latency caps, with an explicit degradation
-FSM.
+FSM. Budget adherence, monotonicity, and degradation correctness are measured
+as properties, not as average latency.
 
-\paragraph{Cognitive architectures and world models.}
+\subsection{Cognitive architectures and world models}
+
 Cognitive architectures organize perception, memory, and action
-\citep{eliasmith2012spaun,sumers2024coala}; world models learn dynamics for
+\citep{eliasmith2012spaun,sumers2024coala}. World models learn dynamics for
 planning \citep{hafner2023dreamerv3,bardes2024vjepa}. \pss does not compete with
-a learned world model; it makes the state between perception and action explicit
-and auditable.
+a learned world model. It makes the state between perception and action
+explicit, inspectable, and auditable. The world model, when present, is one
+component inside the runtime.
+
+\subsection{Evaluation of modular systems}
+
+End-to-end benchmarks measure capability. They are necessary, but they do not
+separate the architecture from the expert. Controlled ablations, negative
+controls, and preregistration are standard in empirical science; they are less
+common in modular embodied systems. \pss contributes a protocol that treats
+expert quality as a factor, pairs architecture variants, and asks whether a
+property is invariant. The protocol is designed to be falsifiable: a negative
+control that passes invalidates the suite.
+
+\subsection{Positioning}
+
+The contribution is not the first use of adapters, TMS, or anytime planning.
+It is the combination of these mechanisms under a single contract, plus a
+measurement protocol that makes the architectural claim separable from expert
+quality. The report is deliberately narrow: it measures what it can control.
 
 %-------------------------------------------------------------------------------
 \section{\pss: Architecture and Contracts}
@@ -171,16 +237,16 @@ and auditable.
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-  node distance=4.5mm and 6mm,
-  box/.style={draw, rounded corners, align=center, minimum width=5.2cm,
-              minimum height=0.65cm, font=\small},
-  wide/.style={box, minimum width=9.2cm},
+  node distance=3.5mm and 6mm,
+  box/.style={draw, rounded corners, align=center, minimum width=5.6cm,
+              minimum height=0.58cm, font=\small},
+  wide/.style={box, minimum width=9.6cm},
   arrow/.style={-{Latex[length=2mm]}, thick}
 ]
 \node[box] (experts) {Sensory experts\\vision / tactile / geometry / language};
 \node[box, below=of experts] (proj) {Per-modality projection\\public semantic space (alignment interface)};
 \node[wide, below=of proj] (runtime) {Cognitive runtime};
-\node[wide, below=of runtime, minimum height=1.8cm] (layers)
+\node[wide, below=of runtime, minimum height=1.55cm] (layers)
   {EntityLayer $\rightarrow$ RelationFactLayer $\rightarrow$ Uncertainty\\
    $\rightarrow$ Planner $\rightarrow$ OutputRouter $\rightarrow$ Audit};
 \node[box, below=of layers] (out) {Action / behavior / language / safety heads};
@@ -198,55 +264,119 @@ runtime maintains explicit state, knowledge, uncertainty, plans, and audit.}
 Figure~\ref{fig:architecture} shows the layering. \pss does not encode images or
 text; it binds observations into persistent entities, computes typed relations,
 maintains active-set memory and versioned facts, plans under a budget, and
-routes the state to action, language, or safety heads.
+routes the state to action, language, or safety heads. The runtime is not a
+wrapper around a single model: it owns state that outlives any particular
+encoder.
 
-\subsection{Expert contract and hot-swap}
+\subsection{Expert contract and admission}
 
-An expert declares its modality, version, output dimension, encoder, and health.
-The admission contract validates these fields, probes the expert on a fixed
-batch, and rejects invalid modules. A swap is atomic: the old module remains
-active on failure, the new module is routed by modality and version, unrelated
-modules are behavior-hashed before and after, and rollback restores the previous
-module exactly.
+An expert declares its modality, version, output dimension, encoder identity,
+and health. The admission contract validates these fields, probes the expert on
+a fixed batch, and rejects modules that violate the contract: wrong dimension,
+non-normalized output, NaN values, or a failed probe.
+
+Admission is not a formality. It is what makes hot-swap safe. A module that
+does not satisfy the contract cannot be activated, and the old module stays in
+place. The registry records the active version per modality, the swap stack, and
+an audit entry for every registration, swap, rejection, and rollback.
+
+A swap is atomic. The new module is validated before activation; on failure, the
+old module remains active. On success, the new module is routed by modality and
+version, unrelated modules are behavior-hashed before and after, and rollback
+restores the previous module exactly. The behavior hash is computed on a fixed
+probe batch and is used as the exactness check.
 
 \subsection{Public semantic space as a calibratable interface}
 
 Each modality has its own projection and prototype bank. We never sum
-modalities into a single vector: addition is not separable, and the per-modality
-structure is what allows cross-modal retrieval. The space is not assumed to be
-shared zero-shot across expert families. A new family is admitted with a small
-calibration set; the calibration cost is reported as part of the swap, not hidden
-in an end-to-end score.
+modalities into a single vector: addition is not separable, and the
+per-modality structure is what allows cross-modal retrieval. The public space is
+an alignment interface, not a universal coordinate system.
 
-\subsection{Explicit cognitive state}
+This distinction matters for admission. A new expert family is not assumed to
+land in the existing space zero-shot. It is admitted with a small calibration
+set; the calibration cost is reported as part of the swap. In our experiments,
+cross-family zero-shot vision accuracy is near chance, while one-shot
+calibration recovers most of the vision gap. Tactile remains limited by the
+tactile expert itself. Calling this a failure would miss the design: calibration
+is an admission requirement, not a property of the model.
 
-The runtime maintains:
-\begin{itemize}[leftmargin=*]
-  \item persistent entity IDs, lifecycle, attributes, confidence, and provenance;
-  \item typed relation facts (spatial, semantic, tactile) written into a scene
-        graph;
-  \item active-set memory and versioned facts with TMS justifications;
-  \item uncertainty, conflict, abstention, and an audit log;
-  \item snapshots, rollback, and permission-scoped actions.
-\end{itemize}
-Entity state changes carry provenance; retraction removes only the target
-attribute; rollback restores a bit-exact state hash; an edited audit entry is
-detected by a hash chain.
+\subsection{Entity layer and binding}
+
+The entity layer maintains a persistent ID, lifecycle state, attributes,
+confidence, and provenance for each object. A working-memory slot is a
+position, not an identity: an entity keeps its ID when it is evicted and later
+reloaded, and the bound representation is rebuilt from the persistent raw
+features. This rule prevents the common bug where a slot is confused with an
+object.
+
+State changes are explicit. Witnessing records the observation source and
+frame; revising records the old and new value; retracting removes one attribute
+and leaves the rest unchanged. The audit log is hash-chained, so an edited entry
+is detectable. A snapshot and rollback restore a bit-exact state hash.
+
+\subsection{Typed relations}
+
+The relation layer computes spatial, semantic, and tactile relations. Exact
+geometric predicates are the backbone: left, right, above, below, contact, near,
+and category equality. Learned heads provide a calibration channel, not a
+replacement. They are trained on simulation labels and are used only where their
+training distribution covers the input.
+
+The distinction is empirical. In-distribution relation F1 is high; removing
+tactile drops tactile F1 sharply, which shows the head is not using a shortcut.
+On held-out regions, learned relations generalize better than an end-to-end
+policy but worse than exact geometry. The correct form is a hybrid: geometry
+owns aligned and held-out axes, learned relations calibrate the clear-diagonal
+regime. A naive hybrid that applies learned relations to unseen aligned axes is
+worse than either component.
+
+\subsection{Active-set memory and versioned knowledge}
+
+The runtime maintains an active set of entities and facts. The active-set
+policy scores candidates for the current observation; a calibrated margin
+decides when to fall back to a larger context. The write policy decides which
+observations are worth storing; uncertain items go to review instead of being
+written.
+
+Knowledge is versioned. The fact store supports assert, retract, update,
+rollback, and audit. Multiple sources are resolved by priority and timestamp;
+conflicts are reported rather than silently overwritten. A TMS-style
+justification layer tracks dependencies: retracting a source propagates to the
+facts that depend on it. The production wrapper keeps the multi-source fact
+store as the assertion table and uses the TMS for derived labels.
+
+\subsection{Uncertainty, abstention, audit, and permissions}
+
+Each observation carries modality reliability and conflict flags. When
+modalities disagree, the runtime can lower coverage and abstain instead of
+forcing a prediction. The output router exposes the decision, its citations,
+and the safety verdict.
+
+All state changes are audited. Permissions are scoped: read-only, service,
+operator, and admin profiles allow different actions; denied actions are
+recorded. Rollback restores a version, and the audit log remains available for
+inspection. This is the part of the system that makes the architecture
+inspectable rather than merely modular.
 
 \subsection{Bounded inference}
 
 The budget controller caps the number of entities, relations, planner
 expansions, and retrieval levels. The planner is anytime: it returns a valid
 partial plan at interruption, and a degradation FSM moves between normal,
-warning, degraded, emergency, and offline states. Budget adherence, monotonicity,
-and degradation correctness are measured as properties.
+warning, degraded, emergency, and offline states. Cost attribution records the
+time spent in each stage so that a budget violation can be localized.
+
+The property is not average speed. It is adherence: the node count stays within
+the cap, the quality is monotone in the budget, and the degradation state is
+correct. These are measured directly.
 
 \subsection{Property versus capability}
 
 \begin{table}[t]
 \centering
 \small
-\begin{tabular}{@{}p{0.22\linewidth}p{0.34\linewidth}p{0.34\linewidth}@{}}
+\begin{tabular}{@{}p{0.24\linewidth}p{0.33\linewidth}p{0.33\linewidth}@{}}
 \toprule
  & \textbf{Property} & \textbf{Capability} \\
 \midrule
@@ -256,47 +386,103 @@ Purpose & architecture contract & expert/interface diagnostics \\
 \bottomrule
 \end{tabular}
 \caption{Property metrics are designed to be invariant to expert quality;
-capability metrics are not. Mixing them is the confound this paper avoids.}
+capability metrics are not. Mixing them is the confound this report avoids.}
 \label{tab:property-capability}
 \end{table}
 
 Table~\ref{tab:property-capability} is the pivot of the evaluation. If a metric
 moves with expert quality, it is a capability or diagnostic, not a contract
-property. ZCR is treated as capability for this reason.
+property. ZCR is treated as capability for this reason. The distinction is not
+cosmetic: it determines which claims the data can support.
+
+\subsection{Implementation notes}
+
+The implementation is Python with PyTorch for the learned components. Frozen
+experts and projection heads are stored as checkpoints with SHA-256 manifests.
+The L0 sandbox uses structured observations and expert stubs; L1 uses real
+frozen experts and projections; L2 uses bundle replay and a fresh Isaac S4-PSS
+episode. The same runtime code is used across levels; the level changes the
+observation source, not the architecture.
 
 %-------------------------------------------------------------------------------
 \section{Evaluation Protocol}
 \label{sec:evaluation}
 
-\paragraph{Levels.}
-\textbf{L0} uses structured observations and expert stubs to isolate the
-architecture. \textbf{L1} uses real frozen experts, projections, and
-prototypes. \textbf{L2} uses bundle replay and a fresh Isaac S4-PSS episode for
-external validity. Primary evidence is L0/L1; L2 can reveal contract violations
-but does not overturn a property claim.
+\subsection{Levels}
 
-\paragraph{Factors.}
-Expert quality $Q0$ (oracle) through $Q4$ (random) is a controlled factor.
-Architecture variants include full, per-modality, flat KB, unbounded, naive
-swap, and retrain-all (oracle upper bound). Difficulty is varied separately.
+\textbf{L0} uses structured observations and expert stubs. It isolates the
+architecture: no perception noise, full control over expert quality, exhaustive
+operation sequences. L0 is where the contract properties and negative controls
+are established.
 
-\paragraph{Pairing.}
+\textbf{L1} uses real frozen experts, real projection heads, and a prototype
+bank. Observations are built from the expert embeddings after the projection
+pipeline. L1 answers whether the contract survives real embeddings.
+
+\textbf{L2} uses bundle replay and a fresh Isaac S4-PSS episode. It provides
+external validity: real detection streams, real execution, and real timing. L2
+can reveal a contract violation, but it does not overturn a property claim that
+is established at L0/L1.
+
+\subsection{Data and assets}
+
+L0 uses synthetic scenes with controlled categories and observations. L1 uses
+the expert dataset and three independently trained expert families. L2 uses
+occlusion and tracking bundles plus the S4-PSS pick-and-place scene. The
+bundles contain per-frame detections, GT poses, entity traces, and runtime
+traces; the replay consumes only the detection table and never reads GT during
+association.
+
+\subsection{Factors and controls}
+
+Expert quality is a controlled factor: $Q0$ (oracle), $Q1$ (0.90), $Q2$
+(0.75), $Q3$ (0.55), $Q4$ (random). Architecture variants include full,
+per-modality, flat KB, unbounded, naive swap, and retrain-all (an oracle upper
+bound). Difficulty is varied separately. The design is reduced, not full
+factorial; the full factorial would multiply cost without changing the main
+contrasts.
+
+\subsection{Twin pairing}
+
 Each treated run has a control twin with the same spec hash, seed, scene, and
 episode; only the architecture or operation differs. Paired differences are the
-unit of causal analysis.
+unit of causal analysis. A twin comparison is stronger than comparing two runs
+with different seeds, and it is the reason the protocol can attribute a failure
+to a specific operation rather than to scene noise.
 
-\paragraph{Negative controls.}
+\subsection{Negative controls}
+
 N1--N8 deliberately break one contract at a time: flat KB, unbounded planner,
-naive swap, random expert, shuffled embeddings, no-op update, and an
-over-budget controller. A control that does not fail as specified invalidates
-the suite.
+no admission validation, random expert (capability and property), no-op update,
+shuffled embeddings, and an over-budget controller. A control that does not
+behave as specified invalidates the suite. The controls are not decoration;
+they are the evidence that the metrics are sensitive.
 
-\paragraph{Statistics and preregistration.}
+\subsection{Metrics}
+
+The primary property metrics are swap success rate (SSR), rollback exactness
+(RBE), interference (INT), routing correctness (RCR), locality violations
+(LOC), propagation correctness (PCR), audit completeness (AUD), budget adherence
+rate (BAR), monotonicity (MON), and degradation correctness (DCR). ZCR is a
+capability diagnostic. The definitions follow the preregistration; a change
+after the fact would be labelled exploratory.
+
+\subsection{Statistics and preregistration}
+
 We report paired bootstrap confidence intervals, TOST equivalence tests for
-invariance, and two-way ANOVA for descriptive variance decomposition. Metrics,
-thresholds, and kill criteria are frozen in
-\texttt{eval/property\_preregistration.md}; deviations are recorded and labelled
-exploratory.
+invariance, and two-way ANOVA for descriptive variance decomposition. Primary
+metrics use Holm--Bonferroni; exploratory metrics use Benjamini--Hochberg.
+Metrics, thresholds, and kill criteria are frozen in
+\path{eval/property_preregistration.md}. Deviations are recorded with date,
+reason, and whether they are exploratory.
+
+\subsection{Reproducibility}
+
+The repository contains the property suites, claim-gap experiments, raw
+scorecards, expert and run manifests, and the preregistration. The manifests
+record SHA-256 hashes, git revision, and environment. Experiments are
+deterministic given the seed and assets; asset-dependent tests are skipped when
+the assets are absent.
 
 %-------------------------------------------------------------------------------
 \section{Results}
@@ -325,19 +511,27 @@ are flat; ZCR tracks expert quality and is therefore a capability metric.}
 \label{tab:contract}
 \end{table}
 
-Table~\ref{tab:contract} is the central contract result: swap success,
-interference, and rollback exactness do not move as the expert degrades. ZCR
-does move, which is why it is reported separately.
-
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.92\linewidth]{figures/fig1_invariance.png}
+\includegraphics[width=0.9\linewidth]{figures/fig1_invariance.png}
 \caption{Invariance plot. Left: SSR, INT, and RBE stay flat across expert
 quality. Right: ZCR declines, confirming that it is a capability metric.}
 \label{fig:invariance}
 \end{figure}
 
-\subsection{Cognitive state and binding}
+Table~\ref{tab:contract} and Figure~\ref{fig:invariance} are the central
+contract result. Swap success, interference, and rollback exactness do not move
+as the expert degrades. ZCR does move, which is why it is reported separately.
+The twin deltas are consistent: a naive swap loses ZCR, a flat KB loses
+locality and rollback, and an unbounded planner loses budget adherence. These
+are the failures the contract is supposed to prevent.
+
+The result is not an artifact of one seed. The L0 suite is stable across five
+seeds; a ten-seed check leaves the contract metrics unchanged. L1, with real
+embeddings, gives the same pattern across five seeds: SSR, RBE, INT, and RCR are
+1.00, 1.00, 0.00, and 1.00, while ZCR varies with the expert.
+
+\subsection{Entity state and binding}
 
 \begin{table}[t]
 \centering
@@ -354,17 +548,9 @@ text-state proxy & 0.500 & 1.00 & 0.000 \\
 \bottomrule
 \end{tabular}
 \caption{Binding under a 70-frame full occlusion (60 sequences $\times$ 3 seeds).
-Same tracker, only the input channel is ablated. Contribution: tactile
-$+0.117$, graph/state $+0.072$, vision $+0.028$, state over no memory $+0.489$.}
+Same tracker, only the input channel is ablated.}
 \label{tab:binding}
 \end{table}
-
-Entity-state audit (E1) reports provenance completeness, retraction correctness,
-rebind identity, rollback exactness, and tamper detection all at $1.00$; the
-three negative controls (no audit log, no hash chain, shallow snapshot) fail
-their targeted metric at $0.00$. Binding is strong (Table~\ref{tab:binding}),
-but the decomposition shows that most of the signal is tactile, not the graph
-layer. The fair-attribution re-ID gain over a transformer is only $+0.012$.
 
 \begin{figure}[t]
 \centering
@@ -376,6 +562,21 @@ the no-memory proxy.}
 \label{fig:binding}
 \end{figure}
 
+Entity-state audit reports provenance completeness, retraction correctness,
+rebind identity, rollback exactness, and tamper detection all at $1.00$; the
+three negative controls (no audit log, no hash chain, shallow snapshot) fail
+their targeted metric at $0.00$. The audit chain is hash-linked, so editing an
+entry breaks the chain. This is the evidence for ``auditable'': it is a
+measured property, not an adjective.
+
+Binding is strong but not attributable to the graph layer alone
+(Table~\ref{tab:binding}, Figure~\ref{fig:binding}). The full model retains
+0.989 identity over a 70-frame occlusion. Zeroing tactile drops it to 0.872;
+zeroing vision drops it to 0.961; a simple tracker without the graph matcher
+reaches 0.917; the no-memory text proxy is at 0.500. The decomposition is
+tactile $+0.117$, graph/state $+0.072$, vision $+0.028$, and state over
+no-memory $+0.489$.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.82\linewidth]{figures/fig_fair_attribution.pdf}
@@ -385,52 +586,18 @@ reduces the architectural claim rather than inflating it.}
 \label{fig:fair}
 \end{figure}
 
+The fair-attribution result (Figure~\ref{fig:fair}) is the clearest example of
+what the protocol is for. Without tactile, the graph matcher is $+0.128$ over
+the transformer. With the same tactile input and the same assignment procedure,
+the gain is $+0.012$. The state layer is not the source of the accuracy; it is
+the source of the inspectable state. Both statements are true, and the protocol
+separates them.
+
 \subsection{Typed relations}
-
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{@{}lcc@{}}
-\toprule
-Relation type & F1 (clean) & F1 (tactile removed) \\
-\midrule
-spatial & 0.957 & -- \\
-semantic & 0.996 & -- \\
-tactile & 0.970 & 0.483 \\
-\bottomrule
-\end{tabular}
-\caption{Typed relation heads. Removing tactile drops tactile F1 to 0.483,
-which shows the head is not using a shortcut.}
-\label{tab:relations}
-\end{table}
-
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{@{}lc@{}}
-\toprule
-Method & Exact-4 accuracy at noise 0.15 \\
-\midrule
-geometry ($\epsilon=0.1$) & 0.537 \\
-geometry (dead zone 0.25) & 0.828 \\
-learned & 0.532 \\
-naive hybrid & 0.503 \\
-distribution-aware hybrid & 0.857 \\
-\bottomrule
-\end{tabular}
-\caption{Hybrid relations under coordinate noise on held-out regions. Learned
-relations help only inside their training regime; applying them to unseen
-aligned axes is worse than geometry.}
-\label{tab:hybrid}
-\end{table}
-
-The correct form is a hybrid: exact geometry owns aligned and held-out axes,
-learned relations calibrate the clear-diagonal regime. Pure learned relations do
-not replace geometry.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_relations.pdf}
+\includegraphics[width=0.80\linewidth]{figures/fig_relations.pdf}
 \caption{(a) Typed relation F1; removing tactile drops tactile F1 to 0.483.
 (b) Hybrid relations under coordinate noise on held-out regions. Learned
 relations help only inside their training regime; the naive hybrid is worse
@@ -438,266 +605,222 @@ than geometry.}
 \label{fig:relations}
 \end{figure}
 
+Figure~\ref{fig:relations} shows the relation
+result. In-distribution F1 is high for all three types. Removing tactile drops
+tactile F1 to 0.483, so the head is not relying on a shortcut. On held-out
+regions under coordinate noise, learned relations generalize better than an
+end-to-end policy but worse than exact geometry. The distribution-aware hybrid
+is the best at high noise; the naive hybrid, which applies learned relations to
+unseen aligned axes, is the worst.
+
+The conclusion is narrow. Learned relations are a calibration channel, not a
+replacement for geometry. The correct deployment is a hybrid: exact geometry
+owns the aligned and held-out axes; learned relations calibrate the clear
+regime they were trained on.
+
 \subsection{Memory and bounded inference}
 
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{@{}p{0.44\linewidth}p{0.46\linewidth}@{}}
-\toprule
-Setting & Result \\
-\midrule
-re-ID candidates, $k=1$ + fallback & 0.972 $\rightarrow$ 1.000, $\sim$1.2 candidates \\
-compute, $N=200$ / $N=1000$ & 6.4$\times$ / 23.6$\times$ \\
-long-history fact, $k=4$: hot / old learned / query-conditioned & 0.237 / 0.241 / 1.000 \\
-exact-RAG vs \pss latency & 1.38 ms vs 0.0003 ms \\
-\bottomrule
-\end{tabular}
-\caption{Active-set memory and bounded inference. The long-history negative
-result is explained by query-independent scoring; a simple query-recency rule
-matches the learned policy.}
-\label{tab:memory}
-\end{table}
-
-The active-set advantage is a cost advantage, not a capability claim. Exact-RAG
-with oracle retrieval reaches 1.000 accuracy but still scans the full history;
-\pss performs a constant-time lookup over a small active set.
-
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/fig3_budget_quality.png}
-\caption{Quality versus budget. The planner is anytime: quality is monotone in
-the budget, and the budget controller keeps the node count within the cap.}
-\label{fig:budget}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figures/fig_memory_compute.pdf}
+\includegraphics[width=0.80\linewidth]{figures/fig_memory_compute.pdf}
 \caption{(a) Active-set p50 latency vs entities/tokens (log-log). (b) Fact
 accuracy at $k=4/8/16$; query conditioning recovers full accuracy, and a simple
 recency rule matches the learned policy.}
 \label{fig:memory}
 \end{figure}
 
+The active-set advantage is a cost advantage, not a capability claim
+(Figure~\ref{fig:memory}). A $k=1$ policy with a
+calibrated fallback matches full-candidate accuracy with about 1.2 candidates on
+average. The compute advantage grows with $N$: $6.4\times$ at $N=200$ and
+$23.6\times$ at $N=1000$. The $N=200$ result misses the preregistered $10\times$
+threshold; we report it as a partial result rather than rounding it up.
+
+The long-history fact-selection result was originally negative: learned scoring
+was worse than a hot heuristic. The cause was not learning capacity; the scorer
+was query-independent. Adding the query to the input makes the problem
+well-posed, and a simple query-recency rule matches the learned policy. The
+claim is therefore about the interface: long-horizon fact selection requires a
+query-conditioned interface. It is not a claim that a learned scorer is better
+than a rule.
+
+Exact-RAG with oracle retrieval reaches 1.000 accuracy but still scans the full
+history; its p50 latency is 1.38 ms, versus 0.0003 ms for the active-set lookup.
+The learned-RAG baseline is retrieval-limited on this synthetic stream and is
+reported as a lower bound, not as the RAG upper bound. The cost comparison is
+against a strong retriever, not a strawman.
+
+Bounded inference is measured as a contract. The quality--budget curve is in
+the supplementary material; the node count stays within the cap, and the
+degradation FSM transitions correctly under injected faults. The tail latency of
+the L2 bundle is not fully covered: two of fourteen traces contain single-frame
+spikes above 10 ms. We report this as a partial result and a need for a latency
+guard, not as a satisfied bound.
+
 \subsection{Knowledge updates and TMS}
 
 K1--K8 exercise assert, retract, locality, dependency propagation, conflict
 detection, rollback, adversarial updates, and multi-source priority. The
-production \texttt{MultiSourceFactStore} is wrapped by
-\texttt{TMSFactStore}; K3/K4/K5, audit completeness, and source retraction are
-all $1.00$. Runtime permissions are also audited: \texttt{read\_only} denies
-five actions, \texttt{admin} denies none, and denied actions appear in the audit
-log.
+production \texttt{MultiSourceFactStore} is wrapped by \texttt{TMSFactStore};
+K3/K4/K5, audit completeness, and source retraction are all $1.00$. A rollback
+restores the business state hash exactly. A conflict is reported, not silently
+resolved. A poisoned source is rejected, and the rejection is audited.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.9\linewidth]{figures/fig2_kb_state.png}
-\caption{Knowledge-base state and rollback. A rollback restores the business
-state hash exactly; the audit log records the change.}
-\label{fig:kb}
-\end{figure}
+Runtime permissions are also audited: \texttt{read\_only} denies five actions,
+\texttt{admin} denies none, and denied actions appear in the audit log. This is
+the operational side of ``auditable'': the state is not only stored, it is
+governed.
 
 \subsection{Cross-family calibration and retraining cost}
 
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{@{}lccc@{}}
-\toprule
-Expert family & Vision zero-shot & Tactile zero-shot & Vision $k=1$ \\
-\midrule
-\texttt{category\_pretrain} & 0.200 & 0.067 & 1.000 \\
-\texttt{category\_pretrain\_instance} & 0.167 & 0.067 & 0.900 \\
-\texttt{category\_pretrain\_instance8} & 0.192 & 0.100 & 0.908 \\
-\bottomrule
-\end{tabular}
-\caption{Cross-family swap and one-shot calibration (chance 0.167). The public
-space is a calibratable interface, not a zero-shot coordinate system.}
-\label{tab:families}
-\end{table}
-
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{@{}lcc@{}}
-\toprule
-Method & Vision ZCR & Cost \\
-\midrule
-frozen expert + prototype rebuild & 0.964 & 3.2 ms \\
-projection retrain & 0.979 & 13.5 s \\
-30-epoch expert retrain + projection & 0.969 & 38 s \\
-\bottomrule
-\end{tabular}
-\caption{Retraining cost. Rebuilding prototypes is the cheap step; retraining
-experts is slower and does not improve accuracy.}
-\label{tab:retrain}
-\end{table}
-
-Calibration is part of admission. The retraining experiment shows that a full
-expert retrain is not necessary: prototype rebuild recovers most of the gap, and
-projection retraining adds a small gain.
-
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_families_retrain.pdf}
+\includegraphics[width=0.80\linewidth]{figures/fig_families_retrain.pdf}
 \caption{(a) Cross-family zero-shot and one-shot vision calibration. (b) Vision
 ZCR vs retraining cost on a log scale; prototype rebuild is the cheap step, and
 expert retraining does not improve accuracy.}
 \label{fig:families}
 \end{figure}
 
+Calibration is part of admission (Figure~\ref{fig:families}). Across three expert families, zero-shot vision
+accuracy is near chance (0.167--0.200), and one-shot calibration recovers
+0.900--1.000. Tactile remains limited by the tactile expert (0.067--0.100).
+The shared space is a calibratable interface; it is not a coordinate system that
+all experts enter for free.
+
+The retraining experiment makes the cost argument concrete. Rebuilding
+prototypes on frozen features takes about 3 ms and reaches 0.964. Retraining the
+projection takes 13.5 s and reaches 0.979. A 30-epoch expert retrain plus
+projection takes 38 s and reaches 0.969, below the projection-only result. The
+five-epoch expert retrain is cheaper (29 s) but weaker (0.943). The honest claim
+is not that retrain-all is expensive; it is that expert retraining is
+unnecessary for this interface. Prototype rebuild is the dominant cheap step,
+projection retraining is optional, and expert retraining does not buy accuracy.
+
 \subsection{L2 external validity}
-
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{@{}lcc@{}}
-\toprule
-Bundle replay variant & ID retention & Switches \\
-\midrule
-full & 1.000 & 0.00 \\
-\texttt{no\_memory} & 0.827 & 0.56 \\
-\texttt{no\_entity} & 0.270 & 47.47 \\
-\bottomrule
-\end{tabular}
-\caption{L2 bundle replay on the same detection stream (valid 19/33 bundles).
-The state-layer ablation, not perception, explains the difference.}
-\label{tab:l2-bundles}
-\end{table}
-
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{@{}lc@{}}
-\toprule
-S4-PSS variant & Success \\
-\midrule
-full & 3/3 \\
-\texttt{no\_memory} & 3/3 \\
-\texttt{no\_entity} & 3/3 \\
-\texttt{no\_relations} & 0/3 \\
-\bottomrule
-\end{tabular}
-\caption{S4-PSS cognitive variants. This demo exercises relations, not memory;
-the memory evidence is in Table~\ref{tab:l2-bundles}.}
-\label{tab:s4}
-\end{table}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_detection_l2.pdf}
+\includegraphics[width=0.80\linewidth]{figures/fig_detection_l2.pdf}
 \caption{(a) Binding under detection miss rate. (b) L2 bundle replay on the same
 detection stream (valid 19/33 bundles); the state-layer ablation explains the
 difference, not perception.}
 \label{fig:detection-l2}
 \end{figure}
 
-\subsection{Semantic space and retrieval}
+L2 replay uses the same detection stream and changes only the runtime variant
+(Figure~\ref{fig:detection-l2}). The full runtime
+retains 1.000 identity on the valid bundles; removing memory drops it to 0.827;
+removing the entity layer drops it to 0.270. Because the input is identical, the
+difference is attributable to the state layer. This is the L2 memory evidence
+that the S4-PSS demo cannot provide.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figures/fig_space_rag.pdf}
-\caption{(a) Closed-set accuracy is invariant across the full, summed, and
-random-projection spaces; the learned projection's value is cross-modal R@1
-(0.510 vs 0.115). (b) Exact RAG matches accuracy but scans the full history;
-the \pss active set is a constant-time lookup.}
-\label{fig:space-rag}
-\end{figure}
+The S4-PSS variants tell a different story. The full, no-memory, and no-entity
+variants all succeed in 3/3 seeds, while no-relations fails 0/3. The task
+exercises relations, not memory. This is a useful negative result: a demo
+succeeding under an ablation is not evidence that the ablation is irrelevant; it
+means the task does not test it.
 
-The space ablation is a caution against claiming that per-modality projection
-improves closed-set accuracy. It does not, because the prototype bank is re-fit
-in each space. What it buys is cross-modal alignment. Similarly, the active-set
-advantage is a cost advantage: exact-RAG reaches the same accuracy but scans the
-full history, while \pss looks up a small active set.
+Detection noise degrades binding smoothly: 0.989 at oracle detection, 0.975 at
+10\% miss, 0.871 at 20\%, and 0.697 at 30\%. This is a detector-level stress
+test, not a detector claim. It shows where the state layer stops being able to
+compensate for missing observations.
 
-\subsection{Modality conflict and open-set rejection}
+\subsection{Contract-free baseline and negative controls}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figures/fig_conflict_openset.pdf}
-\caption{(a) Modality conflict: \pss fixed fusion vs abstention vs the
-transformer. Under a shuffled vision channel, abstention keeps accepted accuracy
-at 1.000 with coverage 0.083; the transformer has no explicit abstention.
-(b) Open-set AUROC and unseen rejection.}
-\label{fig:conflict-openset}
-\end{figure}
+A contract-free baseline has no admission validation, no rollback, no versioned
+routing, no audit, and no budget controller. It fails nine of twelve contract
+metrics; \pss passes all twelve. The baseline is not a competitive capability
+model; it is a sensitivity control. It shows that the suite is not describing
+\pss by construction.
 
-The conflict experiment shows the intended behavior: when modalities disagree,
-\pss can lower coverage and preserve accepted accuracy, rather than forcing a
-prediction. The open-set result is a diagnostic of the prototype store, not a
-property of the hot-swap contract.
-
-\subsection{Negative controls}
-
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{@{}llll@{}}
-\toprule
-ID & Control & Expected & Observed \\
-\midrule
-N1 & flat KB & fail & LOC $>0$ / RBE $<1$ \\
-N2 & unbounded planner & fail & BAR $<1$ \\
-N3 & no admission validation & fail & invalid module accepted \\
-N4 & random expert (capability) & fail & 0.21 \\
-N5 & random expert (property) & pass & contract holds \\
-N6 & no-op update & identity & hash equal \\
-N7 & shuffled embeddings & capability fail, property pass & 0.125; contract holds \\
-N8 & over-budget controller & fail & violations detected \\
-\bottomrule
-\end{tabular}
-\caption{Negative controls. A control that does not behave as specified
-invalidates the suite.}
-\label{tab:controls}
-\end{table}
-
-\subsection{Contract-free baseline}
-
-A contract-free baseline (no admission validation, no rollback, no versioned
-routing, no audit, no budget controller) fails nine of twelve contract metrics;
-\pss passes all twelve. This is the sensitivity check that the suite is not
-describing \pss by construction.
+The negative controls N1--N8 behave as specified: flat KB fails locality and
+rollback, unbounded planning fails budget adherence, no admission validation
+accepts an invalid module, random experts fail capability but pass the contract,
+a no-op update is an identity, shuffled embeddings fail capability but preserve
+the contract, and an over-budget controller is caught. A control that did not
+behave as specified would invalidate the suite.
 
 %-------------------------------------------------------------------------------
 \section{Discussion}
 \label{sec:discussion}
 
-\paragraph{The shared space is a protocol, not a coordinate system.}
+\subsection{The shared space is a protocol, not a coordinate system}
+
 Cross-family zero-shot swap fails; one-shot calibration recovers vision but not
 tactile. The honest reading is that the public space is a calibratable
-interface. Calibration is an admission cost, not a failure.
+interface. Calibration is an admission cost, not a failure. This changes the
+design question: instead of asking ``how do we make all experts share a
+coordinate system?'', we ask ``how do we admit an expert with a small,
+measurable calibration cost?''. The latter is testable, and it is what the data
+support.
 
-\paragraph{The state layer is the contribution, not accuracy.}
+\subsection{The state layer is the contribution, not accuracy}
+
 Fair attribution reduces the re-ID gain to $+0.012$. The value of the explicit
 state layer is inspectability, rollback, and composition, not a higher score.
+This is why the report separates property and capability metrics. A paper that
+reported the raw $+0.081$ would be making a stronger architectural claim than
+the data can support.
 
-\paragraph{Learned relations calibrate, they do not replace geometry.}
-The hybrid result is conditional: learned relations help in the clear-diagonal
+\subsection{Learned relations calibrate, they do not replace geometry}
+
+The hybrid result is conditional. Learned relations help in the clear-diagonal
 regime they were trained on, and hurt on unseen aligned axes. Exact geometry
-remains the backbone.
+remains the backbone. This is a general lesson for neurosymbolic systems: the
+learned component should be scoped to the distribution where it has evidence,
+and the symbolic component should own the cases where it is exact.
 
-\paragraph{Optimization is not always retraining.}
+\subsection{Optimization is not always retraining}
+
 Rebuilding prototypes on frozen features is milliseconds; retraining experts is
-tens of seconds and does not improve accuracy. The paper should not claim that
-retrain-all is expensive; it should claim that it is unnecessary.
+tens of seconds and does not improve accuracy. The report should not claim that
+retrain-all is expensive; it should claim that it is unnecessary for this
+interface. This is a stronger and more useful conclusion for practitioners: the
+cheap step is often the one that matters.
+
+\subsection{What the protocol can and cannot establish}
+
+The protocol can establish that a contract holds across expert quality, that a
+difference is attributable to an architectural operation, that the metrics are
+sensitive to deliberate failures, and that the result is reproducible. It cannot
+establish that the architecture is better in the open world, that it beats a
+larger end-to-end model, or that it is reliable on a real robot. Those are
+capability and external-validity questions, and the report marks them as open.
+
+\subsection{Relation to foundation models}
+
+\pss is not a foundation model. Foundation models learn a representation and a
+capability from large-scale data; \pss owns state and contracts above frozen
+experts. The two can be combined: a large model can be an expert inside the
+runtime, while the runtime keeps identity, knowledge, and audit. But the
+contribution of this report is the runtime and the protocol, not a new
+foundation model. The experiments are designed to measure the runtime, not to
+compete on capability.
 
 %-------------------------------------------------------------------------------
 \section{Limitations}
 \label{sec:limitations}
 
 \begin{itemize}[leftmargin=*]
-  \item No real robot; all evidence is from MuJoCo, Isaac, and offline bundles.
-  \item L2 uses oracle boxes/poses; H/K (hot-swap, knowledge update) are not
-        executed in the Isaac task. Bundle replay and runtime-level tests cover
-        part of the gap, but a perception-driven L2 bundle is still needed.
-  \item Only three same-width expert families are connected; DINOv2,
-        SqueezeNet, and WT-MM are not.
-  \item The factorial design is reduced; L1 has five seeds.
-  \item TMS is wrapped around the production fact store but not migrated to
-        every call site.
-  \item We do not claim SOTA, zero-shot public space, real-world reliability, or
-        large-scale scaling.
+  \item \textbf{No real robot.} All evidence is from MuJoCo, Isaac, and offline
+        bundle replay. The report does not claim real-world reliability.
+  \item \textbf{L2 uses oracle poses.} S4-PSS uses GT boxes and poses. H/K
+        (hot-swap, knowledge update) are not executed in the Isaac task. Bundle
+        replay and runtime-level tests cover part of the gap, but a
+        perception-driven L2 bundle is still needed.
+  \item \textbf{Limited expert families.} Only three same-width families are
+        connected. DINOv2, SqueezeNet, and WT-MM are not, because the projection
+        widths differ.
+  \item \textbf{Reduced design.} The factorial design is reduced; L1 has five
+        seeds. The interactions between all factors are not measured.
+  \item \textbf{Partial production integration.} TMS is wrapped around the
+        production fact store but not migrated to every call site.
+  \item \textbf{Protocol scope.} The protocol separates the factors it
+        manipulates. It does not discover unknown confounders, and it is not a
+        competitive benchmark.
+  \item \textbf{Tail latency.} The L2 bundle violates the 10 ms bound on two of
+        fourteen traces. A latency guard is needed.
 \end{itemize}
 
 %-------------------------------------------------------------------------------
@@ -707,35 +830,16 @@ retrain-all is expensive; it should claim that it is unnecessary.
 \pss is a cognitive runtime above perception, not a foundation model. It makes
 sensory experts pluggable under a contract, makes the cognitive state explicit
 and auditable, and measures architectural claims with a property-level protocol
-that separates expert quality from architecture. The evidence supports
-contract-level modularity, a calibratable interface view of shared semantic
-spaces, and honest negative results; it does not support capability SOTA or
-zero-shot public-space claims. The next steps are a perception-driven L2 harness,
-more expert families, a real-robot demonstration, and a competitive non-\pss
-baseline for the evaluation protocol.
+that separates expert quality from architecture.
+
+The evidence supports contract-level modularity, a calibratable-interface view
+of shared semantic spaces, and honest negative results. It does not support
+capability SOTA or zero-shot public-space claims. The next steps are a
+perception-driven L2 harness, more expert families, a real-robot demonstration,
+and a competitive non-\pss baseline for the evaluation protocol.
 
 %-------------------------------------------------------------------------------
 \appendix
-\section{Claim--Evidence Map}
-\label{app:claims}
-
-\begin{table}[h]
-\centering
-\small
-\begin{tabular}{@{}p{0.20\linewidth}p{0.42\linewidth}p{0.20\linewidth}@{}}
-\toprule
-Claim & Evidence & Strength \\
-\midrule
-C1 state & audit 1.00; 70-frame 0.989 vs 0.500; L2 1.000/0.827/0.270 & medium--strong \\
-C2 relations & F1 0.957/0.996/0.970; hybrid 0.857 vs 0.828 & medium \\
-C3 memory & 1.2 candidates; 6.4$\times$/23.6$\times$; query 0.241$\rightarrow$1.000 & medium--strong \\
-C4 contracts & SSR/RBE/INT/RCR invariant; contract-free 0/9; scale flat & strong \\
-C5 protocol & N1--N8; twins; preregistration; contract-free baseline & strong \\
-C6 interface & zero-shot 0.186; $k=1$ 0.936; tactile 0.067--0.100 & medium--strong \\
-\bottomrule
-\end{tabular}
-\caption{Compact claim--evidence map. The full version is in the repository.}
-\end{table}
 
 \section{Reproducibility}
 \label{app:repro}
@@ -751,10 +855,11 @@ python scripts/run_claim_gaps_followups.py
 \end{verbatim}
 
 Full commands and per-experiment reports are in
-\texttt{reports/claim\_gaps/INDEX.md}. Raw scorecards are in
-\texttt{scorecards/property/} with expert and run manifests.
+\path{reports/claim_gaps/INDEX.md}. Raw scorecards are in
+\path{scorecards/property/} with expert and run manifests.
 
 %-------------------------------------------------------------------------------
+\small
 \bibliographystyle{plainnat}
 \bibliography{refs}
 

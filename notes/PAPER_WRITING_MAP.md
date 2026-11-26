@@ -123,19 +123,21 @@
 | 表 2 | Contract × Q0–Q4（SSR/ZCR/INT/RBE） | 已有 |
 | 表 3 | Binding ablation（E2） | 已有 |
 | 表 4 | Relation F1（clean / tactile removed） | 已有 |
-| 表 5 | Hybrid under noise（E3） | 已有 |
-| 表 6 | Active-set / memory / RAG（E4/E13/P4） | 已有 |
-| 表 7 | Cross-family calibration（E11） | 已有 |
-| 表 8 | Retraining cost（E6/E6b/E6c） | 已有 |
-| 表 9 | L2 bundle replay + S4 variants（E12/E18） | 已有 |
-| 表 10 | Negative controls N1–N8 | 已有 |
-| 表 11 | Claim–evidence map（appendix） | 已有 |
+| 表 5 | Active-set / memory / RAG（E4/E13/P4） | 已有 |
+| 表 6 | Cross-family calibration（E11） | 已有 |
+| 表 7 | L2 bundle replay（E12） | 已有 |
+| 表 8 | Claim–evidence map（appendix） | 已有 |
+| — | Hybrid under noise（E3） | 由图 5 替代 |
+| — | Retraining cost（E6/E6b/E6c） | 由图 8 替代 |
+| — | S4 variants（E18）/ negative controls N1–N8 | 正文叙述；按需补表 |
+| — | Scale（E8）/ audit（E1）/ runtime mid-task（E19） | 附录或补充材料 |
 | 补充 | expert/run manifest（sha256、git、env） | 已有 |
 
 **建议**：
 - 图 5–10 是双面板，`main.tex` 里用单栏 `figure`；如果投双栏 venue，改成 `figure*`。
 - 表 2 的 ZCR 仍留在表中，但用脚注标明它是 capability；主表只保留 property 指标。
 - 图 1 是 TikZ，不依赖外部图片；如果 venue 要求位图，可导出 300 dpi PNG。
+- **Overleaf 实测（2026-11-26）**：`paper/main.tex` **12 页、0 errors、0 warnings**；`paper/supplement.tex` 单独编译。做法：把附录诊断、claim–evidence 表、冗余汇总表移到 supplement；0.75 in 边距；双面板图 0.80\linewidth；`newtxtext/newtxmath/newtxtt` 统一 Times 家族；`xurl`/`\path` 允许长路径换行；表格 `\tabcolsep=8pt`、`\arraystretch=1.05`。项目：https://www.overleaf.com/project/6b07aa54c26bf946fe9f01e0
 
 
 ---

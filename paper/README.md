@@ -7,6 +7,8 @@ manuscript. The text is in English so it compiles on arXiv without CJK packages.
 ## Files
 
 - `main.tex` — title, abstract, sections, tables, figures, appendix.
+- `supplement.tex` — additional diagnostics (conflict/open-set, space/RAG,
+  KB state), compiled separately.
 - `refs.bib` — bibliography used by `main.tex`.
 - `figures/` — generated figures (PDF for LaTeX, PNG for preview).
 
@@ -22,6 +24,25 @@ python scripts/make_paper_figures.py
 This writes `paper/figures/fig_*.pdf` and `.png`. The figure plan, including
 which report each figure comes from, is in
 `notes/PAPER_WRITING_MAP.md` §4.
+
+## Compiled result
+
+- Overleaf project (v7): <https://www.overleaf.com/project/6b07aa54c26bf946fe9f01e0>
+- `main.tex`: **12 pages**, 0 errors, 0 warnings (pdfTeX, 2026-11-26).
+- `supplement.tex`: additional figures and summary tables; compile separately
+  if needed.
+- Typeset with `newtxtext` / `newtxmath` / `newtxtt` (a consistent Times family);
+  code and paths remain monospace by design.
+- Tables use `\tabcolsep=8pt` and `\arraystretch=1.05` to avoid the cramped look
+  noted in review; long paths use `xurl`/`\path`, so they break instead of
+  producing an overfull line.
+
+The full version with all appendices compiled to 16 pages. The 12-page main
+moves the additional diagnostics, the claim–evidence table, and redundant
+summary tables to `supplement.tex`, uses 0.75 in margins, and uses
+0.80\linewidth for the two-panel figures. Keep the main text at 10–12 pages if
+you edit it.
+
 
 
 ## Compile
