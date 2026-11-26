@@ -9,7 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from pss.knowledge import RuleEngine
-from pss.reasoning.planner import AStarPlanner
+from pss.reasoning.composition import PlanCache
+from pss.reasoning.planner import CompositionPlanner, PlanResult
 from pss.world_model.actions import OperatorLibrary
 
 from .state import CognitiveState, Goal, Plan, UncertaintyReport
@@ -108,16 +109,21 @@ class RuntimePlanner:
         max_expansions: int = 20000,
         heuristic=None,
         heuristic_weight: float = 1.0,
+        composition: CompositionPlanner | None = None,
+        plan_cache: PlanCache | None = None,
     ):
         self.library = library
         self.heuristic = heuristic
         self.heuristic_name = "hand" if heuristic is None else "learned"
-        self.planner = AStarPlanner(
+        self.planner = composition or CompositionPlanner(
             library,
             max_expansions=max_expansions,
             heuristic=heuristic,
             heuristic_weight=heuristic_weight,
         )
+        # Kept for callers that reached into the previous A* instance.
+        self.astar = getattr(self.planner, "astar", None)
+        self.cache = plan_cache or PlanCache()
 
     def initial_facts(self, state: CognitiveState) -> frozenset:
         return frozenset(state.fact_set())
@@ -148,6 +154,59 @@ class RuntimePlanner:
         )
         state.plans[plan_id] = plan
         return plan
+
+    def plan_typed(
+        self,
+        goal: Goal,
+        initial_payload,
+        atoms,
+        goal_test,
+        goal_signature=None,
+        max_steps: int = 12,
+        max_expansions: int = 5000,
+        state_key=None,
+    ) -> PlanResult:
+        """Typed composition plan cached by ``(goal.id, goal_signature)``.
+
+        ``initial_payload`` / ``goal_test`` / ``atoms`` are the same objects
+        accepted by :func:`pss.reasoning.composition.best_first`.  The cache
+        only receives a plan after ``goal_test`` confirms it.
+        """
+        signature = (
+            goal_signature
+            if goal_signature is not None
+            else (tuple(sorted(goal.facts)), goal.relation)
+        )
+        key = (goal.id, signature)
+        atom_map = {atom.name: atom for atom in atoms}
+        cached = self.cache.get(key, atom_map, initial_payload, goal_test)
+        if cached is not None:
+            return PlanResult(
+                success=True,
+                actions=list(cached.steps),
+                states=[cached.payload] if cached.payload is not None else [],
+                nodes=cached.expansions,
+                cost=cached.cost,
+                reason="cache",
+            )
+
+        result = self.planner.plan_typed(
+            initial_payload,
+            atoms,
+            goal_test,
+            max_steps=max_steps,
+            max_expansions=max_expansions,
+            state_key=state_key,
+        )
+        verified = (
+            bool(goal_test(result.states[-1])) if result.states else result.success
+        )
+        self.cache.record(
+            key,
+            result.actions,
+            verified=bool(verified and result.success),
+        )
+        return result
 
     def plan_relational(
         self,

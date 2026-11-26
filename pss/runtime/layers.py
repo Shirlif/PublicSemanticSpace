@@ -28,6 +28,7 @@ from pss.memory import SceneGraph, Tracker, TrackerConfig
 from pss.memory.active_policy import ActiveSetPolicy, WritePolicy, tracking_pair_features, write_features
 from pss.memory.learned_metric import entity_token
 from pss.reasoning.relations import RelationRecord
+from pss.reasoning.relations.inference import DerivedFact, derive
 from pss.reasoning.relations.rules import RelationRuleSet
 
 from .state import CognitiveState, Entity, Fact, Relation
@@ -236,6 +237,62 @@ class EntityLayer:
         return state
 
 
+    # ── frames / constraints ────────────────────────────────────────────────
+
+    def track(self, track_id: str):
+        return self.graph.get(str(track_id))
+
+    def frame_for(self, track_id: str, name: str | None = None):
+        """Body frame of a track from its pose quaternion."""
+        track = self.track(track_id)
+        if track is None:
+            raise KeyError(f"unknown track {track_id!r}")
+        from pss.binding.frames import FrameOp, quaternion_matrix
+
+        rotation = quaternion_matrix(track.quat)
+        return FrameOp.from_axes(
+            rotation[:, 0],
+            rotation[:, 1],
+            rotation[:, 2],
+            np.asarray(track.pos, dtype=float),
+            name=name or f"object:{track_id}",
+        )
+
+    def relation_in_frame(self, a_id: str, b_id: str, frame_id: str | None = None) -> list[str]:
+        """Directional predicates holding for ``a`` relative to ``b``."""
+        a = self.track(a_id)
+        b = self.track(b_id)
+        if a is None or b is None:
+            raise KeyError(f"unknown track in {a_id!r} / {b_id!r}")
+        from pss.binding.frames import FrameOp, relation_in_frame as measure
+
+        frame = FrameOp.identity() if frame_id is None else self.frame_for(frame_id)
+        return measure(
+            np.asarray(a.pos, dtype=float),
+            np.asarray(b.pos, dtype=float),
+            frame,
+        )
+
+    def type_constraint(self, categories, bank, name: str = "type", weights=None):
+        """A ``TypeConstraint`` over prototype categories for this layer."""
+        from pss.reasoning.constraints import PrototypeView, TypeConstraint, TypeNode
+
+        return TypeConstraint(
+            name=name,
+            node=TypeNode(node_id=name, categories=frozenset(categories)),
+            view=PrototypeView(bank),
+            weights=None if weights is None else dict(weights),
+        )
+
+    def membership(self, track_id: str, categories, bank, weights=None) -> float:
+        """Prototype membership of a track's per-modality raw features."""
+        track = self.track(track_id)
+        if track is None:
+            raise KeyError(f"unknown track {track_id!r}")
+        constraint = self.type_constraint(categories, bank, weights=weights)
+        return constraint.membership(track.raw)
+
+
 class RelationFactLayer:
     def __init__(
         self,
@@ -256,6 +313,84 @@ class RelationFactLayer:
             else (_load_write_policy() if use_default_write else None)
         )
         self.write_log: list[dict] = []
+        self._records: dict[tuple, RelationRecord] = {}
+
+    # ── relation records ───────────────────────────────────────────────────
+
+    def _remember(self, record: RelationRecord) -> None:
+        key = (
+            record.subject,
+            record.predicate,
+            record.object,
+            getattr(record, "frame", "world"),
+        )
+        previous = self._records.get(key)
+        if previous is None or float(record.confidence) >= float(previous.confidence):
+            self._records[key] = record
+
+    def records(self) -> list[RelationRecord]:
+        return list(self._records.values())
+
+    def derive_facts(
+        self,
+        frame: str = "world",
+        max_rounds: int = 2,
+        min_conf: float = 0.5,
+        max_derived: int = 1000,
+        type_check=None,
+    ) -> list[DerivedFact]:
+        """Derive relations inside one frame from the records seen so far."""
+        if not self._records:
+            return []
+        result = derive(
+            self._records.values(),
+            frame=frame,
+            max_rounds=max_rounds,
+            min_conf=min_conf,
+            max_derived=max_derived,
+            type_check=type_check,
+        )
+        return result.derived
+
+    def assert_derived(self, derived: list[DerivedFact], state: CognitiveState) -> int:
+        """Write derived facts into the TMS and the runtime relation view."""
+        added = 0
+        for fact in derived:
+            premises = " ".join(
+                f"({s},{p},{o})" for s, p, o in fact.premises
+            )
+            self.facts.assert_fact(
+                fact.subject,
+                fact.predicate,
+                fact.object,
+                source="inference",
+                priority=0,
+                reason=f"closure {premises}".strip(),
+            )
+            tms = getattr(self.facts, "tms", None)
+            if tms is not None:
+                tms.justify(
+                    (fact.subject, fact.predicate, fact.object),
+                    in_nodes=[tuple(premise) for premise in fact.premises],
+                    source="inference",
+                    rule="closure",
+                    confidence=float(fact.confidence),
+                )
+            state.add_relation(
+                Relation(
+                    source=fact.subject,
+                    target=fact.object,
+                    relation_type="derived",
+                    predicate=fact.predicate,
+                    probability=float(fact.confidence),
+                    origin="inference",
+                    frame=fact.frame,
+                )
+            )
+            added += 1
+        if added:
+            self.sync(state)
+        return added
 
     # ── facts ───────────────────────────────────────────────────────────────
 
@@ -399,6 +534,7 @@ class RelationFactLayer:
     def add_symbolic(self, records: list[RelationRecord], state: CognitiveState) -> int:
         added = 0
         for record in records:
+            self._remember(record)
             state.add_relation(
                 Relation(
                     source=record.subject,
@@ -407,6 +543,7 @@ class RelationFactLayer:
                     predicate=record.predicate,
                     probability=float(record.confidence),
                     origin="symbolic",
+                    frame=getattr(record, "frame", "world"),
                 )
             )
             added += 1
@@ -424,6 +561,17 @@ class RelationFactLayer:
         """Copy learned relation edges already written into the scene graph."""
         added = 0
         for record in graph.get_relations():
+            frame = str(record.get("frame", "world"))
+            self._remember(
+                RelationRecord(
+                    subject=record["source"],
+                    predicate=record["predicate"],
+                    object=record["target"],
+                    confidence=float(record.get("probability", 0.0)),
+                    source="learned",
+                    frame=frame,
+                )
+            )
             state.add_relation(
                 Relation(
                     source=record["source"],
@@ -432,6 +580,7 @@ class RelationFactLayer:
                     predicate=record["predicate"],
                     probability=float(record.get("probability", 0.0)),
                     origin="learned",
+                    frame=frame,
                 )
             )
             added += 1

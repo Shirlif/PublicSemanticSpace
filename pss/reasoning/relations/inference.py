@@ -6,6 +6,15 @@ shared middle entity and asks the :class:`~.closure.ClosureTable` which
 predicates ``r1 ∘ r2`` licenses.  Derived facts join the working set and act as
 premises for later rounds.
 
+Frames
+------
+A relation edge carries a reference frame (``world`` by default).  Composition
+is only sound *within* one frame: a world-frame chain does not license a
+camera-frame conclusion.  ``derive`` therefore groups records by frame and
+runs the fixpoint once per group.  Passing ``frame="viewer"`` restricts the
+whole derivation to that frame; passing ``frame=None`` derives in every frame
+and tags each result with its frame.
+
 Design notes
 ------------
 * Indices are kept per ``(subject, predicate)`` and ``(predicate, object)`` so
@@ -43,6 +52,7 @@ class DerivedFact:
     premises: tuple[Triple, ...]
     rule: str = "closure"
     residual: float = 0.0
+    frame: str = "world"
 
     def as_record(self) -> RelationRecord:
         """Return the derived fact as a :class:`RelationRecord`."""
@@ -52,6 +62,7 @@ class DerivedFact:
             object=self.object,
             confidence=self.confidence,
             source="inference",
+            frame=self.frame,
         )
 
     def as_tuple(self) -> Triple:
@@ -74,6 +85,12 @@ class InferenceResult:
     def records(self) -> list[RelationRecord]:
         return [fact.as_record() for fact in self.derived]
 
+    def by_frame(self) -> dict[str, int]:
+        counts: dict[str, int] = {}
+        for fact in self.derived:
+            counts[fact.frame] = counts.get(fact.frame, 0) + 1
+        return counts
+
     def to_dict(self) -> dict:
         return {
             "derived": [
@@ -82,6 +99,7 @@ class InferenceResult:
                     "predicate": fact.predicate,
                     "object": fact.object,
                     "confidence": fact.confidence,
+                    "frame": fact.frame,
                     "premises": [list(premise) for premise in fact.premises],
                     "rule": fact.rule,
                     "residual": fact.residual,
@@ -91,15 +109,16 @@ class InferenceResult:
             "rounds": self.rounds,
             "considered": self.considered,
             "rejected": self.rejected,
+            "by_frame": self.by_frame(),
         }
 
 
-def _as_fact(record: RelationRecord | tuple) -> tuple[str, str, str, float]:
-    """Normalise a record or a 3/4-tuple to ``(subject, predicate, object, conf)``.
+def _as_fact(record: RelationRecord | tuple) -> tuple[str, str, str, float, str]:
+    """Normalise a record or tuple to ``(subject, predicate, object, conf, frame)``.
 
-    ``RelationRecord`` instances and plain ``(s, p, o)`` / ``(s, p, o, conf)``
-    tuples are accepted.  Confidence defaults to ``1.0``.  Any other shape
-    raises :class:`ValueError`.
+    ``RelationRecord`` instances and plain ``(s, p, o)``, ``(s, p, o, conf)``
+    or ``(s, p, o, conf, frame)`` tuples are accepted.  Confidence defaults to
+    ``1.0`` and frame to ``"world"``.  Any other shape raises ``ValueError``.
     """
     if isinstance(record, RelationRecord):
         if record.subject is None or record.predicate is None or record.object is None:
@@ -109,76 +128,48 @@ def _as_fact(record: RelationRecord | tuple) -> tuple[str, str, str, float]:
             str(record.predicate),
             str(record.object),
             float(record.confidence),
+            str(getattr(record, "frame", "world")),
         )
 
     if isinstance(record, (tuple, list)):
         if len(record) == 3:
             subject, predicate, obj = record
             confidence = 1.0
+            frame = "world"
         elif len(record) == 4:
             subject, predicate, obj, confidence = record
             confidence = 1.0 if confidence is None else float(confidence)
+            frame = "world"
+        elif len(record) == 5:
+            subject, predicate, obj, confidence, frame = record
+            confidence = 1.0 if confidence is None else float(confidence)
+            frame = "world" if frame is None else str(frame)
         else:
-            raise ValueError(f"expected a 3- or 4-tuple, got {len(record)} elements")
+            raise ValueError(
+                f"expected a 3-, 4- or 5-tuple, got {len(record)} elements"
+            )
         if subject is None or predicate is None or obj is None:
             raise ValueError("subject, predicate and object must not be None")
-        return (str(subject), str(predicate), str(obj), confidence)
+        return (str(subject), str(predicate), str(obj), confidence, frame)
 
     raise ValueError(f"cannot interpret {record!r} as a relation fact")
 
 
-def derive(
-    records: Iterable[RelationRecord | tuple],
-    closure: ClosureTable | None = None,
-    max_rounds: int = 2,
-    min_conf: float = 0.5,
-    max_derived: int = 1000,
-    type_check: Callable[[str, str, str], bool] | None = None,
-    allowed_predicates: Iterable[str] | None = None,
-    exclude_self: bool = True,
+def _derive_group(
+    facts: list[tuple[str, str, str, float]],
+    frame: str,
+    table: ClosureTable,
+    max_rounds: int,
+    min_conf: float,
+    max_derived: int,
+    type_check: Callable[[str, str, str], bool] | None,
+    allowed: frozenset[str] | None,
+    exclude_self: bool,
 ) -> InferenceResult:
-    """Forward-chain asserted relation facts.
-
-    Parameters
-    ----------
-    records:
-        Asserted facts as :class:`RelationRecord` or ``(s, p, o[, conf])``.
-        Inputs are read once and never mutated.
-    closure:
-        Composition table; defaults to :func:`~.closure.default_closure`.
-    max_rounds:
-        Maximum number of semi-naive passes.  Facts derived in round ``k`` are
-        premises for round ``k + 1``, so a chain of length ``n`` needs
-        ``n - 1`` rounds.
-    min_conf:
-        Derived facts below this confidence are discarded.
-    max_derived:
-        Hard cap on accepted facts.  Also stops pair scanning within a round
-        once that many candidates have been buffered.
-    type_check:
-        Optional ``(subject, predicate, object) -> bool`` veto.
-    allowed_predicates:
-        Optional whitelist applied to conclusion predicates.
-    exclude_self:
-        Reject conclusions whose subject and object are identical.
-
-    Counter semantics
-    -----------------
-    ``rounds`` counts passes that produced at least one new fact.
-    ``considered`` counts distinct premise pairs evaluated.  ``rejected``
-    counts candidate conclusions discarded by a filter (self-loop, empty
-    closure, whitelist, type check, low confidence, or deduplication); a pair
-    that licenses several predicates can therefore contribute more than once.
-    """
-    table = default_closure() if closure is None else closure
-    max_rounds = max(0, int(max_rounds))
-    max_derived = max(0, int(max_derived))
-    allowed = None if allowed_predicates is None else frozenset(allowed_predicates)
-
+    """Run the semi-naive fixpoint inside one reference frame."""
     asserted: dict[Triple, float] = {}
     order: list[Triple] = []
-    for record in records:
-        subject, predicate, obj, confidence = _as_fact(record)
+    for subject, predicate, obj, confidence in facts:
         key = (subject, predicate, obj)
         if key not in asserted:
             asserted[key] = confidence
@@ -300,6 +291,7 @@ def derive(
                 premises=premises,
                 rule="closure",
                 residual=0.0,
+                frame=frame,
             )
             derived.append(fact)
             working[conclusion] = confidence
@@ -320,6 +312,87 @@ def derive(
     return result
 
 
+def derive(
+    records: Iterable[RelationRecord | tuple],
+    closure: ClosureTable | None = None,
+    max_rounds: int = 2,
+    min_conf: float = 0.5,
+    max_derived: int = 1000,
+    type_check: Callable[[str, str, str], bool] | None = None,
+    allowed_predicates: Iterable[str] | None = None,
+    exclude_self: bool = True,
+    frame: str | None = None,
+) -> InferenceResult:
+    """Forward-chain asserted relation facts within each reference frame.
+
+    Parameters
+    ----------
+    records:
+        Asserted facts as :class:`RelationRecord` or ``(s, p, o[, conf[, frame]])``.
+        Inputs are read once and never mutated.
+    closure:
+        Composition table; defaults to :func:`~.closure.default_closure`.
+    max_rounds:
+        Maximum number of semi-naive passes.  Facts derived in round ``k`` are
+        premises for round ``k + 1``, so a chain of length ``n`` needs
+        ``n - 1`` rounds.
+    min_conf:
+        Derived facts below this confidence are discarded.
+    max_derived:
+        Hard cap on accepted facts across all frames.
+    type_check:
+        Optional ``(subject, predicate, object) -> bool`` veto.  It is
+        frame-agnostic; use the group frame if the check needs it.
+    allowed_predicates:
+        Optional whitelist applied to conclusion predicates.
+    exclude_self:
+        Reject conclusions whose subject and object are identical.
+    frame:
+        ``None`` derives in every frame and tags results; a frame name
+        restricts derivation to that frame.
+
+    Counter semantics
+    -----------------
+    ``rounds`` is the deepest per-frame pass that produced a new fact.
+    ``considered`` and ``rejected`` are summed across frames.
+    """
+    table = default_closure() if closure is None else closure
+    max_rounds = max(0, int(max_rounds))
+    max_derived = max(0, int(max_derived))
+    allowed = None if allowed_predicates is None else frozenset(allowed_predicates)
+
+    groups: dict[str, list[tuple[str, str, str, float]]] = {}
+    for record in records:
+        subject, predicate, obj, confidence, record_frame = _as_fact(record)
+        if frame is not None and record_frame != frame:
+            continue
+        groups.setdefault(record_frame, []).append(
+            (subject, predicate, obj, confidence)
+        )
+
+    combined = InferenceResult()
+    for record_frame in sorted(groups):
+        remaining = max_derived - len(combined.derived)
+        if remaining <= 0:
+            break
+        result = _derive_group(
+            groups[record_frame],
+            record_frame,
+            table,
+            max_rounds,
+            min_conf,
+            remaining,
+            type_check,
+            allowed,
+            exclude_self,
+        )
+        combined.derived.extend(result.derived)
+        combined.rounds = max(combined.rounds, result.rounds)
+        combined.considered += result.considered
+        combined.rejected += result.rejected
+    return combined
+
+
 def derive_records(
     records: Iterable[RelationRecord | tuple],
     **kwargs,
@@ -335,6 +408,7 @@ def backward_chain(
     closure: ClosureTable | None = None,
     max_depth: int = 3,
     min_conf: float = 0.5,
+    frame: str | None = "world",
 ) -> list[tuple[str, float, tuple[Triple, ...]]]:
     """Approximate backward search for predicates linking ``subject`` to ``object``.
 
@@ -347,6 +421,9 @@ def backward_chain(
     The confidence of a path with edge confidences ``c_i`` and composed prior
     ``p`` is ``p * (prod(c_i)) ** (1 / len(c_i))``, which reduces exactly to
     :meth:`ClosureTable.derived_confidence` for two-edge paths.
+
+    ``frame`` defaults to ``"world"``; pass ``None`` to search across frames
+    (the path may then mix frames and the conclusion is not guaranteed sound).
     """
     table = default_closure() if closure is None else closure
     max_depth = max(0, int(max_depth))
@@ -358,7 +435,9 @@ def backward_chain(
     adjacency: dict[str, list[tuple[str, str, float]]] = {}
     seen_edges: set[Triple] = set()
     for record in records:
-        src, predicate, dst, confidence = _as_fact(record)
+        src, predicate, dst, confidence, record_frame = _as_fact(record)
+        if frame is not None and record_frame != frame:
+            continue
         key = (src, predicate, dst)
         if key in seen_edges:
             continue

@@ -199,3 +199,32 @@ apply / inverse / compose / residual
 
 
 
+
+## 14. Runtime 接线（2026-11-27）
+
+四项接口已接进 runtime：
+
+1. **帧感知派生**
+   - `RelationRecord.frame`（默认 `world`）和 `as_frame_tuple()`。
+   - `derive` 按 frame 分组，`DerivedFact.frame` 随之带出；`backward_chain` 默认只搜 `world`。
+   - `RelationFactLayer` 保存 `_records`，新增 `derive_facts(frame=...)` 和 `assert_derived(...)`。
+   - `PSSRuntime.ingest(..., derive_frame="world")` 在 relation sync 之后、uncertainty 之前派生。**默认关闭**（`derive_frame=None`），需要显式开启。
+2. **RuntimePlanner 组合分支**
+   - `RuntimePlanner.planner` 默认换成 `CompositionPlanner`（后向分解 + A* 取优）。
+   - `plan_typed(goal, initial_payload, atoms, goal_test, ...)`：`best_first` 的结果转成 `PlanResult`；缓存 key = `(goal.id, goal_signature)`。
+3. **EntityLayer / PrototypeBank**
+   - `EntityLayer.frame_for(track_id)`：`Track.quat` → `quaternion_matrix` → `FrameOp`。
+   - `EntityLayer.relation_in_frame(a, b, frame_id)`。
+   - `EntityLayer.type_constraint(categories, bank)` / `membership(track_id, ...)`。
+   - `assert_derived` 写 TMS：`source="inference"`、reason 带 premises，并调用 `tms.justify(in_nodes=premises, rule="closure")` 记录结构化 justification。
+4. **历史与缓存 key**
+   - `CognitiveState.history` 是 `TemporalHistory`；`commit` 记录版本快照与 removed 事实；`fact_at(version)` 取历史事实。
+   - `PlanCache` key 使用 `Goal.id + goal_signature`，且只在验证通过后写入。
+
+测试：`tests/test_runtime_operator_wiring.py` 9 passed；全量回归 `691 passed, 1 warning`。
+
+边界：
+
+- `PSSRuntime.ingest` 的派生默认关闭；调用方需显式传 `derive_frame`。
+- TMS 的 `in_nodes` 只是记录派生依赖；前提事实要作为 IN 节点参与完整真值维护，还需要把 premise 也 assert 进 TMS。
+- `plan_typed` 返回 `PlanResult`，不自动写 `state.plans`（typed payload 不是 frozenset facts）。

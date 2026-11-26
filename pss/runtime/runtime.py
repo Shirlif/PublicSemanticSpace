@@ -22,7 +22,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from pss.heads.text import LLMLanguageHead, ToolAgent
-from pss.reasoning.relations import RelationRecord
+from pss.reasoning.relations import DerivedFact, RelationRecord
 from pss.safety import GuardrailEvaluator
 
 from .layers import EntityLayer, RelationFactLayer, components
@@ -154,6 +154,9 @@ class PSSRuntime:
         relation_records: list[RelationRecord] | None = None,
         learned_head=None,
         modalities=("vision", "tactile", "geometry"),
+        derive_frame: str | None = None,
+        derive_max_rounds: int = 2,
+        derive_min_conf: float = 0.5,
     ) -> dict:
         self._require("ingest", f"frame:{frame}")
         events = self.entities.ingest(observations, frame)
@@ -178,6 +181,14 @@ class PSSRuntime:
         else:
             self.relations.sync_graph(self.entities.graph, self.state)
         self.relations.sync(self.state)
+        derived: list[DerivedFact] = []
+        if derive_frame is not None:
+            derived = self.relations.derive_facts(
+                frame=derive_frame,
+                max_rounds=derive_max_rounds,
+                min_conf=derive_min_conf,
+            )
+            self.relations.assert_derived(derived, self.state)
         report = (
             self.uncertainty.assess(
                 self.state,
@@ -193,11 +204,17 @@ class PSSRuntime:
             f"frame:{frame}",
             after={
                 "events": {k: len(v) for k, v in events.items()},
+                "derived": len(derived),
                 "uncertainty": (report.recommendation if report else "disabled"),
             },
             reason="perception frame",
         )
-        return {"events": events, "version": version, "uncertainty": report.to_dict() if report else None}
+        return {
+            "events": events,
+            "version": version,
+            "derived": [fact.as_tuple() for fact in derived],
+            "uncertainty": report.to_dict() if report else None,
+        }
 
     def ingest_sample(
         self,

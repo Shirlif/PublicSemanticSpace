@@ -293,3 +293,27 @@ def relation_in_frame_bool(
 ) -> bool:
     """Return whether ``predicate`` holds for ``a`` relative to ``b`` in ``frame``."""
     return predicate in relation_in_frame(a_pos, b_pos, frame, margin=margin)
+
+
+def quaternion_matrix(q) -> np.ndarray:
+    """Rotation matrix from a quaternion in ``(w, x, y, z)`` order.
+
+    The tracker stores quaternions as ``[w, x, y, z]`` (identity is
+    ``[1, 0, 0, 0]``).  A zero-norm quaternion returns the identity rather
+    than NaN.
+    """
+    q = np.asarray(q, dtype=float).ravel()
+    if q.shape[0] != 4:
+        raise ValueError(f"expected a 4-element quaternion, got {q.shape}")
+    w, x, y, z = q
+    norm = w * w + x * x + y * y + z * z
+    if norm < 1e-12:
+        return np.eye(3)
+    s = 2.0 / norm
+    return np.array(
+        [
+            [1.0 - s * (y * y + z * z), s * (x * y - z * w), s * (x * z + y * w)],
+            [s * (x * y + z * w), 1.0 - s * (x * x + z * z), s * (y * z - x * w)],
+            [s * (x * z - y * w), s * (y * z + x * w), 1.0 - s * (x * x + y * y)],
+        ]
+    )

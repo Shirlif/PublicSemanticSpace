@@ -37,9 +37,14 @@ class RelationRecord:
     object: str | None = None
     confidence: float = 1.0
     source: str = "geometry"
+    frame: str = "world"
 
     def as_tuple(self) -> tuple:
         return (self.subject, self.predicate, self.object)
+
+    def as_frame_tuple(self) -> tuple:
+        """Include the reference frame; use this for frame-scoped reasoning."""
+        return (self.subject, self.predicate, self.object, self.frame)
 
 
 def geometric_relations(

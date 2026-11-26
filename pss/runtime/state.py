@@ -58,7 +58,8 @@ class Relation:
     relation_type: str
     predicate: str
     probability: float = 1.0
-    origin: str = "symbolic"  # symbolic | learned
+    origin: str = "symbolic"  # symbolic | learned | inference
+    frame: str = "world"
 
     def to_dict(self) -> dict:
         return {
@@ -68,6 +69,7 @@ class Relation:
             "predicate": self.predicate,
             "probability": round(float(self.probability), 3),
             "origin": self.origin,
+            "frame": self.frame,
         }
 
 
@@ -187,7 +189,7 @@ class CognitiveState:
     caller owns versioning.
     """
 
-    def __init__(self):
+    def __init__(self, history=None):
         self.entities: dict[str, Entity] = {}
         self.relations: list[Relation] = []
         self.facts: dict[tuple[str, str], Fact] = {}
@@ -197,6 +199,11 @@ class CognitiveState:
         self.audit: list[AuditEntry] = []
         self.version: int = 0
         self.snapshots: list[dict] = [self._snapshot()]
+        if history is None:
+            from pss.reasoning.queries import TemporalHistory
+
+            history = TemporalHistory()
+        self.history = history
 
     # ── snapshots / versions ────────────────────────────────────────────────
 
@@ -213,11 +220,25 @@ class CognitiveState:
         }
 
     def commit(self, action: str, target: str, before=None, after=None, actor="runtime", reason="") -> int:
+        previous = self.snapshots[-1]["facts"] if self.snapshots else {}
+        before_facts = {
+            (fact.entity, fact.attribute, fact.value) for fact in previous.values()
+        }
         self.version += 1
         entry = AuditEntry(self.version, action, target, before, after, actor, reason)
         self.audit.append(entry)
+        after_facts = self.fact_set()
         self.snapshots.append(self._snapshot())
+        self.history.record(
+            float(self.version),
+            after_facts,
+            removed=before_facts - after_facts,
+        )
         return self.version
+
+    def fact_at(self, version: int) -> set[tuple]:
+        """Facts as they stood at ``version``, from the temporal history."""
+        return self.history.at(float(version)).facts()
 
     def rollback(self, version: int) -> None:
         if version < 0 or version >= len(self.snapshots):

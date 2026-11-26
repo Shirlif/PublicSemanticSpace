@@ -155,12 +155,19 @@ class CompositionPlanner:
         max_depth: int = 12,
         max_nodes: int = 2000,
         max_expansions: int = 20000,
+        heuristic=None,
+        heuristic_weight: float = 1.0,
     ):
         self.library = library
         self.operators = list(library.operators.values())
         self.max_depth = int(max_depth)
         self.max_nodes = int(max_nodes)
-        self.astar = AStarPlanner(library, max_expansions=max_expansions)
+        self.astar = AStarPlanner(
+            library,
+            max_expansions=max_expansions,
+            heuristic=heuristic,
+            heuristic_weight=heuristic_weight,
+        )
 
     def plan(self, initial, goal, confidence=None, threshold: float = 0.5) -> PlanResult:
         initial = frozenset(initial)
