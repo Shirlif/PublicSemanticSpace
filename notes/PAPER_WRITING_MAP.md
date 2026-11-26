@@ -137,7 +137,7 @@
 - 图 5–10 是双面板，`main.tex` 里用单栏 `figure`；如果投双栏 venue，改成 `figure*`。
 - 表 2 的 ZCR 仍留在表中，但用脚注标明它是 capability；主表只保留 property 指标。
 - 图 1 是 TikZ，不依赖外部图片；如果 venue 要求位图，可导出 300 dpi PNG。
-- **Overleaf 实测（2026-11-26）**：`paper/main.tex` **12 页、0 errors、0 warnings**；`paper/supplement.tex` 单独编译。做法：把附录诊断、claim–evidence 表、冗余汇总表移到 supplement；0.75 in 边距；双面板图 0.80\linewidth；`newtxtext/newtxmath/newtxtt` 统一 Times 家族；`xurl`/`\path` 允许长路径换行；表格 `\tabcolsep=8pt`、`\arraystretch=1.05`。项目：https://www.overleaf.com/project/6b07aa54c26bf946fe9f01e0
+- **Overleaf 实测（2026-11-26）**：`paper/main.tex` **12 页、0 errors、0 warnings**；`paper/supplement.tex` 单独编译。做法：把附录诊断、claim–evidence 表、冗余汇总表移到 supplement；0.75 in 边距；双面板图 0.80\linewidth；`newtxtext/newtxmath/newtxtt` 统一 Times 家族；`xurl`/`\path` 允许长路径换行；表格 `\tabcolsep=8pt`、`\arraystretch=1.05`。Overleaf 项目是私有草稿，公开源码以 `paper/` 为准。
 
 
 ---

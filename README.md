@@ -2,8 +2,10 @@
 
 **Public Semantic Space (PSS) — contract-level modularity for embodied cognition**
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24549223.svg)](https://doi.org/10.5281/zenodo.24549223)
+
 > 本文档是项目入口，说明 PSS 解决什么问题、怎么工作、证据到什么程度、边界在哪里。
-> 它不是一篇对外投稿的论文；完整的 claim–evidence 映射见 `notes/PAPER_WRITING_MAP.md`，实验设计与结果见 `notes/CLAIM_GAP_EXPERIMENTS.md` 和 `reports/claim_gaps/`。
+> 对应的技术报告/预印本源码在 `paper/main.tex`；完整的 claim–evidence 映射见 `notes/PAPER_WRITING_MAP.md`，实验设计与结果见 `notes/CLAIM_GAP_EXPERIMENTS.md` 和 `reports/claim_gaps/`。
 
 ---
 
@@ -329,6 +331,7 @@ PSS 的贡献不是单个机制的首创，而是**在一个非 LLM runtime 里�
 - **作者与贡献**：`AUTHORS.md`。
 - **优先权记录**：`docs/PRIORITY.md`（按日期记录 release、commit、DOI/预印本）。
 - **引用**：`CITATION.cff`，或 GitHub 的 “Cite this repository”。
+- **Zenodo DOI**：`10.5281/zenodo.24549223`（record：https://zenodo.org/records/24549223；concept DOI：`10.5281/zenodo.24549222`，始终指向最新版）。
 - **许可**：Apache-2.0（`LICENSE`）；归属声明见 `NOTICE`。
 - **学术使用**：如果使用本项目的想法、方法、结果、代码、数据、图表或文档，请引用本项目；请不要把本项目的成果作为他人的原创工作发表。
 - 设计文档：`notes/PAPER_WRITING_MAP.md`。

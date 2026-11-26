@@ -12,8 +12,11 @@
 - **License**: Apache-2.0 (`LICENSE`); attribution notice in `NOTICE`
 - **Principal author**: Jiahe Qi (齐嘉禾), ORCID
   [0009-0001-8379-631X](https://orcid.org/0009-0001-8379-631X)
-- **Citation metadata**: `CITATION.cff` (version 0.1.0, released 2026-11-25)
-- **Primary public record**: this repository's commit history + release notes
+- **Citation metadata**: `CITATION.cff` (version 0.1.0, released 2026-11-26)
+- **Paper DOI**: `10.5281/zenodo.24549223`
+  (<https://zenodo.org/records/24549223>); concept DOI
+  `10.5281/zenodo.24549222` (all versions)
+- **Primary public record**: this repository + the Zenodo record
 
 ## Timeline
 
@@ -25,6 +28,8 @@
 | 2026-11-25 | v0.1.0 release notes added | commit `61e26ee` |
 | 2026-11-26 | §10 follow-up experiments (E5–E18) | commit `5f51de9` |
 | 2026-11-26 | L2 cognitive-layer completion (E19–E20) | commit `570d315` |
+| 2026-11-26 | GitHub repository made public | <https://github.com/Shirlif/PublicSemanticSpace> |
+| 2026-11-26 | Technical report published on Zenodo | DOI `10.5281/zenodo.24549223` |
 
 The commit timestamps and public release history are the first line of evidence
 for priority. A citable DOI or preprint is stronger; see "Recommended next
@@ -34,11 +39,11 @@ steps".
 
 | Version | Git tag | DOI | Date | Notes |
 |---|---|---|---|---|
-| 0.1.0 | not yet created | not yet assigned | 2026-11-25 | property validation suite + first claim-gap batch |
-| 0.1.x | not yet created | not yet assigned | 2026-11-26 | §10 follow-ups + L2 completion |
+| 0.1.0 | not yet created | `10.5281/zenodo.24549223` | 2026-11-26 | paper + TeX source on Zenodo; concept DOI `10.5281/zenodo.24549222` |
 
-Do not invent a DOI. Add it here and in `CITATION.cff` once Zenodo (or another
-archive) assigns one.
+The Zenodo DOI above is the assigned record DOI for version 0.1.0. The
+concept DOI (`10.5281/zenodo.24549222`) always resolves to the latest version;
+use it when citing "all versions".
 
 ## Recommended next steps
 
@@ -47,19 +52,18 @@ These make the priority record much stronger:
 1. **Tag the release** (annotated tag; signed if you have a signing key):
 
    ```bash
-   # choose the commit that matches the release notes
-   git tag -a v0.1.0 61e26ee -m "PSS v0.1.0: property validation suite"
-   git tag -a v0.1.1 570d315 -m "PSS v0.1.1: section 10 follow-ups + L2 completion"
-   git push origin v0.1.0 v0.1.1
+   git tag -a v0.1.0 102ff6f -m "PSS v0.1.0: technical report + property validation"
+   git push origin v0.1.0
    ```
 
-2. **Connect Zenodo (or another archive) to the GitHub release** and record the
-   DOI here and in `CITATION.cff`. Update `CITATION.cff`'s `version` and
-   `date-released` to match the tag you publish.
+2. **Optional: connect GitHub–Zenodo for the software artifact.** The paper
+   record is already published (`10.5281/zenodo.24549223`); a separate software
+   record can reference it. Update `CITATION.cff`'s `version` and
+   `date-released` to match any later tag.
 
-3. **Publish a technical report or preprint** (arXiv, OSF, or a lab page) with a
-   DOI. State the claims, the evidence map, and the code release it refers to.
-   This is the strongest practical priority signal in academic records.
+3. **Submit to arXiv later if endorsement becomes available.** The paper source
+   is `paper/`; `dist/pss_arxiv_source.zip` is the upload archive. Add the
+   Zenodo DOI as a related identifier so the two records point at each other.
 
 4. **Keep the public timeline intact**: release notes, commit history, issue/PR
    timestamps, and experiment manifests (`scorecards/property/run_manifest.json`,

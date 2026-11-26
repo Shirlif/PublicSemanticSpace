@@ -27,7 +27,10 @@ which report each figure comes from, is in
 
 ## Compiled result
 
-- Overleaf project (v7): <https://www.overleaf.com/project/6b07aa54c26bf946fe9f01e0>
+- Published record: <https://zenodo.org/records/24549223>
+  — DOI `10.5281/zenodo.24549223` (concept DOI `10.5281/zenodo.24549222`).
+- Drafting was done in a private Overleaf project; the public source of record
+  is this directory.
 - `main.tex`: **12 pages**, 0 errors, 0 warnings (pdfTeX, 2026-11-26).
 - `supplement.tex`: additional figures and summary tables; compile separately
   if needed.
