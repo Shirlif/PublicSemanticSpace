@@ -338,6 +338,39 @@ class SpatialRelationHead(nn.Module):
         ).to(torch.float32)
 
 
+class SpatialRelationGate(nn.Module):
+    """Pair-level gate: predict which relation expert is correct.
+
+    The gate consumes a feature vector per object pair (geometry margins,
+    learned-head scores, a local noise estimate, contact/near flags, ...) and
+    emits one logit per candidate expert.  The logit is trained against
+    ``expert_prediction == true_relation``, so ``sigmoid(logit)`` is an
+    estimate of that expert's correctness.  Routing is ``argmax`` over the
+    experts, with the caller free to override the choice on OOD inputs.
+
+    This is deliberately a *routing* head, not another relation predictor:
+    the symbolic geometric predicate stays available as the safe fallback.
+    """
+
+    def __init__(self, in_dim: int, n_experts: int, hidden: int = 32, dropout: float = 0.0):
+        super().__init__()
+        layers: list[nn.Module] = [nn.Linear(in_dim, hidden), nn.GELU()]
+        if dropout:
+            layers.append(nn.Dropout(dropout))
+        layers += [nn.Linear(hidden, hidden), nn.GELU()]
+        if dropout:
+            layers.append(nn.Dropout(dropout))
+        layers.append(nn.Linear(hidden, n_experts))
+        self.net = nn.Sequential(*layers)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)
+
+    def correctness(self, x: torch.Tensor) -> torch.Tensor:
+        """Per-expert probability that the expert's 4-bit prediction is right."""
+        return torch.sigmoid(self.forward(x))
+
+
 # ── relation head training / evaluation ─────────────────────────────────────
 
 
