@@ -23,7 +23,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pss.knowledge import MultiSourceFactStore, RuleEngine
+from pss.knowledge import MultiSourceFactStore, RuleEngine, TMSFactStore
 from pss.memory import SceneGraph, Tracker, TrackerConfig
 from pss.memory.active_policy import ActiveSetPolicy, WritePolicy, tracking_pair_features, write_features
 from pss.memory.learned_metric import entity_token
@@ -239,13 +239,15 @@ class EntityLayer:
 class RelationFactLayer:
     def __init__(
         self,
-        facts: MultiSourceFactStore | None = None,
+        facts: MultiSourceFactStore | TMSFactStore | None = None,
         rules: RuleEngine | None = None,
         write_policy=None,
         use_default_write: bool = True,
         rule_set: RelationRuleSet | None = None,
     ):
-        self.facts = facts or MultiSourceFactStore()
+        # TMS-backed by default; an explicit store (including the legacy
+        # MultiSourceFactStore) is still accepted unchanged.
+        self.facts = facts or TMSFactStore()
         self.rules = rules
         self.rule_set = rule_set if rule_set is not None else _load_relation_rules()
         self.write_policy = (
@@ -341,6 +343,13 @@ class RelationFactLayer:
         return self.rules.derive(self.facts, entity, attribute)
 
     def snapshot(self) -> dict:
+        # TMS-backed stores expose a compact, self-contained token; the
+        # legacy MultiSourceFactStore keeps the historical payload shape.
+        if hasattr(self.facts, "snapshot") and hasattr(self.facts, "restore"):
+            return {
+                "fact_store": self.facts.snapshot(),
+                "write_log": copy.deepcopy(self.write_log),
+            }
         return copy.deepcopy(
             {
                 "assertions": self.facts.assertions,
@@ -352,6 +361,10 @@ class RelationFactLayer:
         )
 
     def restore(self, payload: dict) -> None:
+        if "fact_store" in payload:
+            self.facts.restore(payload["fact_store"])
+            self.write_log = copy.deepcopy(payload.get("write_log", []))
+            return
         self.facts.assertions = copy.deepcopy(payload["assertions"])
         self.facts.version = int(payload["version"])
         self.facts.history = copy.deepcopy(payload["history"])
@@ -444,6 +457,7 @@ def components(entity_layer: EntityLayer, relation_layer: RelationFactLayer) -> 
         "relation_head": entity_layer.relation_head is not None,
         "active_policy": entity_layer.active_policy is not None,
         "write_policy": relation_layer.write_policy is not None,
+        "fact_store": type(relation_layer.facts).__name__,
         "associator": getattr(entity_layer, "associator_name", "hand"),
         "relation_rules": {
             "version": int(relation_layer.rule_set.version),

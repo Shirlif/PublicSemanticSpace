@@ -112,16 +112,25 @@ class Assertion:
 class MultiSourceFactStore:
     """Facts asserted by multiple sources with priority and conflict reporting."""
 
-    def __init__(self, assertions: dict[tuple[str, str], list[Assertion]] | None = None):
+    def __init__(
+        self,
+        assertions: dict[tuple[str, str], list[Assertion]] | None = None,
+        record_history: bool = True,
+    ):
         self.assertions = {
             k: list(v) for k, v in (assertions or {}).items()
         }
         self.version = 0
+        # ``TMSFactStore`` owns versioning/rollback and disables this inner
+        # history so a wrapped mutation is not O(N) in the assertion table.
+        self.record_history = bool(record_history)
         self.history: list[dict] = []
         self.audit: list[AuditEntry] = []
         self._snapshot()
 
     def _snapshot(self):
+        if not self.record_history:
+            return
         self.history.append(copy.deepcopy(self.assertions))
 
     def assert_fact(

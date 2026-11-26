@@ -6,6 +6,7 @@ from .facts import (
     VersionedRuleEngine,
 )
 from .tms import Justification, TruthMaintenanceSystem
+from .tms_store import TMSFactStore
 
 __all__ = [
     "FactStore",
@@ -15,4 +16,5 @@ __all__ = [
     "VersionedRuleEngine",
     "Justification",
     "TruthMaintenanceSystem",
+    "TMSFactStore",
 ]
