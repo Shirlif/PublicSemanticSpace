@@ -65,6 +65,32 @@ def fit_temperature(logits: np.ndarray, labels: np.ndarray) -> float:
     return float(np.exp(result.x))
 
 
+def expected_calibration_error(
+    confidences: np.ndarray,
+    correct: np.ndarray,
+    n_bins: int = 10,
+) -> float:
+    """Equal-width ECE from per-sample confidence and correctness.
+
+    ``confidences`` are the probabilities assigned to the predicted class and
+    ``correct`` is 1 for a correct prediction, 0 otherwise.  The estimator is
+    the standard weighted absolute gap between mean confidence and mean
+    accuracy in each confidence bin.
+    """
+    conf = np.asarray(confidences, dtype=np.float64).reshape(-1)
+    ok = np.asarray(correct, dtype=np.float64).reshape(-1)
+    if len(conf) == 0 or len(conf) != len(ok):
+        return float("nan")
+    bins = np.linspace(0.0, 1.0, int(n_bins) + 1)
+    ece = 0.0
+    for b in range(int(n_bins)):
+        lo, hi = bins[b], bins[b + 1]
+        mask = (conf >= lo) & ((conf < hi) if b < int(n_bins) - 1 else (conf <= hi))
+        if mask.any():
+            ece += float(mask.mean()) * abs(float(ok[mask].mean()) - float(conf[mask].mean()))
+    return float(ece)
+
+
 def calibrate_modality(
     query: np.ndarray,
     prototypes: np.ndarray,
