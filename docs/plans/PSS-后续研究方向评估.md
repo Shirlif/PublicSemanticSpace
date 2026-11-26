@@ -144,7 +144,7 @@
 
 #### F5 协议包 + 外部 baseline
 
-- **状态（2026-11-26）**：前半段已完成并合入 master（`61edacf`）。新增零 PSS 依赖的 `pss_eval` 协议包、E5 flat 与 transformer-state adapter、runner 和可执行预注册；e5-flat 在 contract 上按预注册失败（SRR/RBE/AUD=0）。设计说明：`docs/plans/PSS-F5-协议包与预注册.md`。后半段（PSS 自身 adapter、真实 bundle 流、更多 property）未做。
+- **状态（2026-11-26）**：已完成并合入 master（前半段 `61edacf`，后半段 `0eb7e06`）。前半段新增零 PSS 依赖的 `pss_eval` 协议包、E5 flat 与 transformer-state adapter、runner 和可执行预注册；后半段新增 PSSRuntime adapter、真实 4-bundle 流、identity/budget/latency property 和 e5-flat / transformer-state / pss-runtime 三方对照。结果：pss-runtime contract 1/1/1/1/1，e5-flat 1/0/0/0/0，identity retention 0.7765，budget p99 2.47 ms。限制：真实 bundle 无 GT 标量类别，label_accuracy 记 skip；identity 用同帧最近位姿匹配，未做半径敏感性。设计说明：`docs/plans/PSS-F5-协议包与预注册.md`。
 - **问题**：E5 是内部 contract-free baseline，suite 尚未对外部系统开放。
 - **做法**：
   - 抽出 `pss-eval`，定义 `SystemUnderTest` adapter；
@@ -155,6 +155,7 @@
 
 #### F6 在线校准 + 投毒负控制
 
+- **状态（2026-11-26）**：已完成并合入 master（`d572142`）。真实 expert-zoo 流上 N=8 类平衡样本恢复 one-shot NLL 的 ≥97%（逐 seed 最低 0.960）；p≥0.10 三类投毒全检出，p=0.40 触发弃权；clean FPR 0.033（held-out 0.008）。报告：`reports/claim_gaps/online_calibration/REPORT.md`。限制：bundle 的 `emb` 为单类，多类校准用 expert-zoo 特征；σ=0.05 噪声与 5% label flip 会漏检。
 - **问题**：当前是一次性小集合校准；校准集投毒未被测试。
 - **做法**：
   - 流式校准 + drift 检测；
@@ -202,7 +203,8 @@
 | E21 延迟 guard | `reports/claim_gaps/latency_guard/REPORT.md` |
 | F2 感知级 swap | `reports/claim_gaps/perception_swap/REPORT.md` |
 | F4 异构宽度 | `reports/claim_gaps/families_width/REPORT.md` |
-| F5 协议包 | `pss_eval/`、`docs/plans/PSS-F5-协议包与预注册.md` |
+| F5 协议包 | `pss_eval/`、`docs/plans/PSS-F5-协议包与预注册.md`、`reports/claim_gaps/protocol_pss/REPORT.md` |
+| F6 在线校准 | `reports/claim_gaps/online_calibration/REPORT.md` |
 | 可复现性缺口 | `.gitignore`（`bundles/`、`data/`、`checkpoints/`、`_external/`） |
 
 ---
@@ -223,4 +225,4 @@
 - F2 依赖 F1 的数据包和 F3 的延迟基线；
 - F4/F5/F6 再进入“协议作为方法贡献”的阶段。
 
-**进度（2026-11-26）**：F1、F3、F2、F4 已完成；F5 前半段完成。剩余：F6（在线校准 + 投毒负控制）、F5 后半段（PSS 自身 adapter + 真实数据流），之后才是 P2。
+**进度（2026-11-26）**：F1–F6 全部完成（F5 前后半段均已合入）。剩余 P2 扩展（F7–F10）。
