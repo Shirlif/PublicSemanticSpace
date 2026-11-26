@@ -27,7 +27,9 @@ forced into the core interface:
 
 * :class:`SnapshotCapable` -- snapshot/rollback of persistent state;
 * :class:`SwapCapable` -- install a module descriptor, rejecting invalid ones;
-* :class:`AuditCapable` -- return the system's audit log.
+* :class:`AuditCapable` -- return the system's audit log;
+* :class:`IdentityCapable` -- expose per-detection entity assignments;
+* :class:`BudgetCapable` -- expose an anytime deadline budget and its stats.
 
 A system that does not implement a capability is reported as *skipped* (not
 applicable) by the corresponding property, never as an implicit pass.
@@ -45,6 +47,8 @@ import numpy as np
 
 __all__ = [
     "AuditCapable",
+    "BudgetCapable",
+    "IdentityCapable",
     "Observation",
     "Prediction",
     "SnapshotCapable",
@@ -65,17 +69,27 @@ __all__ = [
 
 @dataclass(frozen=True)
 class Observation:
-    """One stream item.  Carries no label; labels live in the eval harness."""
+    """One stream item.  Carries no label; labels live in the eval harness.
+
+    ``metadata`` is an opaque, adapter-specific side channel (for example a
+    real bundle frame's per-detection poses and embeddings).  The protocol
+    never inspects it, and it must never carry ground-truth labels: those stay
+    in :class:`pss_eval.fixtures.LabeledSample` / ``Stream.identity_labels`` so
+    the system cannot read them through the protocol.
+    """
 
     observation_id: str
     modality: str
     features: np.ndarray
+    metadata: Mapping[str, Any] | None = None
 
     def __post_init__(self) -> None:
         arr = np.array(self.features, dtype=np.float64, copy=True)
         if arr.ndim != 1:
             raise ValueError(f"features must be 1-D, got shape {arr.shape}")
         object.__setattr__(self, "features", arr)
+        if self.metadata is not None:
+            object.__setattr__(self, "metadata", dict(self.metadata))
 
 
 @dataclass(frozen=True)
@@ -169,10 +183,35 @@ class AuditCapable(Protocol):
         """Return the audit entries recorded so far."""
 
 
+@runtime_checkable
+class IdentityCapable(Protocol):
+    """Per-detection entity assignments used by identity-retention properties."""
+
+    def identity_assignments(self) -> Mapping[str, str]:
+        """Map a detection reference to the persistent entity/track id it got.
+
+        The harness supplies the ground-truth grouping separately (via
+        ``Stream.identity_labels``); the system only reports its own assignment.
+        """
+
+
+@runtime_checkable
+class BudgetCapable(Protocol):
+    """Anytime deadline budget and the statistics of its last run."""
+
+    def budget(self) -> Mapping[str, Any]:
+        """Return ``{"budget_ms": float, "reserve_ms": float}`` or an empty map."""
+
+    def budget_stats(self) -> Mapping[str, Any]:
+        """Return the deadline guard's observed statistics (p50/p99, timeouts)."""
+
+
 _CAPABILITIES: dict[str, type] = {
     "snapshot": SnapshotCapable,
     "swap": SwapCapable,
     "audit": AuditCapable,
+    "identity": IdentityCapable,
+    "budget": BudgetCapable,
 }
 
 

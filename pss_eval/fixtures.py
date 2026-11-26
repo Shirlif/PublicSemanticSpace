@@ -8,8 +8,8 @@ ground truth through the protocol.
 
 from __future__ import annotations
 
-from collections.abc import Iterator
-from dataclasses import dataclass
+from collections.abc import Iterator, Mapping
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -30,6 +30,10 @@ class Stream:
     categories: tuple[str, ...]
     dim: int
     seed: int
+    # Harness-side ground truth for identity retention: detection reference ->
+    # physical instance id.  Never placed on an Observation, so the system
+    # cannot read it.  Empty for streams without identity labels.
+    identity_labels: Mapping[str, str] = field(default_factory=dict)
 
     def __iter__(self) -> Iterator[LabeledSample]:
         return iter(self.samples)

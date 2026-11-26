@@ -7,6 +7,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
+
 from .fixtures import Stream
 from .preregistration import check_preregistration
 from .properties import FAIL, PASS, SKIP, Property, SystemFactory
@@ -14,7 +16,9 @@ from .properties import FAIL, PASS, SKIP, Property, SystemFactory
 __all__ = [
     "SystemSpec",
     "make_default_systems",
+    "make_protocol_systems",
     "run",
+    "run_bundle_suite",
     "run_suite",
     "write_report",
 ]
@@ -41,6 +45,41 @@ def make_default_systems(dim: int = 32) -> list[SystemSpec]:
     return [
         SystemSpec("e5-flat", lambda: FlatNonPSSAdapter(dim=dim)),
         SystemSpec("transformer-state", lambda: TransformerStateAdapter(dim=dim)),
+    ]
+
+
+def make_protocol_systems(
+    *,
+    dim: int = 32,
+    input_dim: int | None = None,
+    public_dim: int = 32,
+    budget_ms: float | None = 50.0,
+    tier: str = "frozen_real",
+) -> list[SystemSpec]:
+    """The three-way comparison: E5 flat, transformer-state, and PSS runtime.
+
+    ``dim`` is the feature width of the stream (384 for the real bundles);
+    ``input_dim`` is the detector-embedding width the PSS adapter projects into
+    its public space (defaults to ``dim``).
+    """
+
+    from .adapters.flat import FlatNonPSSAdapter
+    from .adapters.pss_runtime import PSSRuntimeAdapter
+    from .adapters.transformer import TransformerStateAdapter
+
+    resolved_input_dim = int(dim if input_dim is None else input_dim)
+    return [
+        SystemSpec("e5-flat", lambda: FlatNonPSSAdapter(dim=dim)),
+        SystemSpec("transformer-state", lambda: TransformerStateAdapter(dim=dim)),
+        SystemSpec(
+            "pss-runtime",
+            lambda: PSSRuntimeAdapter(
+                input_dim=resolved_input_dim,
+                public_dim=public_dim,
+                budget_ms=budget_ms,
+                tier=tier,
+            ),
+        ),
     ]
 
 
@@ -154,6 +193,7 @@ def run_suite(
     stream: Stream,
     *,
     seeds: Sequence[int] = (0,),
+    preregistration_expectations: dict[str, dict[str, str]] | None = None,
 ) -> dict:
     """Run every seed, aggregate statuses, and check the pre-registration."""
 
@@ -167,8 +207,134 @@ def run_suite(
         "runs": runs,
         "summary": _aggregate_runs(runs, systems, properties),
     }
-    report["preregistration"] = check_preregistration(report)
+    report["preregistration"] = check_preregistration(
+        report, expectations=preregistration_expectations
+    )
     return report
+
+
+def _combine_statuses(statuses: Sequence[str]) -> str:
+    if not statuses:
+        return SKIP
+    if all(status == SKIP for status in statuses):
+        return SKIP
+    if all(status == PASS for status in statuses):
+        return PASS
+    if any(status == FAIL for status in statuses):
+        return FAIL
+    return "mixed"
+
+
+def _aggregate_bundle_summaries(
+    per_bundle: dict[str, dict],
+    systems: Sequence[SystemSpec],
+    properties: Sequence[Property],
+) -> dict:
+    systems_summary: dict[str, dict] = {}
+    for spec in systems:
+        statuses: dict[str, str] = {}
+        metrics: dict[str, dict[str, float]] = {}
+        smoke_flags: dict[str, bool] = {}
+        for prop in properties:
+            summaries = [
+                report["summary"]["systems"][spec.name]
+                for report in per_bundle.values()
+                if spec.name in report["summary"]["systems"]
+            ]
+            observed = [
+                summary["statuses"][prop.name]
+                for summary in summaries
+                if prop.name in summary["statuses"]
+            ]
+            statuses[prop.name] = _combine_statuses(observed)
+            smoke_flags[prop.name] = bool(prop.smoke)
+            keys = sorted(
+                {
+                    key
+                    for summary in summaries
+                    for key in summary["metrics"].get(prop.name, {})
+                }
+            )
+            metrics[prop.name] = {
+                key: float(
+                    np.mean(
+                        [
+                            summary["metrics"][prop.name][key]
+                            for summary in summaries
+                            if key in summary["metrics"].get(prop.name, {})
+                        ]
+                    )
+                )
+                for key in keys
+            }
+        systems_summary[spec.name] = {
+            "statuses": statuses,
+            "metrics": metrics,
+            "smoke": smoke_flags,
+            "smoke_pass": all(
+                statuses[name] == PASS
+                for name, is_smoke in smoke_flags.items()
+                if is_smoke
+            ),
+        }
+    return {"systems": systems_summary}
+
+
+def run_bundle_suite(
+    systems: Sequence[SystemSpec],
+    properties: Sequence[Property],
+    bundle_streams: dict[str, Stream],
+    *,
+    seeds: Sequence[int] = (0,),
+    preregistration_expectations: dict[str, dict[str, str]] | None = None,
+) -> dict:
+    """Run the same suite on every bundle stream and aggregate the results.
+
+    Each bundle gets its own report (the runtime is reset per bundle), so a
+    tracker's frame indices never leak across bundles.  A property passes the
+    aggregate only if it passes on every bundle.
+    """
+
+    if not bundle_streams:
+        raise ValueError("bundle_streams must be non-empty")
+    per_bundle = {
+        name: run_suite(
+            systems,
+            properties,
+            stream,
+            seeds=seeds,
+            preregistration_expectations=preregistration_expectations,
+        )
+        for name, stream in bundle_streams.items()
+    }
+    checks = {name: report["preregistration"] for name, report in per_bundle.items()}
+    mismatches = [
+        f"{name}: {mismatch}"
+        for name, check in checks.items()
+        for mismatch in check.get("mismatches", [])
+    ]
+    return {
+        "seeds": [int(seed) for seed in seeds],
+        "stream": {
+            "kind": "bundles",
+            "bundles": list(per_bundle),
+            "n": int(sum(report["stream"]["n"] for report in per_bundle.values())),
+            "dim": sorted({report["stream"]["dim"] for report in per_bundle.values()}),
+        },
+        "bundles": {
+            name: {
+                "stream": report["stream"],
+                "summary": report["summary"],
+                "preregistration": report["preregistration"],
+            }
+            for name, report in per_bundle.items()
+        },
+        "summary": _aggregate_bundle_summaries(per_bundle, systems, properties),
+        "preregistration": {
+            "ok": all(check.get("ok") for check in checks.values()),
+            "mismatches": mismatches,
+        },
+    }
 
 
 def _fmt_metrics(metrics: dict[str, float]) -> str:
@@ -176,11 +342,22 @@ def _fmt_metrics(metrics: dict[str, float]) -> str:
 
 
 def _report_markdown(report: dict) -> str:
+    stream = report.get("stream", {})
+    dim = stream.get("dim", "?")
+    if isinstance(dim, list):
+        dim = "/".join(str(value) for value in dim)
     lines = [
-        "# pss_eval: external baseline property report",
+        "# pss_eval: property report",
         "",
         f"> seeds: {', '.join(str(seed) for seed in report['seeds'])}; "
-        f"stream: n={report['stream']['n']}, dim={report['stream']['dim']}",
+        f"stream: n={stream.get('n', '?')}, dim={dim}"
+        + (
+            f"; bundles: {', '.join(stream.get('bundles', []))}"
+            if stream.get("kind") == "bundles"
+            else ""
+        ),
+        "",
+        "## Aggregate",
         "",
         "| system | property | smoke | status | metrics |",
         "|---|---|---|---|---|",
@@ -191,6 +368,25 @@ def _report_markdown(report: dict) -> str:
                 f"| {system} | {prop} | {summary['smoke'][prop]} | {status} | "
                 f"{_fmt_metrics(summary['metrics'].get(prop, {}))} |"
             )
+
+    if stream.get("kind") == "bundles":
+        lines += ["", "## Per-bundle statuses", ""]
+        bundle_names = list(report.get("bundles", {}))
+        header = "| system | property | " + " | ".join(bundle_names) + " |"
+        lines.append(header)
+        lines.append("|---|---|" + "---|" * len(bundle_names))
+        for system, summary in report["summary"]["systems"].items():
+            for prop in summary["statuses"]:
+                cells = [
+                    report["bundles"][name]["summary"]["systems"][system][
+                        "statuses"
+                    ].get(prop, "?")
+                    for name in bundle_names
+                ]
+                lines.append(
+                    f"| {system} | {prop} | " + " | ".join(cells) + " |"
+                )
+
     lines += ["", "## Pre-registration", ""]
     check = report.get("preregistration", {})
     lines.append(f"ok: **{bool(check.get('ok'))}**")
@@ -198,9 +394,10 @@ def _report_markdown(report: dict) -> str:
         lines.append(f"- {mismatch}")
     lines += [
         "",
-        "Smoke properties are protocol hygiene checks.  The `contract` property",
-        "is expected to fail or be skipped for contract-free external systems;",
-        "see `docs/pss_eval/DESIGN_AND_PREREGISTRATION.md`.",
+        "Smoke properties are protocol hygiene checks.  `contract` and",
+        "`swap_rollback` are expected to fail or be skipped for contract-free",
+        "external systems; `budget` / `identity_retention` skip when the system",
+        "or stream lacks the required capability.",
         "",
     ]
     return "\n".join(lines)

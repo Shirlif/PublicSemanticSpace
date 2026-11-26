@@ -22,20 +22,30 @@ Typical use::
 from .fixtures import LabeledSample, Stream, make_gaussian_stream
 from .preregistration import (
     EXPECTED_CONTRACT_METRICS,
+    EXPECTED_PROTOCOL_STATUS,
     EXPECTED_STATUS,
     check_preregistration,
+    protocol_expectations,
 )
 from .properties import (
+    BudgetProperty,
     ContractProperty,
     DeterminismProperty,
+    IdentityRetentionProperty,
+    LabelAccuracyProperty,
+    LatencyProperty,
     Property,
     PropertyResult,
     ResetExactnessProperty,
     StateHygieneProperty,
+    SwapRollbackProperty,
     default_properties,
+    extended_properties,
 )
 from .protocol import (
     AuditCapable,
+    BudgetCapable,
+    IdentityCapable,
     Observation,
     Prediction,
     SnapshotCapable,
@@ -47,17 +57,32 @@ from .protocol import (
     state_digest,
     state_size_bytes,
 )
-from .runner import SystemSpec, make_default_systems, run, run_suite, write_report
+from .runner import (
+    SystemSpec,
+    make_default_systems,
+    make_protocol_systems,
+    run,
+    run_bundle_suite,
+    run_suite,
+    write_report,
+)
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "AuditCapable",
+    "BudgetCapable",
+    "BudgetProperty",
     "ContractProperty",
     "DeterminismProperty",
     "EXPECTED_CONTRACT_METRICS",
+    "EXPECTED_PROTOCOL_STATUS",
     "EXPECTED_STATUS",
+    "IdentityCapable",
+    "IdentityRetentionProperty",
+    "LabelAccuracyProperty",
     "LabeledSample",
+    "LatencyProperty",
     "Observation",
     "Prediction",
     "Property",
@@ -68,15 +93,20 @@ __all__ = [
     "StateSnapshot",
     "Stream",
     "SwapCapable",
+    "SwapRollbackProperty",
     "SystemSpec",
     "SystemUnderTest",
     "capabilities_of",
     "check_preregistration",
     "default_properties",
+    "extended_properties",
     "make_default_systems",
     "make_gaussian_stream",
+    "make_protocol_systems",
     "predictions_equal",
+    "protocol_expectations",
     "run",
+    "run_bundle_suite",
     "run_suite",
     "state_digest",
     "state_size_bytes",

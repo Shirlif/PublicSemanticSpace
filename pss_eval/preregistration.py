@@ -14,10 +14,14 @@ protocol smoke properties.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 __all__ = [
     "EXPECTED_CONTRACT_METRICS",
+    "EXPECTED_PROTOCOL_STATUS",
     "EXPECTED_STATUS",
     "check_preregistration",
+    "protocol_expectations",
 ]
 
 PASS = "pass"
@@ -39,6 +43,42 @@ EXPECTED_STATUS: dict[str, dict[str, str]] = {
     },
 }
 
+# Pre-registered expectations for the full (extended) protocol suite.  The
+# PSS runtime must pass every contract property; the contract-free E5 baseline
+# must fail the swap/rollback ones; the transformer baseline is skipped on all
+# capabilities it does not implement.
+EXPECTED_PROTOCOL_STATUS: dict[str, dict[str, str]] = {
+    "e5-flat": {
+        "determinism": PASS,
+        "reset_exactness": PASS,
+        "state_hygiene": PASS,
+        "contract": FAIL,
+        "swap_rollback": FAIL,
+        "identity_retention": SKIP,
+        "budget": SKIP,
+        "latency": PASS,
+    },
+    "transformer-state": {
+        "determinism": PASS,
+        "reset_exactness": PASS,
+        "state_hygiene": PASS,
+        "contract": SKIP,
+        "swap_rollback": SKIP,
+        "identity_retention": SKIP,
+        "budget": SKIP,
+        "latency": PASS,
+    },
+    "pss-runtime": {
+        "determinism": PASS,
+        "reset_exactness": PASS,
+        "state_hygiene": PASS,
+        "contract": PASS,
+        "swap_rollback": PASS,
+        "budget": PASS,
+        "latency": PASS,
+    },
+}
+
 # Exact values the E5 adapter must produce on the contract probe.  These mirror
 # the E5 scorecard: SRR=0 (invalid modules accepted), RBE=0, AUD=0.
 EXPECTED_CONTRACT_METRICS: dict[str, dict[str, float]] = {
@@ -49,7 +89,50 @@ EXPECTED_CONTRACT_METRICS: dict[str, dict[str, float]] = {
         "rollback_exact": 0.0,
         "audit_present": 0.0,
     },
+    # The PSS runtime validates modules before mutating, keeps the old module
+    # on rejection, rolls back exactly, and records an audit trail.
+    "pss-runtime": {
+        "swap_accepted": 1.0,
+        "invalid_rejected": 1.0,
+        "invalid_keeps_state": 1.0,
+        "rollback_exact": 1.0,
+        "audit_present": 1.0,
+    },
 }
+
+
+def protocol_expectations(
+    *,
+    bundle_stream: bool,
+    budget_enabled: bool = True,
+) -> dict[str, dict[str, str]]:
+    """Return the expected status table for a protocol-suite run.
+
+    ``identity_retention`` is only expected to pass when the stream carries
+    harness-side identity labels (real bundles); on synthetic streams it is
+    skipped.  ``label_accuracy`` is not pre-registered for the external
+    baselines: it depends on the synthetic stream's separability, so it stays
+    a reported measurement rather than a fixed expectation.
+    """
+
+    expectations = {
+        system: dict(statuses)
+        for system, statuses in EXPECTED_PROTOCOL_STATUS.items()
+    }
+    expectations["pss-runtime"]["budget"] = PASS if budget_enabled else SKIP
+    if bundle_stream:
+        expectations["pss-runtime"]["identity_retention"] = PASS
+        expectations["pss-runtime"]["label_accuracy"] = SKIP
+        expectations["e5-flat"]["label_accuracy"] = SKIP
+        expectations["transformer-state"]["label_accuracy"] = SKIP
+    else:
+        expectations["pss-runtime"]["identity_retention"] = SKIP
+        expectations["pss-runtime"]["label_accuracy"] = SKIP
+        expectations["transformer-state"]["label_accuracy"] = SKIP
+        # ``e5-flat`` label accuracy on the synthetic stream is left
+        # unregistered: it depends on the synthetic class separation and the
+        # per-seed codebook, so it is reported as a measurement instead.
+    return expectations
 
 
 def _systems_with_metrics(report: dict) -> dict[str, dict]:
@@ -74,18 +157,23 @@ def _systems_with_metrics(report: dict) -> dict[str, dict]:
     return normalised
 
 
-def check_preregistration(report: dict) -> dict:
+def check_preregistration(
+    report: dict,
+    *,
+    expectations: Mapping[str, Mapping[str, str]] | None = None,
+) -> dict:
     """Compare an observed report against the fixed expectations.
 
-    Returns ``{"ok": bool, "mismatches": [str, ...]}``.  Systems or properties
-    not mentioned in the expectation tables are ignored, so the runner remains
-    usable for ad-hoc suites.
+    ``expectations`` defaults to :data:`EXPECTED_STATUS` (the original external
+    suite).  Systems or properties not mentioned in the expectation tables are
+    ignored, so the runner remains usable for ad-hoc suites.
     """
 
+    expected_status = EXPECTED_STATUS if expectations is None else expectations
     observed = _systems_with_metrics(report)
     mismatches: list[str] = []
 
-    for system, expected_properties in EXPECTED_STATUS.items():
+    for system, expected_properties in expected_status.items():
         if system not in observed:
             continue
         for prop, expected_status in expected_properties.items():

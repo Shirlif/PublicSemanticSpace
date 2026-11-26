@@ -1,0 +1,1072 @@
+{
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "stream": {
+    "kind": "bundles",
+    "bundles": [
+      "s1_hard/37f0c8b8/seed0",
+      "s1_occlusion_real/16ea9f38/seed0",
+      "s2_twins/3d49ce1b/seed0",
+      "s1_camera_real/b4bb5f0e/seed0"
+    ],
+    "n": 400,
+    "dim": [
+      384
+    ]
+  },
+  "bundles": {
+    "s1_hard/37f0c8b8/seed0": {
+      "stream": {
+        "n": 100,
+        "dim": 384,
+        "seed": 0,
+        "categories": [
+          "cube"
+        ]
+      },
+      "summary": {
+        "systems": {
+          "e5-flat": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "fail",
+              "swap_rollback": "fail",
+              "identity_retention": "skip",
+              "label_accuracy": "skip",
+              "budget": "skip",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 4737.0,
+                "within_size_bound": 1.0
+              },
+              "contract": {
+                "audit_present": 0.0,
+                "invalid_keeps_state": 0.0,
+                "invalid_rejected": 0.0,
+                "rollback_exact": 0.0,
+                "swap_accepted": 1.0
+              },
+              "swap_rollback": {
+                "post_rollback_swap": 1.0,
+                "rollback_exact": 0.0,
+                "swap_changed_state": 1.0,
+                "swap_success_rate": 1.0
+              },
+              "identity_retention": {},
+              "label_accuracy": {},
+              "budget": {},
+              "latency": {
+                "max_ms": 0.04863333257768924,
+                "n": 100.0,
+                "p50_ms": 0.015983333166028995,
+                "p99_ms": 0.03804033235307245
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          },
+          "transformer-state": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "skip",
+              "swap_rollback": "skip",
+              "identity_retention": "skip",
+              "label_accuracy": "skip",
+              "budget": "skip",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 622.0,
+                "within_size_bound": 1.0
+              },
+              "contract": {},
+              "swap_rollback": {},
+              "identity_retention": {},
+              "label_accuracy": {},
+              "budget": {},
+              "latency": {
+                "max_ms": 0.11536666594717342,
+                "n": 100.0,
+                "p50_ms": 0.03448333215298286,
+                "p99_ms": 0.09939466678285204
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          },
+          "pss-runtime": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "pass",
+              "swap_rollback": "pass",
+              "identity_retention": "pass",
+              "label_accuracy": "skip",
+              "budget": "pass",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 5571.333333333333,
+                "within_size_bound": 1.0
+              },
+              "contract": {
+                "audit_present": 1.0,
+                "invalid_keeps_state": 1.0,
+                "invalid_rejected": 1.0,
+                "rollback_exact": 1.0,
+                "swap_accepted": 1.0
+              },
+              "swap_rollback": {
+                "post_rollback_swap": 1.0,
+                "rollback_exact": 1.0,
+                "swap_changed_state": 1.0,
+                "swap_success_rate": 1.0
+              },
+              "identity_retention": {
+                "identity_retention": 0.5881294964028777,
+                "instance_purity": 0.6168442492699919,
+                "n_detections": 556.0,
+                "n_instances": 12.0,
+                "threshold": 0.5
+              },
+              "label_accuracy": {},
+              "budget": {
+                "budget_ms": 50.0,
+                "elapsed_p50_ms": 1.3218166671625415,
+                "elapsed_p99_ms": 3.4787136661787073,
+                "errors": 0.0,
+                "frames": 100.0,
+                "timeout_rate": 0.0033333333333333335
+              },
+              "latency": {
+                "max_ms": 3.4861333333537914,
+                "n": 100.0,
+                "p50_ms": 1.5658166666980833,
+                "p99_ms": 2.9413033325909077
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          }
+        }
+      },
+      "preregistration": {
+        "ok": true,
+        "mismatches": []
+      }
+    },
+    "s1_occlusion_real/16ea9f38/seed0": {
+      "stream": {
+        "n": 100,
+        "dim": 384,
+        "seed": 0,
+        "categories": [
+          "cube"
+        ]
+      },
+      "summary": {
+        "systems": {
+          "e5-flat": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "fail",
+              "swap_rollback": "fail",
+              "identity_retention": "skip",
+              "label_accuracy": "skip",
+              "budget": "skip",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 5747.0,
+                "within_size_bound": 1.0
+              },
+              "contract": {
+                "audit_present": 0.0,
+                "invalid_keeps_state": 0.0,
+                "invalid_rejected": 0.0,
+                "rollback_exact": 0.0,
+                "swap_accepted": 1.0
+              },
+              "swap_rollback": {
+                "post_rollback_swap": 1.0,
+                "rollback_exact": 0.0,
+                "swap_changed_state": 1.0,
+                "swap_success_rate": 1.0
+              },
+              "identity_retention": {},
+              "label_accuracy": {},
+              "budget": {},
+              "latency": {
+                "max_ms": 0.06516666690004058,
+                "n": 100.0,
+                "p50_ms": 0.015599998732795939,
+                "p99_ms": 0.03556566720362768
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          },
+          "transformer-state": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "skip",
+              "swap_rollback": "skip",
+              "identity_retention": "skip",
+              "label_accuracy": "skip",
+              "budget": "skip",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 622.0,
+                "within_size_bound": 1.0
+              },
+              "contract": {},
+              "swap_rollback": {},
+              "identity_retention": {},
+              "label_accuracy": {},
+              "budget": {},
+              "latency": {
+                "max_ms": 0.0649666665898015,
+                "n": 100.0,
+                "p50_ms": 0.035050000709209904,
+                "p99_ms": 0.051205667453662874
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          },
+          "pss-runtime": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "pass",
+              "swap_rollback": "pass",
+              "identity_retention": "pass",
+              "label_accuracy": "skip",
+              "budget": "pass",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 2186.0,
+                "within_size_bound": 1.0
+              },
+              "contract": {
+                "audit_present": 1.0,
+                "invalid_keeps_state": 1.0,
+                "invalid_rejected": 1.0,
+                "rollback_exact": 1.0,
+                "swap_accepted": 1.0
+              },
+              "swap_rollback": {
+                "post_rollback_swap": 1.0,
+                "rollback_exact": 1.0,
+                "swap_changed_state": 1.0,
+                "swap_success_rate": 1.0
+              },
+              "identity_retention": {
+                "identity_retention": 0.8695652173913043,
+                "instance_purity": 0.90625,
+                "n_detections": 460.0,
+                "n_instances": 4.0,
+                "threshold": 0.5
+              },
+              "label_accuracy": {},
+              "budget": {
+                "budget_ms": 50.0,
+                "elapsed_p50_ms": 1.2804333334012579,
+                "elapsed_p99_ms": 2.4637066678407105,
+                "errors": 0.0,
+                "frames": 100.0,
+                "timeout_rate": 0.0033333333333333335
+              },
+              "latency": {
+                "max_ms": 2.764733332393613,
+                "n": 100.0,
+                "p50_ms": 1.3851333345276846,
+                "p99_ms": 2.1985853325774496
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          }
+        }
+      },
+      "preregistration": {
+        "ok": true,
+        "mismatches": []
+      }
+    },
+    "s2_twins/3d49ce1b/seed0": {
+      "stream": {
+        "n": 100,
+        "dim": 384,
+        "seed": 0,
+        "categories": [
+          "cube"
+        ]
+      },
+      "summary": {
+        "systems": {
+          "e5-flat": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "fail",
+              "swap_rollback": "fail",
+              "identity_retention": "skip",
+              "label_accuracy": "skip",
+              "budget": "skip",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 4838.0,
+                "within_size_bound": 1.0
+              },
+              "contract": {
+                "audit_present": 0.0,
+                "invalid_keeps_state": 0.0,
+                "invalid_rejected": 0.0,
+                "rollback_exact": 0.0,
+                "swap_accepted": 1.0
+              },
+              "swap_rollback": {
+                "post_rollback_swap": 1.0,
+                "rollback_exact": 0.0,
+                "swap_changed_state": 1.0,
+                "swap_success_rate": 1.0
+              },
+              "identity_retention": {},
+              "label_accuracy": {},
+              "budget": {},
+              "latency": {
+                "max_ms": 0.04696666777211552,
+                "n": 100.0,
+                "p50_ms": 0.015350000467151403,
+                "p99_ms": 0.0299056663182759
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          },
+          "transformer-state": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "skip",
+              "swap_rollback": "skip",
+              "identity_retention": "skip",
+              "label_accuracy": "skip",
+              "budget": "skip",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 622.0,
+                "within_size_bound": 1.0
+              },
+              "contract": {},
+              "swap_rollback": {},
+              "identity_retention": {},
+              "label_accuracy": {},
+              "budget": {},
+              "latency": {
+                "max_ms": 0.12169999899924733,
+                "n": 100.0,
+                "p50_ms": 0.03666666634671856,
+                "p99_ms": 0.07962499796121869
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          },
+          "pss-runtime": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "pass",
+              "swap_rollback": "pass",
+              "identity_retention": "pass",
+              "label_accuracy": "skip",
+              "budget": "pass",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 3224.3333333333335,
+                "within_size_bound": 1.0
+              },
+              "contract": {
+                "audit_present": 1.0,
+                "invalid_keeps_state": 1.0,
+                "invalid_rejected": 1.0,
+                "rollback_exact": 1.0,
+                "swap_accepted": 1.0
+              },
+              "swap_rollback": {
+                "post_rollback_swap": 1.0,
+                "rollback_exact": 1.0,
+                "swap_changed_state": 1.0,
+                "swap_success_rate": 1.0
+              },
+              "identity_retention": {
+                "identity_retention": 0.85995085995086,
+                "instance_purity": 0.8591964965727342,
+                "n_detections": 407.0,
+                "n_instances": 4.0,
+                "threshold": 0.5
+              },
+              "label_accuracy": {},
+              "budget": {
+                "budget_ms": 50.0,
+                "elapsed_p50_ms": 1.1459000003621138,
+                "elapsed_p99_ms": 2.139822332222538,
+                "errors": 0.0,
+                "frames": 100.0,
+                "timeout_rate": 0.0033333333333333335
+              },
+              "latency": {
+                "max_ms": 2.3664333324025697,
+                "n": 100.0,
+                "p50_ms": 1.3304333333508112,
+                "p99_ms": 1.9647573316009
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          }
+        }
+      },
+      "preregistration": {
+        "ok": true,
+        "mismatches": []
+      }
+    },
+    "s1_camera_real/b4bb5f0e/seed0": {
+      "stream": {
+        "n": 100,
+        "dim": 384,
+        "seed": 0,
+        "categories": [
+          "cube"
+        ]
+      },
+      "summary": {
+        "systems": {
+          "e5-flat": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "fail",
+              "swap_rollback": "fail",
+              "identity_retention": "skip",
+              "label_accuracy": "skip",
+              "budget": "skip",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 5444.0,
+                "within_size_bound": 1.0
+              },
+              "contract": {
+                "audit_present": 0.0,
+                "invalid_keeps_state": 0.0,
+                "invalid_rejected": 0.0,
+                "rollback_exact": 0.0,
+                "swap_accepted": 1.0
+              },
+              "swap_rollback": {
+                "post_rollback_swap": 1.0,
+                "rollback_exact": 0.0,
+                "swap_changed_state": 1.0,
+                "swap_success_rate": 1.0
+              },
+              "identity_retention": {},
+              "label_accuracy": {},
+              "budget": {},
+              "latency": {
+                "max_ms": 0.04033333243569359,
+                "n": 100.0,
+                "p50_ms": 0.016199999663513154,
+                "p99_ms": 0.030070333523326605
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          },
+          "transformer-state": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "skip",
+              "swap_rollback": "skip",
+              "identity_retention": "skip",
+              "label_accuracy": "skip",
+              "budget": "skip",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 622.0,
+                "within_size_bound": 1.0
+              },
+              "contract": {},
+              "swap_rollback": {},
+              "identity_retention": {},
+              "label_accuracy": {},
+              "budget": {},
+              "latency": {
+                "max_ms": 0.05689999913253511,
+                "n": 100.0,
+                "p50_ms": 0.03510000048360477,
+                "p99_ms": 0.05036600100235474
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          },
+          "pss-runtime": {
+            "statuses": {
+              "determinism": "pass",
+              "reset_exactness": "pass",
+              "state_hygiene": "pass",
+              "contract": "pass",
+              "swap_rollback": "pass",
+              "identity_retention": "pass",
+              "label_accuracy": "skip",
+              "budget": "pass",
+              "latency": "pass"
+            },
+            "metrics": {
+              "determinism": {
+                "agreement": 1.0,
+                "final_state_match": 1.0,
+                "observation_id_match": 1.0
+              },
+              "reset_exactness": {
+                "replay_agreement": 1.0,
+                "reset_exact": 1.0
+              },
+              "state_hygiene": {
+                "digest_ok": 1.0,
+                "finite_arrays": 1.0,
+                "state_bytes": 2966.0,
+                "within_size_bound": 1.0
+              },
+              "contract": {
+                "audit_present": 1.0,
+                "invalid_keeps_state": 1.0,
+                "invalid_rejected": 1.0,
+                "rollback_exact": 1.0,
+                "swap_accepted": 1.0
+              },
+              "swap_rollback": {
+                "post_rollback_swap": 1.0,
+                "rollback_exact": 1.0,
+                "swap_changed_state": 1.0,
+                "swap_success_rate": 1.0
+              },
+              "identity_retention": {
+                "identity_retention": 0.7883040935672514,
+                "instance_purity": 0.754380125936826,
+                "n_detections": 285.0,
+                "n_instances": 4.0,
+                "threshold": 0.5
+              },
+              "label_accuracy": {},
+              "budget": {
+                "budget_ms": 50.0,
+                "elapsed_p50_ms": 1.042549999813976,
+                "elapsed_p99_ms": 1.7867429985199177,
+                "errors": 0.0,
+                "frames": 100.0,
+                "timeout_rate": 0.0
+              },
+              "latency": {
+                "max_ms": 2.7678333329580105,
+                "n": 100.0,
+                "p50_ms": 1.1598666648448368,
+                "p99_ms": 2.0085363354640666
+              }
+            },
+            "smoke": {
+              "determinism": true,
+              "reset_exactness": true,
+              "state_hygiene": true,
+              "contract": false,
+              "swap_rollback": false,
+              "identity_retention": false,
+              "label_accuracy": false,
+              "budget": false,
+              "latency": false
+            },
+            "smoke_pass": true
+          }
+        }
+      },
+      "preregistration": {
+        "ok": true,
+        "mismatches": []
+      }
+    }
+  },
+  "summary": {
+    "systems": {
+      "e5-flat": {
+        "statuses": {
+          "determinism": "pass",
+          "reset_exactness": "pass",
+          "state_hygiene": "pass",
+          "contract": "fail",
+          "swap_rollback": "fail",
+          "identity_retention": "skip",
+          "label_accuracy": "skip",
+          "budget": "skip",
+          "latency": "pass"
+        },
+        "metrics": {
+          "determinism": {
+            "agreement": 1.0,
+            "final_state_match": 1.0,
+            "observation_id_match": 1.0
+          },
+          "reset_exactness": {
+            "replay_agreement": 1.0,
+            "reset_exact": 1.0
+          },
+          "state_hygiene": {
+            "digest_ok": 1.0,
+            "finite_arrays": 1.0,
+            "state_bytes": 5191.5,
+            "within_size_bound": 1.0
+          },
+          "contract": {
+            "audit_present": 0.0,
+            "invalid_keeps_state": 0.0,
+            "invalid_rejected": 0.0,
+            "rollback_exact": 0.0,
+            "swap_accepted": 1.0
+          },
+          "swap_rollback": {
+            "post_rollback_swap": 1.0,
+            "rollback_exact": 0.0,
+            "swap_changed_state": 1.0,
+            "swap_success_rate": 1.0
+          },
+          "identity_retention": {},
+          "label_accuracy": {},
+          "budget": {},
+          "latency": {
+            "max_ms": 0.05027499992138473,
+            "n": 100.0,
+            "p50_ms": 0.015783333007372374,
+            "p99_ms": 0.03339549984957566
+          }
+        },
+        "smoke": {
+          "determinism": true,
+          "reset_exactness": true,
+          "state_hygiene": true,
+          "contract": false,
+          "swap_rollback": false,
+          "identity_retention": false,
+          "label_accuracy": false,
+          "budget": false,
+          "latency": false
+        },
+        "smoke_pass": true
+      },
+      "transformer-state": {
+        "statuses": {
+          "determinism": "pass",
+          "reset_exactness": "pass",
+          "state_hygiene": "pass",
+          "contract": "skip",
+          "swap_rollback": "skip",
+          "identity_retention": "skip",
+          "label_accuracy": "skip",
+          "budget": "skip",
+          "latency": "pass"
+        },
+        "metrics": {
+          "determinism": {
+            "agreement": 1.0,
+            "final_state_match": 1.0,
+            "observation_id_match": 1.0
+          },
+          "reset_exactness": {
+            "replay_agreement": 1.0,
+            "reset_exact": 1.0
+          },
+          "state_hygiene": {
+            "digest_ok": 1.0,
+            "finite_arrays": 1.0,
+            "state_bytes": 622.0,
+            "within_size_bound": 1.0
+          },
+          "contract": {},
+          "swap_rollback": {},
+          "identity_retention": {},
+          "label_accuracy": {},
+          "budget": {},
+          "latency": {
+            "max_ms": 0.08973333266718934,
+            "n": 100.0,
+            "p50_ms": 0.03532499992312902,
+            "p99_ms": 0.07014783330002208
+          }
+        },
+        "smoke": {
+          "determinism": true,
+          "reset_exactness": true,
+          "state_hygiene": true,
+          "contract": false,
+          "swap_rollback": false,
+          "identity_retention": false,
+          "label_accuracy": false,
+          "budget": false,
+          "latency": false
+        },
+        "smoke_pass": true
+      },
+      "pss-runtime": {
+        "statuses": {
+          "determinism": "pass",
+          "reset_exactness": "pass",
+          "state_hygiene": "pass",
+          "contract": "pass",
+          "swap_rollback": "pass",
+          "identity_retention": "pass",
+          "label_accuracy": "skip",
+          "budget": "pass",
+          "latency": "pass"
+        },
+        "metrics": {
+          "determinism": {
+            "agreement": 1.0,
+            "final_state_match": 1.0,
+            "observation_id_match": 1.0
+          },
+          "reset_exactness": {
+            "replay_agreement": 1.0,
+            "reset_exact": 1.0
+          },
+          "state_hygiene": {
+            "digest_ok": 1.0,
+            "finite_arrays": 1.0,
+            "state_bytes": 3486.9166666666665,
+            "within_size_bound": 1.0
+          },
+          "contract": {
+            "audit_present": 1.0,
+            "invalid_keeps_state": 1.0,
+            "invalid_rejected": 1.0,
+            "rollback_exact": 1.0,
+            "swap_accepted": 1.0
+          },
+          "swap_rollback": {
+            "post_rollback_swap": 1.0,
+            "rollback_exact": 1.0,
+            "swap_changed_state": 1.0,
+            "swap_success_rate": 1.0
+          },
+          "identity_retention": {
+            "identity_retention": 0.7764874168280733,
+            "instance_purity": 0.784167717944888,
+            "n_detections": 427.0,
+            "n_instances": 6.0,
+            "threshold": 0.5
+          },
+          "label_accuracy": {},
+          "budget": {
+            "budget_ms": 50.0,
+            "elapsed_p50_ms": 1.1976750001849723,
+            "elapsed_p99_ms": 2.4672464161904686,
+            "errors": 0.0,
+            "frames": 100.0,
+            "timeout_rate": 0.0025
+          },
+          "latency": {
+            "max_ms": 2.8462833327769963,
+            "n": 100.0,
+            "p50_ms": 1.360312499855354,
+            "p99_ms": 2.278295583058331
+          }
+        },
+        "smoke": {
+          "determinism": true,
+          "reset_exactness": true,
+          "state_hygiene": true,
+          "contract": false,
+          "swap_rollback": false,
+          "identity_retention": false,
+          "label_accuracy": false,
+          "budget": false,
+          "latency": false
+        },
+        "smoke_pass": true
+      }
+    }
+  },
+  "preregistration": {
+    "ok": true,
+    "mismatches": []
+  }
+}
