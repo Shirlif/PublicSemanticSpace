@@ -118,6 +118,8 @@
 
 #### F3 延迟 guard
 
+- **状态（2026-11-26）**：已实现并完成 E21 实验。`DeadlineGuard` + `LatencyIsolation` + 确定性慢阶段注入；报告见 `reports/claim_gaps/latency_guard/REPORT.md`。
+- **结果**：注入 30 ms 慢阶段时 BAR 0.944 → 0.999、p99 31.3 → 8.9 ms、ID retention 1.000；但 4/57 次无 guard 运行仍有 52–67 ms 尖峰，残余来自 OS 抢占 guard 线程。**硬 10 ms 墙钟上界未达成**；达成的是“bounded work + anytime degradation at the API boundary”。
 - **问题**：2/14 traces 出现 52–63 ms 单帧尖峰，10 ms 界限下 BAR=0.9993。
 - **做法**：
   - 在 replay 路径加 deadline guard 与 anytime 降级；

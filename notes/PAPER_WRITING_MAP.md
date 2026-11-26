@@ -90,7 +90,7 @@
 - 校准：vision k=1 → 1.00；tactile 最好 0.40。
 - Twin：ZCR -0.717，RBE -1.0，LOC +1.0，PCR -1.0，BAR -1.0。
 - L2：S4-PSS 5/5，wall mean 2.136s，BAR=1.00。
-- L2 bundle：BAR mean 0.9993；2/14 trace 尾延迟 >10ms。
+- L2 bundle：BAR mean 0.9993；2/14 trace 尾延迟 >10ms。E21 guard 在注入 30 ms 慢阶段时把 BAR 提到 0.999、p99 降到 8.9 ms；残余尖峰是 OS 对 guard 线程的抢占。
 
 ---
 
@@ -206,7 +206,7 @@
 - active-set 的计算优势是真实的，但预注册门槛未达；长历史 fact 的失败是 query-conditioning 接口缺失，不是学习能力问题，且简单规则已足够。
 - 关系层的正确形态是“精确几何骨架 + 学习关系”；纯学习边不成立。
 - tactile 瓶颈说明：架构不能修复弱专家。
-- 尾延迟需要 guard；BAR 是架构指标，p99 是工程指标。
+- 尾延迟需要 guard；E21 已实现 best-effort guard：BAR 是架构/工作指标，p99/p99.9 是工程指标；不宣称硬 10 ms 墙钟上界。
 - 与 Modular DL / TMS / anytime planning 的关系：PSS 把它们组合在一个非 LLM runtime 里。
 
 ### 7. Limitations
@@ -310,11 +310,13 @@ cognitive runtime; entity binding; typed relations; active-set memory; modular a
 | 10 | TMS 接生产 store | **完成（E10）** | K3/K4/K5/AUD/source-retract 全 1.00；`TMSFactStore` 包装 `MultiSourceFactStore` | 未替换全部调用点 |
 | 10b | runtime 权限/审计 | **完成（E17）** | read_only 拒绝 5 项、admin 拒绝 0；拒绝动作全部入审计 | 未做真机权限 |
 | 11 | 全因子/更多 seeds | **完成（E9）** | L0 10 seeds 契约不变；L1 5 seeds SSR/RBE/INT/RCR=1.0 | 全因子未跑 |
+| 12 | 尾延迟 guard | **完成（E21，best-effort）** | 注入 30 ms 慢阶段：BAR 0.944 → 0.999，p99 31.3 → 8.9 ms，retention 1.000；残余尖峰来自 OS 抢占 guard 线程 | 硬 10 ms 墙钟上界未达成；需 RTOS/原生 watchdog |
 
-### 新补的两条（不在原列表）
+### 新补的三条（不在原列表）
 
 - **C3 RAG baseline（E13）**：exact-RAG 准确率 1.000，但 p50 1.38 ms vs PSS 0.0003 ms；learned-RAG 在合成流上检索受限（0.375），只作为下界。C3 的成本比较不再只有 transformer 基线。
 - **semantic-space ablation（E14）**：closed-set 0.969 在三变体不变；cross-modal R@1 0.510（trained）vs 0.115（random）。结论要写成“per-modality 投影提供跨模态对齐”，不是“提升闭集精度”。
+- **deadline guard（E21）**：`DeadlineGuard` 把调用方等待限制在 budget-reserve 内，超时返回空 events 并进入工作卸载冷却；注入 30 ms 慢阶段时 BAR 0.944 → 0.999、p99 8.9 ms、retention 1.000。4/57 次无 guard 运行仍有 52–67 ms 尖峰，说明残余是 OS 调度，不是 worker 工作超时。论文只能写“bounded work + anytime degradation at the API boundary”，不能写“硬 10 ms 墙钟保证”。
 
 ### 仍不建议写
 

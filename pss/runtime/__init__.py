@@ -5,6 +5,7 @@ audit) and routes perception/relations/planning/outputs as services. This is
 the layering from ``docs/architecture/PSS-认知层架构定位.md``, not another model.
 """
 
+from .deadline import DeadlineGuard, GuardSnapshot, LatencyIsolation
 from .layers import EntityLayer, RelationFactLayer
 from .permissions import (
     ACTIONS,
@@ -34,10 +35,13 @@ __all__ = [
     "PermissionProfile",
     "PermissionService",
     "CognitiveState",
+    "DeadlineGuard",
     "Entity",
     "EntityLayer",
     "Fact",
     "Goal",
+    "GuardSnapshot",
+    "LatencyIsolation",
     "OutputRouter",
     "PSSRuntime",
     "Plan",

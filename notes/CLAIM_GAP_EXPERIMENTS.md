@@ -186,3 +186,44 @@ held-out 区域 D/G，3 seeds：
 - **E19/E20 把 L2 补到“运行时级完成”**：KB 更新、planner swap、遮挡绑定、冲突弃权、审计回滚都有消融；感知级 expert swap 仍缺，因为 L2 bundle 没有 embeddings。
 - **E13 补上了 RAG 基线**：learned-RAG 是弱基线，exact-RAG（top-1 精确检索）是公平上界；PSS 在同等准确率下快约 4000x。
 
+---
+
+## E21：deadline guard（2026-11-26）
+
+**问题**：L2 bundle 的 BAR 在 2/14 条 trace 上被 52–63 ms 单帧尖峰破坏
+（BAR 0.9993）。原报告把尖峰归因为 OS 调度/JIT，但没有 guard。
+
+**设计**：
+
+- `DeadlineGuard` 把 `runtime.ingest` 放到 worker 线程，调用方最多等待
+  `budget - reserve`；超时返回空 events，并在下一帧前 join worker，避免并发改状态。
+- 超时后进入 `degraded_cooldown_frames` 帧的工作卸载期：跳过关系计算，
+  记录 `relations_skipped`。
+- 可选 `LatencyIsolation`：Windows 下 1 ms timer + `THREAD_PRIORITY_HIGHEST`；
+  其他平台尝试 `nice(-5)`。这是 best-effort，不是硬实时。
+- `slow_stage_ms`（sleep，释放 GIL）和 `slow_burn_ms`（busy-loop，持有 GIL）
+  是确定性测试注入；正常 replay 为 0。
+
+**结果**（`reports/claim_gaps/latency_guard/REPORT.md`，19 个非空 bundle，
+3 repeats，budget 10 ms，30 ms busy-loop every 20 frames）：
+
+| mode | BAR mean | p99 ms | max ms | timeouts | ID retention |
+|---|---:|---:|---:|---:|---:|
+| off | 0.9993 | 1.75 | 67.34 | 0 | 1.000 |
+| on | 0.9993 | 2.53 | 80.18 | 6 | 1.000 |
+| off_slow | 0.9439 | 31.31 | 59.94 | 0 | 1.000 |
+| on_slow | 0.9986 | 8.88 | 64.91 | 241 | 1.000 |
+| on_slow_iso | 0.9985 | 9.14 | 69.16 | 240 | 1.000 |
+
+**结论**：
+
+- guard 对**工作超时**有效：注入 30 ms 慢阶段后，BAR 从 0.944 提到 0.999，
+  p99 从 31 ms 降到 8.9 ms，ID retention 保持 1.000。
+- 残余 0.14% 不是 worker 超时，而是**guard 线程本身被 OS 抢占**；在 4/57 次
+  未加 guard 的运行里也出现 52–67 ms 的同类尖峰。用户态线程无法防止自己被
+  调度器挂起。
+- 因此论文/报告应写“bounded work + anytime degradation at the API boundary”，
+  不宣称硬 10 ms 墙钟上界。硬实时需要 RTOS、原生 watchdog 或独占 CPU。
+- 工作卸载的代价是关系行数下降（on_slow 14254 vs off 16520，约 -14%），
+  但身份 retention 不变；这说明 guard 牺牲的是可选关系计算，不是实体状态。
+

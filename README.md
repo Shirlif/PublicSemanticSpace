@@ -192,6 +192,7 @@ PSS 的 claim 本身是**操作不变量**，不是端到端精度：
 - **scale**（E8）：dim 128/256/512 契约不变；1000 facts update **52.9 ms**、rollback **1.0**；500 实体/2000 关系仍 bounded。
 - **TMS 接生产 store**（E10）：K3/K4/K5/AUD/source-retract 全 **1.00**；`TMSFactStore` 包装 `MultiSourceFactStore`，TMS 不再是平行模块。
 - **runtime 权限/审计**（E17）：`read_only` 拒绝 5 项动作、`admin` 拒绝 0；拒绝动作全部入审计。
+- **deadline guard**（E21）：注入 30 ms 慢阶段时，BAR 从 **0.944** 提到 **0.999**，p99 从 **31.3 ms** 降到 **8.9 ms**，ID retention 保持 **1.000**。残余尖峰来自 OS 对 guard 线程本身的抢占，不能宣称硬 10 ms 墙钟上界；详见 `reports/claim_gaps/latency_guard/REPORT.md`。
 
 ### 5.5 评测协议：负控制、twin、非 PSS baseline（C5）
 
@@ -229,6 +230,7 @@ PSS 的 claim 本身是**操作不变量**，不是端到端精度：
 
 - **没有真机**：所有证据来自 MuJoCo 渲染、Isaac 仿真、离线 bundle replay。
 - **L2 是 oracle pose**：S4-PSS 使用 GT boxes/poses；H/K（hot-swap / KB update）没有在 Isaac 任务中执行。E12/E19/E20 补了 bundle replay 和 runtime 级证据；33 个 dev bundle 中 4 个带 GroundingDINO/DINOv2 embedding，但感知级 mid-stream expert swap 仍未执行。复现包见 `docs/reproducibility.md`。
+- **尾延迟是 best-effort**：E21 的 deadline guard 约束调用方等待并卸载可选关系计算，但不能防止 OS 抢占 guard 线程本身；不宣称硬 10 ms 墙钟上界。
 - **专家族有限**：只接了 3 个同宽度族；DINOv2/SqueezeNet/WT-MM 因投影宽度不兼容未接。
 - **全因子未跑**：当前是缩减设计；L0 10 seeds、L1 5 seeds。
 - **TMS 未替换全部调用点**：`TMSFactStore` 是新包装，生产路径未全部迁移。
@@ -271,6 +273,9 @@ python -m pss.eval.scripts.run_gap_rag_exact --seeds 1 --epochs 100
 python -m pss.eval.scripts.run_gap_space_ablation
 python scripts/run_claim_gaps_followups.py   # 汇总；先运行对应实验
 
+# E21 deadline guard（注入慢阶段 + OS isolation 对照）
+python -m pss.eval.scripts.run_gap_latency_guard --repeats 3 --slow-burn-ms 30 --slow-every 20 --isolate
+
 # L2 公开复现包（E12）；先下载并校验 bundle 归档
 python scripts/fetch_repro_bundles.py --url <release asset URL> --out bundles/repro
 python scripts/reproduce_l2.py --root bundles/repro --out reports/repro
@@ -288,11 +293,13 @@ python -m pss.demos.public_semantic_space_demo \
 | 路径 | 内容 |
 |---|---|
 | `pss/runtime/` | 认知运行时、层次、状态、变体 |
+| `pss/runtime/deadline.py` | `DeadlineGuard` / `LatencyIsolation`（E21 尾延迟） |
 | `pss/memory/` | 场景图、追踪、active-set、typed relations |
 | `pss/knowledge/` | `FactStore`、TMS、`TMSFactStore` |
 | `pss/property/` | L0/L1 property suites、entity audit、契约注册表 |
 | `pss/eval/scripts/` | 实验入口（L1/L2、claim-gap） |
 | `reports/claim_gaps/` | claim-gap 报告、`INDEX.md`、`FOLLOWUPS.md` |
+| `reports/claim_gaps/latency_guard/` | E21 deadline guard 报告与逐运行指标 |
 | `reports/repro/` | L2 复现包运行结果与 PASS/FAIL |
 | `scripts/reproduce_l2.py` | 复现包入口（E12 + 感知子集） |
 | `docs/reproducibility.md` | 复现包下载、SHA256 校验、期望结果 |

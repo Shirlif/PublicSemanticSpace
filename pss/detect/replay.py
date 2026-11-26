@@ -26,6 +26,7 @@ from pss.memory.perception import Observation
 from pss.memory.scene_graph import SceneGraph
 from pss.memory.tracking import Tracker, TrackerConfig
 from pss.relations import RelObject, compute_relations
+from pss.runtime.deadline import DeadlineGuard
 from pss.runtime.layers import EntityLayer
 from pss.runtime.runtime import PSSRuntime
 from pss.runtime.variants import build_runtime
@@ -155,7 +156,24 @@ def replay_bundle(
     write: bool = True,
     variant: str = "full",
     shuffle_embeddings: bool = False,
+    deadline_ms: float | None = None,
+    deadline_reserve_ms: float = 1.5,
+    slow_stage_ms: float = 0.0,
+    slow_burn_ms: float = 0.0,
+    slow_every: int = 1,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Replay a bundle through the runtime.
+
+    ``deadline_ms`` enables the deadline guard: the caller's wait is bounded,
+    a timed-out frame returns empty events, and the worker is joined before
+    the next frame.  When enabled, the returned ``pss`` frame carries
+    ``degraded`` and ``frame_ms`` columns and ``pss.attrs["deadline_guard"]``
+    holds the guard summary.  The written parquet schema is unchanged.
+
+    ``slow_stage_ms`` / ``slow_burn_ms`` / ``slow_every`` are deterministic test
+    hooks for the guard; normal replay leaves them at zero.  ``slow_stage_ms``
+    sleeps (releases the GIL), ``slow_burn_ms`` busy-loops (holds the GIL).
+    """
     root = Path(bundle_dir)
     detections = pd.read_parquet(root / "obs_detections.parquet")
     if detections.empty:
@@ -171,6 +189,29 @@ def replay_bundle(
         else "oracle"
     )
     runtime = build_runtime(variant, tier=tier)
+    guard = (
+        DeadlineGuard(deadline_ms, reserve_ms=deadline_reserve_ms)
+        if deadline_ms is not None
+        else None
+    )
+    base_ingest = runtime.ingest
+    if slow_stage_ms > 0 or slow_burn_ms > 0:
+
+        def ingest_fn(observations, frame):
+            slow_frame = slow_every <= 1 or frame % slow_every == 0
+            if slow_frame and slow_stage_ms > 0:
+                time.sleep(float(slow_stage_ms) / 1000.0)
+            if slow_frame and slow_burn_ms > 0:
+                burn_until = time.perf_counter() + float(slow_burn_ms) / 1000.0
+                while time.perf_counter() < burn_until:
+                    pass
+            return base_ingest(observations, frame)
+    else:
+        ingest_fn = base_ingest
+    last_version = 0
+    last_entities = 0
+    last_facts = 0
+    relations_skipped = 0
     rng = np.random.default_rng(0)
 
     trace_rows: list[dict[str, Any]] = []
@@ -182,6 +223,9 @@ def replay_bundle(
     for frame_idx, (step, group) in enumerate(frames):
         step = int(step)
         t_s = float(group.iloc[0]["t_s"])
+        frame_start = time.perf_counter()
+        if guard is not None:
+            guard.wait_pending()
         frame_rows = list(group.iterrows())
         appearances = []
         for _, row in frame_rows:
@@ -214,9 +258,23 @@ def replay_bundle(
                 )
             )
 
-        started = time.perf_counter()
-        result = runtime.ingest(observations, frame_idx)
-        latency_ms = (time.perf_counter() - started) * 1000.0
+        if guard is not None:
+            result, timed_out, latency_ms = guard.call(
+                lambda obs=observations, fi=frame_idx: ingest_fn(obs, fi),
+                frame=frame_idx,
+            )
+        else:
+            started = time.perf_counter()
+            result = ingest_fn(observations, frame_idx)
+            latency_ms = (time.perf_counter() - started) * 1000.0
+            timed_out = False
+        if timed_out:
+            result = {
+                "events": {},
+                "version": last_version,
+                "uncertainty": None,
+                "degraded": True,
+            }
 
         assignments: dict[str, str] = {}
         for kind in ("matched", "new", "reid"):
@@ -228,56 +286,76 @@ def replay_bundle(
                 {"step": step, "t_s": t_s, "gt_id": identity, "pred_id": track_id}
             )
 
-        pss_rows.append(
-            {
-                "t_s": t_s,
-                "layer": "entity",
-                "latency_ms": float(latency_ms),
-                "state_version": int(result.get("version", 0)),
-                "entities_n": int(len(runtime.entities.graph.tracks)),
-                "facts_n": int(len(runtime.state.facts)),
-                "expansions": 0,
-            }
-        )
-        for track in runtime.entities.graph.tracks.values():
-            if int(track.last_seen) == frame_idx:
-                pred_rows.append(
-                    {
-                        "step": step,
-                        "t_s": t_s,
-                        "pred_id": track.id,
-                        "pos_xyz": [float(v) for v in track.pos[:3]],
-                        "category": track.category,
-                        "confidence": float(track.confidence),
-                    }
-                )
-        frame_tracks = [
-            track
-            for track in runtime.entities.graph.tracks.values()
-            if int(track.last_seen) == frame_idx
-        ]
-        if predicates and len(frame_tracks) >= 2:
-            objects = [
-                RelObject(track.id, track.pos, [0.04, 0.04, 0.04])
-                for track in frame_tracks
+        if not timed_out:
+            last_version = int(result.get("version", last_version))
+            last_entities = int(len(runtime.entities.graph.tracks))
+            last_facts = int(len(runtime.state.facts))
+            for track in runtime.entities.graph.tracks.values():
+                if int(track.last_seen) == frame_idx:
+                    pred_rows.append(
+                        {
+                            "step": step,
+                            "t_s": t_s,
+                            "pred_id": track.id,
+                            "pos_xyz": [float(v) for v in track.pos[:3]],
+                            "category": track.category,
+                            "confidence": float(track.confidence),
+                        }
+                    )
+            frame_tracks = [
+                track
+                for track in runtime.entities.graph.tracks.values()
+                if int(track.last_seen) == frame_idx
             ]
-            for subj, pred, obj in compute_relations(
-                objects, predicates, tolerance_m=tolerance
-            ):
-                relation_rows.append(
-                    {
-                        "step": step,
-                        "t_s": t_s,
-                        "subj": subj,
-                        "pred": pred,
-                        "obj": obj,
-                    }
-                )
+            shed_relations = guard is not None and guard.should_shed
+            if shed_relations:
+                relations_skipped += 1
+            if predicates and len(frame_tracks) >= 2 and not shed_relations:
+                objects = [
+                    RelObject(track.id, track.pos, [0.04, 0.04, 0.04])
+                    for track in frame_tracks
+                ]
+                for subj, pred, obj in compute_relations(
+                    objects, predicates, tolerance_m=tolerance
+                ):
+                    relation_rows.append(
+                        {
+                            "step": step,
+                            "t_s": t_s,
+                            "subj": subj,
+                            "pred": pred,
+                            "obj": obj,
+                        }
+                    )
+
+        frame_ms = (time.perf_counter() - frame_start) * 1000.0
+        pss_row = {
+            "t_s": t_s,
+            "layer": "entity",
+            "latency_ms": float(latency_ms),
+            "state_version": int(last_version),
+            "entities_n": int(last_entities),
+            "facts_n": int(last_facts),
+            "expansions": 0,
+        }
+        if guard is not None:
+            pss_row["degraded"] = bool(timed_out)
+            pss_row["frame_ms"] = float(frame_ms)
+        pss_rows.append(pss_row)
+
+    if guard is not None:
+        guard.close()
 
     trace = pd.DataFrame(trace_rows, columns=["step", "t_s", "gt_id", "pred_id"])
-    pss = pd.DataFrame(pss_rows, columns=list(TRACE_SCHEMA.names))
+    extra = ["degraded", "frame_ms"] if guard is not None else []
+    pss = pd.DataFrame(pss_rows, columns=list(TRACE_SCHEMA.names) + extra)
     preds = pd.DataFrame(pred_rows, columns=list(PRED_STATES_SCHEMA.names))
     relations = pd.DataFrame(relation_rows, columns=list(RELATION_TRACE_SCHEMA.names))
+    pss.attrs["relation_rows"] = int(len(relations))
+    if guard is not None:
+        snapshot = guard.snapshot().to_dict()
+        snapshot["relations_skipped"] = int(relations_skipped)
+        pss.attrs["deadline_guard"] = snapshot
     if write:
         pq.write_table(
             pa.Table.from_pylist(trace.to_dict(orient="records"), schema=ENTITY_TRACE_SCHEMA),
@@ -295,7 +373,10 @@ def replay_bundle(
             compression="zstd",
         )
         pq.write_table(
-            pa.Table.from_pylist(pss.to_dict(orient="records"), schema=TRACE_SCHEMA),
+            pa.Table.from_pylist(
+                pss[list(TRACE_SCHEMA.names)].to_dict(orient="records"),
+                schema=TRACE_SCHEMA,
+            ),
             root / "pss_trace.parquet",
             compression="zstd",
         )
