@@ -107,6 +107,7 @@
 
 #### F2 感知级 mid-stream expert swap
 
+- **状态（2026-11-26）**：已完成并合入 master（`b8e7140`）。4 个带 `emb` 的 bundle 上正例 SSR/RBE/INT/RCR 全 1.000；naive 负控制 RCR 4/4 为 0，INT_post 在 2/4 下降。报告：`reports/claim_gaps/perception_swap/REPORT.md`。限制：单 swap 点、单 seed；INT 为 baseline-relative；guard 只包 ingest，端到端 p99 最高约 11 ms。
 - **问题**：L2 的 expert swap 仍停留在 runtime 级或离线 replay，没有在真实检测流中间换入。
 - **做法**：
   - 在 4 个带 `emb` 的 bundle 上，于第 t 帧换入另一视觉族（例如 `smallcnn` → `dinov2`）；
@@ -118,7 +119,7 @@
 
 #### F3 延迟 guard
 
-- **状态（2026-11-26）**：已实现并完成 E21 实验。`DeadlineGuard` + `LatencyIsolation` + 确定性慢阶段注入；报告见 `reports/claim_gaps/latency_guard/REPORT.md`。
+- **状态（2026-11-26）**：已完成并合入 master（`d49e6e7`，E21）。`DeadlineGuard` + `LatencyIsolation` + 确定性慢阶段注入；报告见 `reports/claim_gaps/latency_guard/REPORT.md`。
 - **结果**：注入 30 ms 慢阶段时 BAR 0.944 → 0.999、p99 31.3 → 8.9 ms、ID retention 1.000；但 4/57 次无 guard 运行仍有 52–67 ms 尖峰，残余来自 OS 抢占 guard 线程。**硬 10 ms 墙钟上界未达成**；达成的是“bounded work + anytime degradation at the API boundary”。
 - **问题**：2/14 traces 出现 52–63 ms 单帧尖峰，10 ms 界限下 BAR=0.9993。
 - **做法**：
@@ -132,6 +133,7 @@
 
 #### F4 异构宽度 expert adapter
 
+- **状态（2026-11-26）**：已完成并合入 master（`8b7164b`）。DINOv2 384 / CLIP 768 / WT-MM 64 三宽度准入契约一致（reject/accept/review），vision k=1 = 0.983 / 1.000；报告：`reports/claim_gaps/families_width/REPORT.md`。CLIP 实际用 ViT-B/16（768），ViT-L/14 权重未齐；WT-MM k=1 仅 0.38–0.45（专家本身限制，非契约失败）。
 - **问题**：E11 只接了 3 个同宽族；DINOv2 384/768、CLIP 768、WT-MM 尚未进 property suite。
 - **做法**：
   - 在 registry / property suite 中接入不同 `in_dim` 的专家；
@@ -142,6 +144,7 @@
 
 #### F5 协议包 + 外部 baseline
 
+- **状态（2026-11-26）**：前半段已完成并合入 master（`61edacf`）。新增零 PSS 依赖的 `pss_eval` 协议包、E5 flat 与 transformer-state adapter、runner 和可执行预注册；e5-flat 在 contract 上按预注册失败（SRR/RBE/AUD=0）。设计说明：`docs/plans/PSS-F5-协议包与预注册.md`。后半段（PSS 自身 adapter、真实 bundle 流、更多 property）未做。
 - **问题**：E5 是内部 contract-free baseline，suite 尚未对外部系统开放。
 - **做法**：
   - 抽出 `pss-eval`，定义 `SystemUnderTest` adapter；
@@ -196,6 +199,10 @@
 | E3 hybrid 关系 | `reports/claim_gaps/hybrid_relations/REPORT.md`（hybrid_diag 0.857 vs geo 0.828 @ noise 0.15） |
 | E16 开放集 | `reports/claim_gaps/openset/p2_openset.md`（AUROC 0.993 / reject 0.958） |
 | E19/E20 runtime | `reports/claim_gaps/l2_runtime_updates/REPORT.md`、`reports/claim_gaps/runtime_cross_layer/runtime.md` |
+| E21 延迟 guard | `reports/claim_gaps/latency_guard/REPORT.md` |
+| F2 感知级 swap | `reports/claim_gaps/perception_swap/REPORT.md` |
+| F4 异构宽度 | `reports/claim_gaps/families_width/REPORT.md` |
+| F5 协议包 | `pss_eval/`、`docs/plans/PSS-F5-协议包与预注册.md` |
 | 可复现性缺口 | `.gitignore`（`bundles/`、`data/`、`checkpoints/`、`_external/`） |
 
 ---
@@ -215,3 +222,5 @@
 - F3 成本低、能立刻闭合已知负结果；
 - F2 依赖 F1 的数据包和 F3 的延迟基线；
 - F4/F5/F6 再进入“协议作为方法贡献”的阶段。
+
+**进度（2026-11-26）**：F1、F3、F2、F4 已完成；F5 前半段完成。剩余：F6（在线校准 + 投毒负控制）、F5 后半段（PSS 自身 adapter + 真实数据流），之后才是 P2。
