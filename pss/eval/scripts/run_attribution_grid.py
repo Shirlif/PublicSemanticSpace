@@ -40,6 +40,7 @@ from pss._console import ensure_utf8
 from pss.encoders.data import crop_object, load_index, normalize_image
 from pss.encoders.tactile import load_tactile_expert
 from pss.encoders.vision import load_vision_expert
+from pss.eval.readout_reasoning_preregistration import gate_decision
 from pss.projection.features import load_paired_features
 from pss.projection.heads import ProjectionHead, load_projection
 from pss.projection.losses import material_within_category, supcon_cross
@@ -849,6 +850,142 @@ def run_encoder(args) -> dict:
 
 
 # --------------------------------------------------------------------------- #
+# gate stage: the recall ceiling any reranker inherits
+# --------------------------------------------------------------------------- #
+def recall_profile(scores: np.ndarray, y: np.ndarray, ks=(1, 3, 5)) -> dict:
+    """Top-k recall and the k needed to cover 95% / 99% of queries.
+
+    ``scores`` is (n_queries, n_classes) in the bank's class order; ``y`` holds
+    class indices.  The rank is the position of the true class in the
+    descending score order, so k=1 is top-1.
+    """
+
+    scores = np.asarray(scores, dtype=np.float64)
+    y = np.asarray(y, dtype=np.int64)
+    order = np.argsort(-scores, axis=1)
+    ranks = np.full(len(y), order.shape[1], dtype=np.int64)
+    for i in range(len(y)):
+        hit = np.flatnonzero(order[i] == y[i])
+        if len(hit):
+            ranks[i] = int(hit[0])
+
+    out = {f"recall@{k}": float(np.mean(ranks < k)) for k in ks}
+    out["mrr"] = float(np.mean(1.0 / (ranks + 1)))
+    out["mean_rank"] = float(ranks.mean())
+    out["median_rank"] = float(np.median(ranks))
+    out["n"] = int(len(y))
+    for target in (0.95, 0.99):
+        k = 1
+        while k < order.shape[1] and float(np.mean(ranks < k)) < target:
+            k += 1
+        out[f"k_at_{int(round(target * 100))}"] = int(k)
+    return out
+
+
+def union_recall(rep, bank, rows, y, k: int) -> float:
+    """Recall when the candidate set is the union of fused + per-modality top-k.
+
+    This is the set a reranker would actually see.  It is an upper bound on
+    what reranking can recover, so it is reported next to the fused ceiling.
+    """
+
+    hits = 0
+    for j, i in enumerate(rows):
+        candidates: set[int] = set()
+        fused = np.zeros(len(bank.categories), dtype=np.float64)
+        for modality in MODALITIES:
+            proto = bank.protos[modality].astype(np.float64)
+            sims = proto @ l2(rep[modality][i])
+            fused += DEFAULT_WEIGHTS[modality] * sims
+            candidates.update(np.argsort(-sims)[:k].tolist())
+        candidates.update(np.argsort(-fused)[:k].tolist())
+        hits += int(int(y[j]) in candidates)
+    return hits / max(len(rows), 1)
+
+
+def run_gate(args) -> dict:
+    """A0: how much of the top-k is the prototype gate already covering?
+
+    Measured on the deployed projection (if present) and on a label-free
+    PCA-whiten reference, on both val and test.  A2's ceiling is
+    ``gate_recall@k``: a reranker cannot propose a class the gate dropped.
+    """
+
+    out = Path(args.out)
+    feats = load_features(args.data, args.experts, out)
+    task = task_split(feats, args.regime)
+    raw = {m: np.asarray(feats[m], dtype=np.float32) for m in MODALITIES}
+
+    reps: dict[str, dict[str, np.ndarray]] = {}
+    ckpt = Path(args.init_projections)
+    if (ckpt / "vision.pt").exists():
+        heads = {m: load_projection(ckpt / f"{m}.pt", device=args.device) for m in MODALITIES}
+        with torch.no_grad():
+            reps["production"] = {
+                m: heads[m](torch.as_tensor(raw[m]).to(args.device)).cpu().numpy().astype(np.float64)
+                for m in MODALITIES
+            }
+    else:
+        print(f"[gate] no projection at {ckpt}; production arm skipped", flush=True)
+
+    scalers = {m: StandardScaler().fit(raw[m][task["train_idx"]]) for m in MODALITIES}
+    raw_std = {m: scalers[m].transform(raw[m]).astype(np.float64) for m in MODALITIES}
+    reps["pca128"] = pca_transform(raw_std, task["train_idx"], 128)
+
+    report = {
+        "data": args.data,
+        "experts": args.experts,
+        "regime": args.regime,
+        "counts": {k: int(len(task[k])) for k in ("train_idx", "val_idx", "test_idx")},
+        "classes": len(task["classes"]),
+        "representations": {},
+    }
+    for name, rep in reps.items():
+        bank = build_bank(rep, task["train_idx"], task["labels"], task["classes"])
+        block = {}
+        for split, rows, y in (
+            ("val", task["val_idx"], task["yva"]),
+            ("test", task["test_idx"], task["yte"]),
+        ):
+            fused = fused_scores(rep, bank, rows)
+            entry = {"fused": recall_profile(fused, y)}
+            for modality in MODALITIES:
+                z = np.asarray([l2(rep[modality][i]) for i in rows], dtype=np.float64)
+                entry[modality] = recall_profile(
+                    z @ bank.protos[modality].T.astype(np.float64), y
+                )
+            entry["union3"] = {"recall": union_recall(rep, bank, rows, y, k=3)}
+            entry["union5"] = {"recall": union_recall(rep, bank, rows, y, k=5)}
+            block[split] = entry
+        report["representations"][name] = block
+
+    # The A2 branch is decided on the deployed representation's test split.
+    reference = "production" if "production" in reps else "pca128"
+    test = report["representations"][reference]["test"]["fused"]
+    report["a2_branch"] = {
+        "reference": reference,
+        "recall@3": test["recall@3"],
+        "recall@5": test["recall@5"],
+        "decision": gate_decision(test["recall@3"], test["recall@5"]),
+    }
+    report["preregistration"] = "pss/eval/readout_reasoning_preregistration.py::gate_decision"
+    _write_json(out / "gate.json", report)
+
+    print(f"[gate] reference={reference} classes={report['classes']}", flush=True)
+    for name in reps:
+        t = report["representations"][name]["test"]
+        print(
+            f"  {name:11s} fused r@1={t['fused']['recall@1']:.3f} "
+            f"r@3={t['fused']['recall@3']:.3f} r@5={t['fused']['recall@5']:.3f} "
+            f"union3={t['union3']['recall']:.3f} union5={t['union5']['recall']:.3f} "
+            f"k@95={t['fused']['k_at_95']}",
+            flush=True,
+        )
+    print(f"[gate] A2 branch: {report['a2_branch']['decision']}", flush=True)
+    return report
+
+
+# --------------------------------------------------------------------------- #
 # serialization helpers
 # --------------------------------------------------------------------------- #
 def _strip_one(rep: dict) -> dict:
@@ -884,7 +1021,7 @@ def _safe(obj):
 def main() -> None:
     ensure_utf8()
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--stage", choices=["grid", "grid_prod", "bilevel", "encoder", "all"], default="grid")
+    ap.add_argument("--stage", choices=["grid", "grid_prod", "bilevel", "encoder", "gate", "all"], default="grid")
     ap.add_argument("--data", default="data/category_pretrain_instance8")
     ap.add_argument("--experts", default="checkpoints/category_pretrain_instance8_experts")
     ap.add_argument("--init-projections", default="checkpoints/category_pretrain_instance8_projection",
@@ -900,6 +1037,8 @@ def main() -> None:
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     args = ap.parse_args()
     Path(args.out).mkdir(parents=True, exist_ok=True)
+    if args.stage in ("gate", "all"):
+        run_gate(args)
     if args.stage in ("grid", "all"):
         run_grid(args)
     if args.stage in ("grid_prod", "all"):
