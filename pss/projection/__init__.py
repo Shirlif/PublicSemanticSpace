@@ -26,6 +26,7 @@ from .calibration_pipeline import (
     evaluate_params,
     fit_confidence_maps,
     fit_params,
+    fused_probabilities,
     gate,
     score_samples,
     source_health,
@@ -37,7 +38,14 @@ from .calibration_preregistration import (
 )
 from .confidence_map import ConfidenceMap, apply_confidence_map, fit_confidence_map
 from .conformal import AdaptiveConformal, ConformalResult, evaluate_conformal
-from .cusum import CusumBank, CusumDetector, calibrate_cusum
+from .source_registry import SourceRegistry, SourceState
+from .cusum import (
+    CusumBank,
+    CusumDetector,
+    PerClassCusum,
+    calibrate_cusum,
+    calibrate_per_class,
+)
 from .heads import PUBLIC_DIM, ProjectionHead, WhiteningFrontend, load_projection, save_projection
 from .losses import supcon_cross
 from .online import (
@@ -71,6 +79,9 @@ __all__ = [
     "ModalityCalibration",
     "PairedFeatures",
     "Params",
+    "PerClassCusum",
+    "SourceRegistry",
+    "SourceState",
     "PoisonThresholds",
     "ProjectionHead",
     "RobustCalibrationPipeline",
@@ -85,6 +96,7 @@ __all__ = [
     "bound_step",
     "bootstrap_params",
     "calibrate_cusum",
+    "calibrate_per_class",
     "calibrate_fusion",
     "calibrate_modality",
     "calibrated_confidence",
@@ -97,6 +109,7 @@ __all__ = [
     "fit_confidence_map",
     "fit_confidence_maps",
     "fit_params",
+    "fused_probabilities",
     "gate",
     "load_paired_features",
     "load_projection",

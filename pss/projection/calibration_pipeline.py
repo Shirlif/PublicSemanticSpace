@@ -40,6 +40,7 @@ from .confidence_map import (
     fit_confidence_map,
 )
 from .cusum import CusumBank, CusumDetector, PerClassCusum
+from .source_registry import SourceRegistry
 
 __all__ = [
     "PIPELINE_ORDER",
@@ -496,16 +497,28 @@ def source_health(
         valid = labels >= 0
         agree = np.zeros(n, dtype=np.float64)
         agree[valid] = (labels[valid] == consensus[valid]).astype(np.float64)
-    global_agree = float(agree.mean()) if n else 0.0
+
+    unique = sorted(set(sources))
+    per_source: dict[str, float] = {}
+    counts: dict[str, int] = {}
+    for source in unique:
+        idx = np.array([i for i, s in enumerate(sources) if s == source], dtype=np.int64)
+        counts[source] = int(len(idx))
+        per_source[source] = float(agree[idx].mean()) if len(idx) else 0.0
+
+    # Reference = upper quartile across sources, not the pooled mean.  The
+    # pooled mean includes the suspect source, so a large bad source drags it
+    # down and masks its own excess.  With only two sources the median is just
+    # their midpoint, which halves the measured excess; the 75th percentile
+    # keeps the better source as the reference without trusting a single fluke.
+    reference = (
+        float(np.percentile([per_source[s] for s in unique], 75)) if unique else 0.0
+    )
 
     trust: dict[str, float] = {}
-    for source in sorted(set(sources)):
-        idx = np.array([i for i, s in enumerate(sources) if s == source], dtype=np.int64)
-        n_s = int(len(idx))
-        if n_s == 0:
-            trust[source] = 0.0
-            continue
-        excess = max(0.0, global_agree - float(agree[idx].mean()))
+    for source in unique:
+        n_s = counts[source]
+        excess = max(0.0, reference - per_source[source])
         value = float(np.clip(1.0 - excess / _SOURCE_EXCESS_TOL, 0.0, 1.0))
         if n_s < int(min_source_n):
             value *= n_s / float(max(1, int(min_source_n)))
@@ -758,6 +771,31 @@ def bound_step(old: Params, new: Params, evidence: Evidence) -> Params:
 # ---------------------------------------------------------------------------
 # stage 5: gate
 # ---------------------------------------------------------------------------
+
+
+def _source_mismatch(batch: CalibrationBatch, params: Params) -> dict[str, float]:
+    """Per-source label/consensus mismatch rate.
+
+    Absolute, not relative to other sources: a relative statistic lets a large
+    bad source move the reference and hide itself.
+    """
+    modalities = _modalities(batch)
+    vote = _vote_weights(params, modalities)
+    consensus, _ = _consensus_with_weights(batch, vote)
+    if consensus is None:
+        return {}
+    labels = np.asarray(batch.labels, dtype=np.int64)
+    valid = labels >= 0
+    out: dict[str, float] = {}
+    sources = list(batch.sources)
+    for source in sorted(set(sources)):
+        idx = np.array([i for i, s in enumerate(sources) if s == source], dtype=np.int64)
+        keep = valid[idx]
+        if not keep.any():
+            out[source] = float("nan")
+            continue
+        out[source] = float(np.mean(labels[idx][keep] != consensus[idx][keep]))
+    return out
 
 
 def _per_class_mismatch(
@@ -1042,6 +1080,9 @@ class RobustCalibrationPipeline:
     # Per-class detectors catch single-class attacks that the global agreement
     # dilutes to ~0.4 sd per window.
     per_class_cusum: "PerClassCusum | None" = None
+    # Source isolation: a source that stays bad is quarantined, not merely
+    # down-weighted per window.
+    source_registry: "SourceRegistry | None" = None
     # Slow-degradation guard: the per-window gate tolerance (1pp) cannot see a
     # steady 0.9pp/window slide.  A CUSUM on fused accuracy can.
     accuracy_cusum: "CusumDetector | None" = None
@@ -1058,6 +1099,12 @@ class RobustCalibrationPipeline:
         force_gate: bool = False,
     ) -> dict:
         trust = source_health(batch)
+        source_status: dict[str, str] = {}
+        if self.source_registry is not None:
+            source_status = self.source_registry.update(
+                _source_mismatch(batch, self.params)
+            )
+            trust = self.source_registry.apply(trust)
 
         # Pass 1 — shadow evidence with neutral weights.  None of the state
         # signals depend on the sample weights, so classifying here is exact,
@@ -1179,6 +1226,10 @@ class RobustCalibrationPipeline:
             },
             "cusum_alarm": list(cusum_reasons),
             "per_class_alarm": list(per_class_alarm),
+            "source_status": dict(source_status),
+            "quarantined_sources": sorted(
+                s for s, status in source_status.items() if status == "quarantined"
+            ),
             "accuracy_alarm": bool(accuracy_alarm),
         }
         self.history.append(record)

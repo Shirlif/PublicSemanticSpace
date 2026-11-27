@@ -1,6 +1,6 @@
 # Gap: calibration robustness pipeline (Wave 1)
 
-> generated: 2026-11-27 04:02:25 UTC
+> generated: 2026-11-27 04:12:08 UTC
 > source: real
 > scenarios: 18
 

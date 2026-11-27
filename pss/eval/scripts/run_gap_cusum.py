@@ -23,6 +23,7 @@ from pss.projection.calibration_pipeline import (
     _consensus_with_weights,
     _modalities,
     _per_class_mismatch,
+    _source_mismatch,
     _vote_weights,
     bootstrap_params,
     fit_params,
@@ -35,6 +36,7 @@ from pss.projection.cusum import (
     calibrate_cusum,
     calibrate_per_class,
 )
+from pss.projection.source_registry import SourceRegistry
 from pss.projection.online import (
     poison_agree_with_prediction,
     poison_labels,
@@ -49,6 +51,7 @@ SCENARIOS = [
     {"name": "targeted_agree@0.10", "kind": "agree", "fraction": 0.10},
     {"name": "targeted_single_class@0.20", "kind": "single", "fraction": 0.20},
     {"name": "drift_sigma@0.30", "kind": "drift", "sigma": 0.30},
+    {"name": "source_outlier_stream", "kind": "source", "fraction": 0.35},
 ]
 
 
@@ -71,7 +74,7 @@ def _split(ctx):
     return split(ctx)
 
 
-def _batch(ctx, idx, labels, embeddings=None) -> CalibrationBatch:
+def _batch(ctx, idx, labels, embeddings=None, sources=None) -> CalibrationBatch:
     idx = np.atleast_1d(np.asarray(idx, dtype=np.int64))
     modalities = ctx["modalities"]
     protos = {m: np.asarray(ctx["prototypes"][m], dtype=np.float64) for m in modalities}
@@ -83,7 +86,7 @@ def _batch(ctx, idx, labels, embeddings=None) -> CalibrationBatch:
         embeddings=embs,
         prototypes=protos,
         labels=np.asarray(labels, dtype=np.int64),
-        sources=["s0"] * len(idx),
+        sources=list(sources) if sources is not None else ["s0"] * len(idx),
         sample_ids=[f"w{int(i)}" for i in idx],
     )
 
@@ -111,6 +114,8 @@ def _scenario_windows(ctx, spec, fit_idx, y_fit, rng):
     protos = {m: np.asarray(ctx["prototypes"][m], dtype=np.float64) for m in modalities}
     embs = {m: np.asarray(ctx["Z"][m][fit_idx], dtype=np.float64) for m in modalities}
     labels = np.asarray(y_fit, dtype=np.int64).copy()
+    n = len(labels)
+    sources = None
     kind = spec["kind"]
 
     if kind == "none":
@@ -123,7 +128,16 @@ def _scenario_windows(ctx, spec, fit_idx, y_fit, rng):
         labels = poison_single_class(labels, spec["fraction"], 0, len(ctx["classes"]), rng=rng)
     elif kind == "drift":
         embs = {m: embs[m] + spec["sigma"] * rng.normal(size=embs[m].shape) for m in modalities}
-    return _batch(ctx, fit_idx, labels, embeddings=embs)
+    elif kind == "source":
+        good = int(round(n * 0.4))
+        sources = ["good"] * good + ["bad"] * (n - good)
+        bad_idx = np.arange(good, n)
+        flips = rng.choice(
+            bad_idx, size=max(1, int(round(spec["fraction"] * len(bad_idx)))), replace=False
+        )
+        labels = labels.copy()
+        labels[flips] = (labels[flips] + 1) % len(ctx["classes"])
+    return _batch(ctx, fit_idx, labels, embeddings=embs, sources=sources)
 
 
 def run(args) -> dict:
@@ -142,11 +156,22 @@ def run(args) -> dict:
     rng0 = np.random.default_rng([int(args.seed), 999])
     clean_vals = []
     clean_mixups = []
+    clean_sources = []
     for _ in range(50):
         pick = rng0.integers(0, len(fit_idx), size=len(fit_idx))
-        b = _batch(ctx, np.asarray(fit_idx)[pick], np.asarray(y_fit)[pick])
+        idx = np.asarray(fit_idx)[pick]
+        lab = np.asarray(y_fit)[pick]
+        b = _batch(ctx, idx, lab)
         clean_vals.append(_agreement(b, incumbent))
         clean_mixups.append(_per_class_mismatch(b, incumbent))
+        # Clean windows with the same two-source layout used by the source
+        # scenario, so both source detectors are calibrated.
+        n = len(idx)
+        good = int(round(n * 0.4))
+        srcs = ["good"] * good + ["bad"] * (n - good)
+        clean_sources.append(
+            _source_mismatch(_batch(ctx, idx, lab, sources=srcs), incumbent)
+        )
     reference, slack, threshold = calibrate_cusum(np.asarray(clean_vals))
 
     rows = []
@@ -156,11 +181,17 @@ def run(args) -> dict:
             agreement_up=CusumDetector(reference, slack, threshold, direction=+1.0),
         )
         per_class = calibrate_per_class(clean_mixups)
+        registry = SourceRegistry.calibrate(clean_sources)
         pipeline = RobustCalibrationPipeline(
-            params=incumbent, gate_set=gate, cusum=bank, per_class_cusum=per_class
+            params=incumbent,
+            gate_set=gate,
+            cusum=bank,
+            per_class_cusum=per_class,
+            source_registry=registry,
         )
         first_alarm = None
         first_per_class = None
+        first_quarantine = None
         fit_idx_arr = np.asarray(fit_idx)
         y_fit_arr = np.asarray(y_fit)
         for w in range(WINDOWS):
@@ -176,6 +207,8 @@ def run(args) -> dict:
                 first_alarm = w + 1
             if record["per_class_alarm"] and first_per_class is None:
                 first_per_class = w + 1
+            if record["quarantined_sources"] and first_quarantine is None:
+                first_quarantine = w + 1
         rows.append(
             {
                 "scenario": spec["name"],
@@ -186,6 +219,8 @@ def run(args) -> dict:
                 "per_class_first_alarm": first_per_class,
                 "per_class_detected": first_per_class is not None,
                 "per_class_alarms": int(sum(per_class.alarms.values())),
+                "first_quarantine": first_quarantine,
+                "quarantined_at_end": registry.quarantined(),
             }
         )
 
@@ -212,14 +247,14 @@ def _report(metrics: dict) -> str:
         f"> reference={c['reference']:.4f}  slack={c['slack']:.4f}  "
         f"threshold={c['threshold']:.4f}  (calibrated on {c['clean_windows']} clean windows)",
         "",
-        "| scenario | windows | global alarms | global first | per-class alarms | per-class first |",
-        "|---|---:|---:|---:|---:|---:|",
+        "| scenario | windows | global first | per-class first | first quarantine | quarantined at end |",
+        "|---|---:|---:|---:|---:|---|",
     ]
     for r in metrics["rows"]:
         lines.append(
-            f"| {r['scenario']} | {r['windows']} | {r['alarms']} | "
-            f"{r['first_alarm']} | {r['per_class_alarms']} | "
-            f"{r['per_class_first_alarm']} |"
+            f"| {r['scenario']} | {r['windows']} | {r['first_alarm']} | "
+            f"{r['per_class_first_alarm']} | {r['first_quarantine']} | "
+            f"{r['quarantined_at_end']} |"
         )
     lines += [
         "",

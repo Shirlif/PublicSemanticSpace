@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-27 03:59:19 UTC",
+  "generated": "2026-11-27 04:10:31 UTC",
   "source": "real",
   "cusum": {
     "reference": 0.9575,
@@ -16,7 +16,9 @@
       "detected": false,
       "per_class_first_alarm": null,
       "per_class_detected": false,
-      "per_class_alarms": 0
+      "per_class_alarms": 0,
+      "first_quarantine": null,
+      "quarantined_at_end": []
     },
     {
       "scenario": "random_label_flip@0.05",
@@ -26,7 +28,9 @@
       "detected": true,
       "per_class_first_alarm": 1,
       "per_class_detected": true,
-      "per_class_alarms": 55
+      "per_class_alarms": 55,
+      "first_quarantine": null,
+      "quarantined_at_end": []
     },
     {
       "scenario": "targeted_agree@0.10",
@@ -36,7 +40,9 @@
       "detected": true,
       "per_class_first_alarm": null,
       "per_class_detected": false,
-      "per_class_alarms": 0
+      "per_class_alarms": 0,
+      "first_quarantine": null,
+      "quarantined_at_end": []
     },
     {
       "scenario": "targeted_single_class@0.20",
@@ -46,7 +52,9 @@
       "detected": true,
       "per_class_first_alarm": 1,
       "per_class_detected": true,
-      "per_class_alarms": 32
+      "per_class_alarms": 32,
+      "first_quarantine": null,
+      "quarantined_at_end": []
     },
     {
       "scenario": "drift_sigma@0.30",
@@ -56,7 +64,23 @@
       "detected": false,
       "per_class_first_alarm": null,
       "per_class_detected": false,
-      "per_class_alarms": 0
+      "per_class_alarms": 0,
+      "first_quarantine": null,
+      "quarantined_at_end": []
+    },
+    {
+      "scenario": "source_outlier_stream",
+      "windows": 20,
+      "alarms": 20,
+      "first_alarm": 1,
+      "detected": true,
+      "per_class_first_alarm": 1,
+      "per_class_detected": true,
+      "per_class_alarms": 172,
+      "first_quarantine": 1,
+      "quarantined_at_end": [
+        "bad"
+      ]
     }
   ]
 }

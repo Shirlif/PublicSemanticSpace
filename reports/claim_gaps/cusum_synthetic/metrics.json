@@ -1,10 +1,10 @@
 {
-  "generated": "2026-11-27 03:19:05 UTC",
+  "generated": "2026-11-27 04:10:19 UTC",
   "source": "synthetic",
   "cusum": {
     "reference": 0.9645,
-    "slack": 0.020101781827814705,
-    "threshold": 0.10050890913907352,
+    "slack": 0.008040712731125882,
+    "threshold": 0.08040712731125882,
     "clean_windows": 50
   },
   "rows": [
@@ -13,35 +13,74 @@
       "windows": 20,
       "alarms": 0,
       "first_alarm": null,
-      "detected": false
+      "detected": false,
+      "per_class_first_alarm": null,
+      "per_class_detected": false,
+      "per_class_alarms": 0,
+      "first_quarantine": null,
+      "quarantined_at_end": []
     },
     {
       "scenario": "random_label_flip@0.05",
       "windows": 20,
-      "alarms": 5,
-      "first_alarm": 4,
-      "detected": true
+      "alarms": 4,
+      "first_alarm": 5,
+      "detected": true,
+      "per_class_first_alarm": 1,
+      "per_class_detected": true,
+      "per_class_alarms": 27,
+      "first_quarantine": null,
+      "quarantined_at_end": []
     },
     {
       "scenario": "targeted_agree@0.10",
       "windows": 20,
-      "alarms": 2,
-      "first_alarm": 7,
-      "detected": true
+      "alarms": 3,
+      "first_alarm": 4,
+      "detected": true,
+      "per_class_first_alarm": null,
+      "per_class_detected": false,
+      "per_class_alarms": 0,
+      "first_quarantine": null,
+      "quarantined_at_end": []
     },
     {
       "scenario": "targeted_single_class@0.20",
       "windows": 20,
       "alarms": 1,
-      "first_alarm": 15,
-      "detected": true
+      "first_alarm": 11,
+      "detected": true,
+      "per_class_first_alarm": 5,
+      "per_class_detected": true,
+      "per_class_alarms": 3,
+      "first_quarantine": null,
+      "quarantined_at_end": []
     },
     {
       "scenario": "drift_sigma@0.30",
       "windows": 20,
       "alarms": 0,
       "first_alarm": null,
-      "detected": false
+      "detected": false,
+      "per_class_first_alarm": null,
+      "per_class_detected": false,
+      "per_class_alarms": 0,
+      "first_quarantine": null,
+      "quarantined_at_end": []
+    },
+    {
+      "scenario": "source_outlier_stream",
+      "windows": 20,
+      "alarms": 13,
+      "first_alarm": 3,
+      "detected": true,
+      "per_class_first_alarm": 3,
+      "per_class_detected": true,
+      "per_class_alarms": 68,
+      "first_quarantine": 1,
+      "quarantined_at_end": [
+        "bad"
+      ]
     }
   ]
 }
