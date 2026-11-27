@@ -248,9 +248,13 @@ def stage_graph(device: str) -> dict:
 # ── stage: P5b with a learned spatial relation head ────────────────────────
 
 
-def _pair_feature(pa, pb):
+def _pair_feature(pa, pb, mode: str = "absolute"):
     dx = pb[0] - pa[0]
     dy = pb[1] - pa[1]
+    if mode == "relative":
+        return [dx, dy, abs(dx), abs(dy)]
+    if mode != "absolute":
+        raise ValueError(f"unknown feature mode {mode!r}")
     return [pa[0], pa[1], pb[0], pb[1], dx, dy, abs(dx), abs(dy)]
 
 
@@ -266,7 +270,83 @@ def _pair_labels(pa, pb, eps: float = 0.1):
     return [dx > eps, dx < -eps, dy < -eps, dy > eps]
 
 
-def _p5b_relation_rows(train_regions=("A", "B", "C"), noise: float = 0.03, n_per_pair: int = 300, seed: int = 0):
+def _reverse_pair_features(x: torch.Tensor) -> torch.Tensor:
+    """Swap the endpoints of an 8-dim pair feature.
+
+    Feature order is ``[ax, ay, bx, by, dx, dy, |dx|, |dy|]`` with
+    ``dx = bx - ax``.  Swapping ``(a, b)`` swaps the coordinate halves and
+    negates the signed deltas; the absolute deltas are unchanged.
+    """
+
+    out = x.clone()
+    out[..., 0] = x[..., 2]
+    out[..., 1] = x[..., 3]
+    out[..., 2] = x[..., 0]
+    out[..., 3] = x[..., 1]
+    out[..., 4] = -x[..., 4]
+    out[..., 5] = -x[..., 5]
+    return out
+
+
+def _algebra_penalty(logits: torch.Tensor, reverse_logits: torch.Tensor) -> torch.Tensor:
+    """Differentiable antisymmetry + exclusivity penalty for a pair batch.
+
+    Mirrors :mod:`pss.reasoning.relations.algebra` (numpy) but keeps gradients.
+    Predicate order is ``left, right, above, below``.
+    """
+
+    p = torch.sigmoid(logits)
+    q = torch.sigmoid(reverse_logits)
+    antisymmetry = (
+        (p[..., 0] - q[..., 1]).abs().mean()
+        + (p[..., 1] - q[..., 0]).abs().mean()
+        + (p[..., 2] - q[..., 3]).abs().mean()
+        + (p[..., 3] - q[..., 2]).abs().mean()
+    )
+    exclusivity = (
+        F.relu(p[..., 0] + p[..., 1] - 1.0).mean()
+        + F.relu(p[..., 2] + p[..., 3] - 1.0).mean()
+    )
+    return antisymmetry + exclusivity
+
+
+def _extra_axis_rows(rng, axis: str, count: int, noise: float, feature_mode: str = "absolute"):
+    """Synthetic counterexamples that isolate one axis (the other delta is 0).
+
+    Draws points inside the grid extent so the head sees the *absence* case:
+    ``dy = 0`` for horizontal pairs and ``dx = 0`` for vertical pairs.  This is
+    what a region subset like BCD is missing, and it is what teaches the head
+    that a zero delta suppresses the other axis's predicates.
+    """
+
+    rows = []
+    for _ in range(int(count)):
+        for _attempt in range(100):
+            a = float(rng.uniform(-1.2, 1.2))
+            b = float(rng.uniform(-1.2, 1.2))
+            if abs(b - a) >= 0.5:
+                break
+        if axis == "x":
+            pa = np.array([a, 0.0], dtype=np.float32)
+            pb = np.array([b, 0.0], dtype=np.float32)
+        else:
+            pa = np.array([0.0, a], dtype=np.float32)
+            pb = np.array([0.0, b], dtype=np.float32)
+        pa = pa + rng.normal(scale=noise, size=2)
+        pb = pb + rng.normal(scale=noise, size=2)
+        rows.append((_pair_feature(pa, pb, feature_mode), _pair_labels(pa, pb)))
+    return rows
+
+
+def _p5b_relation_rows(
+    train_regions=("A", "B", "C"),
+    noise: float = 0.03,
+    n_per_pair: int = 300,
+    seed: int = 0,
+    extra_horizontal: int = 0,
+    extra_vertical: int = 0,
+    feature_mode: str = "absolute",
+):
     rng = np.random.default_rng(seed)
     coords = np.array([REGIONS[n] for n in NAMES], dtype=np.float32)
     all_pairs = [(a, b) for a in range(len(NAMES)) for b in range(len(NAMES)) if a != b]
@@ -289,12 +369,22 @@ def _p5b_relation_rows(train_regions=("A", "B", "C"), noise: float = 0.03, n_per
         for _ in range(n_per_pair):
             pa = coords[a] + rng.normal(scale=noise, size=2)
             pb = coords[b] + rng.normal(scale=noise, size=2)
-            X.append(_pair_feature(pa, pb))
+            X.append(_pair_feature(pa, pb, feature_mode))
             y.append(_pair_labels(pa, pb))
+    for features, labels in _extra_axis_rows(
+        rng, "x", extra_horizontal, noise, feature_mode
+    ):
+        X.append(features)
+        y.append(labels)
+    for features, labels in _extra_axis_rows(
+        rng, "y", extra_vertical, noise, feature_mode
+    ):
+        X.append(features)
+        y.append(labels)
     Xte, yte, pairs_te = [], [], []
     for a, b in test_pairs:
         pa, pb = coords[a], coords[b]
-        Xte.append(_pair_feature(pa, pb))
+        Xte.append(_pair_feature(pa, pb, feature_mode))
         yte.append(_pair_labels(pa, pb))
         pairs_te.append((NAMES[a], NAMES[b]))
     return (
@@ -306,20 +396,48 @@ def _p5b_relation_rows(train_regions=("A", "B", "C"), noise: float = 0.03, n_per
     )
 
 
-def _train_spatial_head(device: str, epochs: int = 400, seed: int = 0, train_regions=("A", "B", "C")):
-    X, y, Xte, yte, pairs = _p5b_relation_rows(train_regions=train_regions)
+def _train_spatial_head(
+    device: str,
+    epochs: int = 400,
+    seed: int = 0,
+    train_regions=("A", "B", "C"),
+    algebra_weight: float = 0.0,
+    noise: float = 0.03,
+    n_per_pair: int = 300,
+    history: list | None = None,
+    extra_horizontal: int = 0,
+    extra_vertical: int = 0,
+    feature_mode: str = "absolute",
+):
+    X, y, Xte, yte, pairs = _p5b_relation_rows(
+        train_regions=train_regions,
+        noise=noise,
+        n_per_pair=n_per_pair,
+        extra_horizontal=extra_horizontal,
+        extra_vertical=extra_vertical,
+        feature_mode=feature_mode,
+    )
     torch.manual_seed(seed)
-    head = SpatialRelationHead().to(device)
+    head = SpatialRelationHead(feature_mode=feature_mode).to(device)
     opt = torch.optim.Adam(head.parameters(), lr=1e-3)
     X, y = X.to(device), y.to(device)
     for _ in range(epochs):
         perm = torch.randperm(len(X), device=device)
+        epoch_loss = 0.0
         for start in range(0, len(perm), 128):
             idx = perm[start : start + 128]
-            loss = F.binary_cross_entropy_with_logits(head.net(X[idx]), y[idx])
+            logits = head.net(X[idx])
+            loss = F.binary_cross_entropy_with_logits(logits, y[idx])
+            if algebra_weight:
+                loss = loss + float(algebra_weight) * _algebra_penalty(
+                    logits, head.net(_reverse_pair_features(X[idx]))
+                )
             opt.zero_grad()
             loss.backward()
             opt.step()
+            epoch_loss += float(loss.detach()) * len(idx)
+        if history is not None:
+            history.append(epoch_loss / max(len(X), 1))
     head.eval()
     with torch.no_grad():
         pred = (torch.sigmoid(head.net(Xte.to(device))) > 0.5).float().cpu()
@@ -328,13 +446,20 @@ def _train_spatial_head(device: str, epochs: int = 400, seed: int = 0, train_reg
     return head, pairs, exact, per
 
 
-def _learned_rel(head: SpatialRelationHead, device: str, threshold: float = 0.5):
+def _learned_rel(
+    head: SpatialRelationHead,
+    device: str,
+    threshold: float = 0.5,
+    feature_mode: str = "absolute",
+):
     coords = {n: np.array(REGIONS[n], dtype=np.float32) for n in NAMES}
 
     def rel_fn(a: str, b: str, relation: str) -> bool:
         pa = coords[a]
         pb = coords[b]
-        x = torch.tensor([_pair_feature(pa, pb)], dtype=torch.float32, device=device)
+        x = torch.tensor(
+            [_pair_feature(pa, pb, feature_mode)], dtype=torch.float32, device=device
+        )
         with torch.no_grad():
             logits = head.net(x)[0]
         return bool(torch.sigmoid(logits)[RELATIONS.index(relation)] > threshold)

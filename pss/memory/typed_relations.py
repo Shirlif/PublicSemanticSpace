@@ -293,12 +293,23 @@ class TypedRelationHead(nn.Module):
 
 
 class SpatialRelationHead(nn.Module):
-    """Coordinate pair -> left/right/above/below, for the P5b grid."""
+    """Coordinate pair -> left/right/above/below, for the P5b grid.
 
-    def __init__(self, hidden: int = 64):
+    ``feature_mode="absolute"`` uses the original 8-dim pair feature
+    ``[ax, ay, bx, by, dx, dy, |dx|, |dy|]``.
+    ``feature_mode="relative"`` drops the absolute positions and uses only
+    ``[dx, dy, |dx|, |dy|]``; this tests whether the head can rely on the
+    relative geometry alone instead of memorising absolute grid positions.
+    """
+
+    def __init__(self, hidden: int = 64, feature_mode: str = "absolute"):
         super().__init__()
+        if feature_mode not in ("absolute", "relative"):
+            raise ValueError(f"unknown feature_mode {feature_mode!r}")
+        self.feature_mode = feature_mode
+        in_dim = 8 if feature_mode == "absolute" else 4
         self.net = nn.Sequential(
-            nn.Linear(8, hidden),
+            nn.Linear(in_dim, hidden),
             nn.GELU(),
             nn.Linear(hidden, hidden),
             nn.GELU(),
@@ -306,11 +317,15 @@ class SpatialRelationHead(nn.Module):
         )
 
     @staticmethod
-    def features(pa, pb) -> torch.Tensor:
+    def features(pa, pb, mode: str = "absolute") -> torch.Tensor:
+        if mode not in ("absolute", "relative"):
+            raise ValueError(f"unknown feature mode {mode!r}")
         pa = torch.as_tensor(pa, dtype=torch.float32)
         pb = torch.as_tensor(pb, dtype=torch.float32)
         dx = pb[..., 0] - pa[..., 0]
         dy = pb[..., 1] - pa[..., 1]
+        if mode == "relative":
+            return torch.stack([dx, dy, dx.abs(), dy.abs()], dim=-1)
         return torch.stack(
             [
                 pa[..., 0], pa[..., 1], pb[..., 0], pb[..., 1],
@@ -320,7 +335,7 @@ class SpatialRelationHead(nn.Module):
         )
 
     def forward(self, pa, pb) -> torch.Tensor:
-        return self.net(self.features(pa, pb))
+        return self.net(self.features(pa, pb, self.feature_mode))
 
     @staticmethod
     def labels(pa, pb, eps: float = 0.1) -> torch.Tensor:
