@@ -39,10 +39,14 @@ class PerceptionService:
         config: PerceptionConfig | None = None,
         device: str | None = None,
         noise: PoseNoise | None = None,
+        calibration: "CalibrationService | None" = None,
     ):
         self.config = config or PerceptionConfig()
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.noise = noise or PoseNoise(seed=0, enabled=False)
+        # Opt-in.  With ``None`` the service behaves exactly as before and uses
+        # the static checkpoint weights, so existing L2 numbers are unchanged.
+        self.calibration = calibration
         self.models = None
         self.fallback = False
         self.error = ""
@@ -113,6 +117,32 @@ class PerceptionService:
             raise RuntimeError("perception service has no models")
         return extract_frame(sample, frame, self.models, self.noise)
 
+    def attach_calibration(self, calibration: "CalibrationService | None") -> None:
+        """Enable or disable streaming calibration without rebuilding models."""
+        self.calibration = calibration
+
+    def update_calibration(self, window, holdout=None, *, force_gate: bool = False):
+        """Feed one labelled window to the streaming calibrator.
+
+        On success the runtime's recognition weights are replaced by the
+        pipeline's reliability, so the next ``observe`` call sees them through
+        ``Observation.modality_reliability``.  Returns the pipeline record, or
+        ``None`` when calibration is not attached.
+        """
+        if self.calibration is None:
+            return None
+        record = self.calibration.update(window, holdout, force_gate=force_gate)
+        reliability = dict(self.calibration.params().reliability)
+        if reliability and self.models is not None:
+            self.models.weights = reliability
+        return record
+
+    def confidence(self, fused_top1: float) -> float:
+        """Calibrated confidence for a fused top-1 score (map channel)."""
+        if self.calibration is None:
+            return float("nan")
+        return self.calibration.confidence(fused_top1)
+
     def describe(self) -> dict:
         projection = self.config.projection_dir if not self.fallback else BASE_PROJECTION
         calibration = {}
@@ -140,4 +170,7 @@ class PerceptionService:
             "error": self.error,
             "calibration": calibration,
             "reliability": dict(getattr(self.models, "weights", None) or {}),
+            "calibration_service": (
+                self.calibration.describe() if self.calibration is not None else None
+            ),
         }

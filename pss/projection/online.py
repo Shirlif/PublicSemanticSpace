@@ -745,6 +745,75 @@ def poison_duplicate_inject(
     return out, np.concatenate([labels, labels[idx]], axis=0)
 
 
+def poison_agree_with_prediction(
+    embeddings: dict[str, np.ndarray],
+    prototypes: dict[str, np.ndarray],
+    labels: np.ndarray,
+    fraction: float,
+    *,
+    modality: str | None = None,
+    rng: np.random.Generator | None = None,
+) -> np.ndarray:
+    """Relabel ``fraction`` of the model's *wrong* predictions to its own answer.
+
+    This is the targeted attack that produces **overconfidence**: measured
+    accuracy rises without any real improvement, so the fitted temperature
+    sharpens and the reliability weight climbs.  Random label flipping produces
+    the opposite direction (underconfidence), which is why both are needed.
+    """
+    rng = rng or np.random.default_rng(0)
+    labels = np.asarray(labels, dtype=np.int64).copy()
+    n = len(labels)
+    modalities = [modality] if modality else sorted(
+        m for m in embeddings if m in prototypes
+    )
+    if n == 0 or not modalities:
+        return labels
+
+    logits = None
+    for m in modalities:
+        term = _unit(np.asarray(embeddings[m], dtype=np.float64)) @ _unit(
+            np.asarray(prototypes[m], dtype=np.float64)
+        ).T
+        logits = term if logits is None else logits + term
+    pred = np.asarray(logits).argmax(axis=1)
+
+    wrong = np.where(pred != labels)[0]
+    k = int(round(float(fraction) * n))
+    if k <= 0 or len(wrong) == 0:
+        return labels
+    idx = rng.choice(wrong, size=min(k, len(wrong)), replace=False)
+    labels[idx] = pred[idx]
+    return labels
+
+
+def poison_single_class(
+    labels: np.ndarray,
+    fraction: float,
+    target_class: int,
+    n_classes: int,
+    *,
+    rng: np.random.Generator | None = None,
+) -> np.ndarray:
+    """Flip ``fraction`` of one class's labels to other classes.
+
+    Models an attacker who wants the system to lose confidence in a specific
+    category, rather than to shift the global calibration.
+    """
+    rng = rng or np.random.default_rng(0)
+    labels = np.asarray(labels, dtype=np.int64).copy()
+    target = int(target_class)
+    idx = np.where(labels == target)[0]
+    k = int(round(float(fraction) * len(idx)))
+    if k <= 0 or int(n_classes) < 2:
+        return labels
+    chosen = rng.choice(idx, size=min(k, len(idx)), replace=False)
+    for i in chosen:
+        choices = np.delete(np.arange(int(n_classes)), target)
+        labels[i] = int(rng.choice(choices))
+    return labels
+
+
 def select_balanced_subset(
     labels: np.ndarray,
     n: int,

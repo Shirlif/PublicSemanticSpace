@@ -1,0 +1,47 @@
+{
+  "generated": "2026-11-27 03:19:05 UTC",
+  "source": "synthetic",
+  "cusum": {
+    "reference": 0.9645,
+    "slack": 0.020101781827814705,
+    "threshold": 0.10050890913907352,
+    "clean_windows": 50
+  },
+  "rows": [
+    {
+      "scenario": "clean",
+      "windows": 20,
+      "alarms": 0,
+      "first_alarm": null,
+      "detected": false
+    },
+    {
+      "scenario": "random_label_flip@0.05",
+      "windows": 20,
+      "alarms": 5,
+      "first_alarm": 4,
+      "detected": true
+    },
+    {
+      "scenario": "targeted_agree@0.10",
+      "windows": 20,
+      "alarms": 2,
+      "first_alarm": 7,
+      "detected": true
+    },
+    {
+      "scenario": "targeted_single_class@0.20",
+      "windows": 20,
+      "alarms": 1,
+      "first_alarm": 15,
+      "detected": true
+    },
+    {
+      "scenario": "drift_sigma@0.30",
+      "windows": 20,
+      "alarms": 0,
+      "first_alarm": null,
+      "detected": false
+    }
+  ]
+}

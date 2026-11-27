@@ -1,0 +1,560 @@
+{
+  "generated": "2026-11-26 17:15:25 UTC",
+  "source": "synthetic",
+  "counts": {
+    "train": 320,
+    "val": 160,
+    "test": 160,
+    "unseen": 40,
+    "classes": 8
+  },
+  "scenarios": [
+    {
+      "scenario": "clean",
+      "kind": "none",
+      "state": "normal",
+      "detected": false,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.03749999999999998,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.9625,
+      "drift_score": 0.02236631780653653,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.058441558441558406,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.015785252097779024,
+      "ece_clean": 0.015785252097779024,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262018025241797,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829253116699241,
+      "signed_gap": -0.010824688330075882,
+      "temperature": {
+        "synthetic": 0.049787401628611686
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "random_label_flip@0.05",
+      "kind": "label_flip",
+      "state": "normal",
+      "detected": true,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.08750000000000002,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.9125,
+      "drift_score": 0.02236631780653653,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.10129870129870144,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.015785187886386456,
+      "ece_clean": 0.015785187886386456,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262009197235359,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829254255461402,
+      "signed_gap": -0.01082457445385987,
+      "temperature": {
+        "synthetic": 0.0497872466600348
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "random_label_flip@0.10",
+      "kind": "label_flip",
+      "state": "normal",
+      "detected": true,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.13749999999999996,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.8625,
+      "drift_score": 0.02236631780653653,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.05974025974025965,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.015785190753911407,
+      "ece_clean": 0.015785190753911407,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262009591472427,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829254204606969,
+      "signed_gap": -0.010824579539303159,
+      "temperature": {
+        "synthetic": 0.049787253580580476
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "random_label_flip@0.20",
+      "kind": "label_flip",
+      "state": "quarantine",
+      "detected": true,
+      "abstain": false,
+      "accept_update": false,
+      "suspect_mass": 0.23750000000000004,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.7625,
+      "drift_score": 0.02236631780653653,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.24415584415584424,
+      "label_coverage": 1.0,
+      "gate_reason": "frozen by quarantine",
+      "ece": 0.015785252097779024,
+      "ece_clean": 0.015785252097779024,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262018025241797,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829253116699241,
+      "signed_gap": -0.010824688330075882,
+      "temperature": {
+        "synthetic": 0.049787401628611686
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "random_label_flip@0.40",
+      "kind": "label_flip",
+      "state": "quarantine",
+      "detected": true,
+      "abstain": false,
+      "accept_update": false,
+      "suspect_mass": 0.42500000000000004,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.575,
+      "drift_score": 0.02236631780653653,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.16363636363636358,
+      "label_coverage": 1.0,
+      "gate_reason": "frozen by quarantine",
+      "ece": 0.015785252097779024,
+      "ece_clean": 0.015785252097779024,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262018025241797,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829253116699241,
+      "signed_gap": -0.010824688330075882,
+      "temperature": {
+        "synthetic": 0.049787401628611686
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "embedding_replace@0.10",
+      "kind": "embed",
+      "state": "normal",
+      "detected": true,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.125,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.875,
+      "drift_score": 0.02236631780653653,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.07676767676767693,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.015785189976081245,
+      "ece_clean": 0.015785189976081245,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.032620094845336775,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829254218401484,
+      "signed_gap": -0.010824578159851606,
+      "temperature": {
+        "synthetic": 0.04978725170334862
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "embedding_replace@0.20",
+      "kind": "embed",
+      "state": "quarantine",
+      "detected": true,
+      "abstain": false,
+      "accept_update": false,
+      "suspect_mass": 0.22499999999999998,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.775,
+      "drift_score": 0.007143824480957295,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.09291443850267378,
+      "label_coverage": 1.0,
+      "gate_reason": "frozen by quarantine",
+      "ece": 0.015785252097779024,
+      "ece_clean": 0.015785252097779024,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262018025241797,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829253116699241,
+      "signed_gap": -0.010824688330075882,
+      "temperature": {
+        "synthetic": 0.049787401628611686
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "embedding_replace@0.40",
+      "kind": "embed",
+      "state": "quarantine",
+      "detected": true,
+      "abstain": false,
+      "accept_update": false,
+      "suspect_mass": 0.36250000000000004,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.6375,
+      "drift_score": 0.023864991879529285,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.07019230769230766,
+      "label_coverage": 1.0,
+      "gate_reason": "frozen by quarantine",
+      "ece": 0.015785252097779024,
+      "ece_clean": 0.015785252097779024,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262018025241797,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829253116699241,
+      "signed_gap": -0.010824688330075882,
+      "temperature": {
+        "synthetic": 0.049787401628611686
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "duplicate_inject@0.20",
+      "kind": "duplicate",
+      "state": "recalibrate",
+      "detected": true,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.04166666666666663,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.9583333333333334,
+      "drift_score": 0.048785701499016176,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.08934294871794868,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.01578523971349827,
+      "ece_clean": 0.01578523971349827,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262016322606682,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829253336328984,
+      "signed_gap": -0.010824666367101665,
+      "temperature": {
+        "synthetic": 0.04978737174032625
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "duplicate_inject@0.40",
+      "kind": "duplicate",
+      "state": "normal",
+      "detected": true,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.049107142857142905,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.9553571428571429,
+      "drift_score": 0.016946748522491895,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.0921130952380953,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.015785192145715533,
+      "ece_clean": 0.015785192145715533,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.032620097828224066,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829254179923869,
+      "signed_gap": -0.01082458200761316,
+      "temperature": {
+        "synthetic": 0.04978725693958952
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "targeted_agree@0.10",
+      "kind": "agree",
+      "state": "normal",
+      "detected": false,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.0,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 1.0,
+      "drift_score": 0.02236631780653653,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.0,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.01578524250401883,
+      "ece_clean": 0.01578524250401883,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.032620167062573674,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829253286840324,
+      "signed_gap": -0.010824671315967649,
+      "temperature": {
+        "synthetic": 0.0497873784749865
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "targeted_single_class@0.20",
+      "kind": "single",
+      "state": "quarantine",
+      "detected": true,
+      "abstain": false,
+      "accept_update": false,
+      "suspect_mass": 0.0625,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.9375,
+      "drift_score": 0.02236631780653653,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.20519480519480515,
+      "label_coverage": 1.0,
+      "gate_reason": "frozen by quarantine",
+      "ece": 0.015785252097779024,
+      "ece_clean": 0.015785252097779024,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262018025241797,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829253116699241,
+      "signed_gap": -0.010824688330075882,
+      "temperature": {
+        "synthetic": 0.049787401628611686
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "source_outlier@0.30",
+      "kind": "source",
+      "state": "quarantine",
+      "detected": true,
+      "abstain": false,
+      "accept_update": false,
+      "suspect_mass": 0.38125,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.625,
+      "drift_score": 0.02236631780653653,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.08961038961038958,
+      "label_coverage": 1.0,
+      "gate_reason": "frozen by quarantine",
+      "ece": 0.015785252097779024,
+      "ece_clean": 0.015785252097779024,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262018025241797,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829253116699241,
+      "signed_gap": -0.010824688330075882,
+      "temperature": {
+        "synthetic": 0.049787401628611686
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "drift_sigma@0.10",
+      "kind": "drift",
+      "state": "recalibrate",
+      "detected": true,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.025000000000000022,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.975,
+      "drift_score": 0.04922450389815958,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.06060606060606066,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.02880725226751545,
+      "ece_clean": 0.01578522659509484,
+      "ece_no_adapt": 0.02880729697218131,
+      "evaluation": "drifted_test",
+      "nll": 0.058229430534282235,
+      "accuracy": 0.975,
+      "mean_confidence": 0.9638249362454123,
+      "signed_gap": -0.011175063754587655,
+      "temperature": {
+        "synthetic": 0.04978734008025724
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "drift_sigma@0.20",
+      "kind": "drift",
+      "state": "recalibrate",
+      "detected": true,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.06874999999999998,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.95,
+      "drift_score": 0.09988819447571373,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.16643356643356644,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.03388690656145717,
+      "ece_clean": 0.015785203118920104,
+      "ece_no_adapt": 0.03388699384547825,
+      "evaluation": "drifted_test",
+      "nll": 0.12111223978769312,
+      "accuracy": 0.94375,
+      "mean_confidence": 0.9341978763377105,
+      "signed_gap": -0.009552123662289524,
+      "temperature": {
+        "synthetic": 0.04978728342252901
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "drift_sigma@0.30",
+      "kind": "drift",
+      "state": "recalibrate",
+      "detected": true,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.24375000000000002,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.7625,
+      "drift_score": 0.18719870211579281,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.22102564102564093,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.06601299121821905,
+      "ece_clean": 0.01578521850228083,
+      "ece_no_adapt": 0.0660128452573736,
+      "evaluation": "drifted_test",
+      "nll": 0.43819898455394063,
+      "accuracy": 0.85,
+      "mean_confidence": 0.9028881411655647,
+      "signed_gap": 0.05288814116556473,
+      "temperature": {
+        "synthetic": 0.049787320548964786
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "ood_unseen",
+      "kind": "ood",
+      "state": "quarantine",
+      "detected": true,
+      "abstain": false,
+      "accept_update": false,
+      "suspect_mass": 0.0,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.0,
+      "drift_score": 1.0,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.0,
+      "label_coverage": 0.0,
+      "gate_reason": "frozen by quarantine",
+      "ece": 0.015785252097779024,
+      "ece_clean": 0.015785252097779024,
+      "ece_no_adapt": 0.015785252097779024,
+      "evaluation": "clean_test",
+      "nll": 0.03262018025241797,
+      "accuracy": 0.99375,
+      "mean_confidence": 0.9829253116699241,
+      "signed_gap": -0.010824688330075882,
+      "temperature": {
+        "synthetic": 0.049787401628611686
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    },
+    {
+      "scenario": "label_shift@4of16",
+      "kind": "label_shift",
+      "state": "recalibrate",
+      "detected": true,
+      "abstain": false,
+      "accept_update": true,
+      "suspect_mass": 0.050000000000000044,
+      "cross_modal_agreement": 1.0,
+      "label_consensus_agreement": 0.95,
+      "drift_score": 0.5,
+      "accuracy_inflation": 0.0,
+      "class_agreement_spread": 0.045454545454545525,
+      "label_coverage": 1.0,
+      "gate_reason": "ok",
+      "ece": 0.024919937249468622,
+      "ece_clean": 0.0157851988558425,
+      "ece_no_adapt": 0.02491999111845053,
+      "evaluation": "label_shift_test",
+      "nll": 0.051562992465168475,
+      "accuracy": 0.9875,
+      "mean_confidence": 0.978621813854469,
+      "signed_gap": -0.008878186145531042,
+      "temperature": {
+        "synthetic": 0.04978727313394107
+      },
+      "reliability": {
+        "synthetic": 1.0
+      }
+    }
+  ],
+  "preregistration": {
+    "ok": false,
+    "mismatches": [
+      "targeted_agree@0.10.detected: expected True, got False",
+      "targeted_agree@0.10.accept_update: expected False, got True"
+    ]
+  }
+}

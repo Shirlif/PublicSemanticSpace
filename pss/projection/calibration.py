@@ -51,7 +51,25 @@ def _nll(logits: np.ndarray, labels: np.ndarray) -> float:
     return float(-np.log(picked).mean())
 
 
-def fit_temperature(logits: np.ndarray, labels: np.ndarray) -> float:
+#: Search range for log-temperature.  Kept at the historical value for the
+#: legacy streaming calibrator (``online.py``); the robustness pipeline passes
+#: :data:`RANKING_LOG_BOUNDS` explicitly.
+TEMPERATURE_LOG_BOUNDS: tuple[float, float] = (-3.0, 3.0)
+
+#: Wider range for the **ranking** channel.  With the confidence channel
+#: separated, temperature no longer has to carry calibration quality — it only
+#: sets cross-modality comparability for fusion.  The old (-3, 3) box pinned
+#: geometry and vision at ``exp(-3) = 0.0498`` while their optimum was ~0.027,
+#: so the fusion weights were silently wrong.
+RANKING_LOG_BOUNDS: tuple[float, float] = (-8.0, 3.0)
+
+
+def fit_temperature(
+    logits: np.ndarray,
+    labels: np.ndarray,
+    *,
+    log_bounds: tuple[float, float] = TEMPERATURE_LOG_BOUNDS,
+) -> float:
     """Fit a positive scalar temperature by minimizing validation NLL."""
     logits = np.asarray(logits, dtype=np.float64)
     labels = np.asarray(labels, dtype=np.int64)
@@ -61,8 +79,80 @@ def fit_temperature(logits: np.ndarray, labels: np.ndarray) -> float:
     def objective(log_t: float) -> float:
         return _nll(logits / np.exp(log_t), labels)
 
-    result = minimize_scalar(objective, bounds=(-3.0, 3.0), method="bounded")
+    result = minimize_scalar(objective, bounds=log_bounds, method="bounded")
     return float(np.exp(result.x))
+
+
+def _weighted_nll(
+    logits: np.ndarray,
+    labels: np.ndarray,
+    weights: np.ndarray,
+) -> float:
+    """Weighted mean negative log-likelihood.
+
+    Returns ``inf`` when the effective sample mass is zero, so a caller that
+    accidentally passes all-zero weights fails loudly instead of silently
+    fitting to nothing.
+    """
+    probs = _softmax(logits)
+    picked = probs[np.arange(len(labels)), labels].clip(1e-12)
+    w = np.asarray(weights, dtype=np.float64).reshape(-1)
+    total = float(w.sum())
+    if total <= 0.0:
+        return float("inf")
+    return float(-(w * np.log(picked)).sum() / total)
+
+
+def fit_temperature_weighted(
+    logits: np.ndarray,
+    labels: np.ndarray,
+    weights: np.ndarray,
+    *,
+    min_effective: float = 1.0,
+    fallback: float = 1.0,
+    log_bounds: tuple[float, float] = TEMPERATURE_LOG_BOUNDS,
+) -> float:
+    """Fit a temperature with per-sample weights.
+
+    Used by the robustness pipeline: suspect samples carry ``w < 1`` and
+    trimmed samples carry ``w = 0``.  Trimming is therefore the special case
+    ``w = 0`` rather than a second, competing selection rule.
+
+    Returns ``fallback`` when the effective mass is below ``min_effective``;
+    callers must treat that as an untrusted fit and let the gate reject it.
+    """
+    logits = np.asarray(logits, dtype=np.float64)
+    labels = np.asarray(labels, dtype=np.int64)
+    w = np.clip(np.asarray(weights, dtype=np.float64).reshape(-1), 0.0, None)
+    if len(labels) == 0 or w.sum() < float(min_effective):
+        return float(fallback)
+
+    def objective(log_t: float) -> float:
+        return _weighted_nll(logits / np.exp(log_t), labels, w)
+
+    result = minimize_scalar(objective, bounds=log_bounds, method="bounded")
+    if not np.isfinite(result.fun):
+        return float(fallback)
+    return float(np.exp(result.x))
+
+
+def temperature_at_bound(
+    temperature: float,
+    tol: float = 1e-5,
+    *,
+    log_bounds: tuple[float, float] = TEMPERATURE_LOG_BOUNDS,
+) -> bool:
+    """True when a fitted temperature sits on the search bound.
+
+    The old failure was silent: a pinned fit looks like "nothing changed".  This
+    makes it visible so it can be reported and, when appropriate, the bound can
+    be widened via ``TEMPERATURE_LOG_BOUNDS``.
+    """
+    if temperature <= 0:
+        return False
+    log_t = float(np.log(temperature))
+    lo, hi = log_bounds
+    return abs(log_t - lo) < tol or abs(log_t - hi) < tol
 
 
 def expected_calibration_error(

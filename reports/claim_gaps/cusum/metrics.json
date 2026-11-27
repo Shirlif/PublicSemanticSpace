@@ -1,0 +1,62 @@
+{
+  "generated": "2026-11-27 03:59:19 UTC",
+  "source": "real",
+  "cusum": {
+    "reference": 0.9575,
+    "slack": 0.008942053313435198,
+    "threshold": 0.08942053313435197,
+    "clean_windows": 50
+  },
+  "rows": [
+    {
+      "scenario": "clean",
+      "windows": 20,
+      "alarms": 0,
+      "first_alarm": null,
+      "detected": false,
+      "per_class_first_alarm": null,
+      "per_class_detected": false,
+      "per_class_alarms": 0
+    },
+    {
+      "scenario": "random_label_flip@0.05",
+      "windows": 20,
+      "alarms": 6,
+      "first_alarm": 2,
+      "detected": true,
+      "per_class_first_alarm": 1,
+      "per_class_detected": true,
+      "per_class_alarms": 55
+    },
+    {
+      "scenario": "targeted_agree@0.10",
+      "windows": 20,
+      "alarms": 3,
+      "first_alarm": 10,
+      "detected": true,
+      "per_class_first_alarm": null,
+      "per_class_detected": false,
+      "per_class_alarms": 0
+    },
+    {
+      "scenario": "targeted_single_class@0.20",
+      "windows": 20,
+      "alarms": 3,
+      "first_alarm": 7,
+      "detected": true,
+      "per_class_first_alarm": 1,
+      "per_class_detected": true,
+      "per_class_alarms": 32
+    },
+    {
+      "scenario": "drift_sigma@0.30",
+      "windows": 20,
+      "alarms": 0,
+      "first_alarm": null,
+      "detected": false,
+      "per_class_first_alarm": null,
+      "per_class_detected": false,
+      "per_class_alarms": 0
+    }
+  ]
+}

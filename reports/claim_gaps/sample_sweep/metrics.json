@@ -1,0 +1,54 @@
+{
+  "generated": "2026-11-27 03:56:32 UTC",
+  "source": "real",
+  "classes": 16,
+  "pool": 128,
+  "seeds": 5,
+  "draws": 40,
+  "rows": [
+    {
+      "window": 24,
+      "per_class": 1.5,
+      "clean_ece_map": 0.041796481250000024,
+      "clean_ece_std": 0.043331554557581385,
+      "flip10_detect_rate": 1.0,
+      "flip20_detect_rate": 1.0,
+      "agreement_sd": 0.039458022521542326,
+      "agree_snr": 0.26399363173812446,
+      "single_snr": 0.15839617904287484
+    },
+    {
+      "window": 48,
+      "per_class": 3.0,
+      "clean_ece_map": 0.01932477222222227,
+      "clean_ece_std": 0.017656142560133568,
+      "flip10_detect_rate": 0.8,
+      "flip20_detect_rate": 1.0,
+      "agreement_sd": 0.023058274605394433,
+      "agree_snr": 0.8809202053326198,
+      "single_snr": 0.38399085873473177
+    },
+    {
+      "window": 96,
+      "per_class": 6.0,
+      "clean_ece_map": 0.017979885069444358,
+      "clean_ece_std": 0.004109964712434937,
+      "flip10_detect_rate": 0.4,
+      "flip20_detect_rate": 1.0,
+      "agreement_sd": 0.01188560873403767,
+      "agree_snr": 1.5994482985314147,
+      "single_snr": 0.7449485226036725
+    },
+    {
+      "window": 128,
+      "per_class": 8.0,
+      "clean_ece_map": 0.008746147976209961,
+      "clean_ece_std": 0.006190300819589746,
+      "flip10_detect_rate": 0.4,
+      "flip20_detect_rate": 1.0,
+      "agreement_sd": 0.016950950875302632,
+      "agree_snr": 1.0485215626396347,
+      "single_snr": 0.6337218235734057
+    }
+  ]
+}
