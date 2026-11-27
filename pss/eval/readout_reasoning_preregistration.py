@@ -80,6 +80,25 @@ covariance), and ``batch_joint`` also loses 0.0130 on the base classes, so
 0.0130 is the **class-dilution floor**, not a refresh error.  The 1 pt bar was
 tighter than the achievable floor and is left unchanged; the near-miss is
 reported as such.
+
+g arms (2026-11-27, registered *before* the g audit run)
+--------------------------------------------------------
+``docs/plans/PSS-g因子优化实验计划.md`` §3.1 defines four asserted arms and one
+reference.  The claim is about the **worst cell**, not the mean, so the metric
+is ``worst_cell_acc``: the minimum exact-4 over the factor cells of the audit
+(pair type for the B line, the pre-registered invariance-sensitive split for
+the C line).
+
+- ``g_response_combination`` must reach ``worst_cell_acc >= 0.90`` and be
+  within 0.03 of full coverage.
+- ``g_response_single`` is a **negative control with an upper bound**: if
+  single-axis augmentation reaches full coverage, H2 (single axis is not
+  enough) is false and the "pair-type combination" rule must be withdrawn.
+- ``g_invariance_matched`` / ``g_invariance_mismatched`` are read on the
+  absolute-position split, the one where the earlier run measured 0.856 vs
+  0.367.  The relative-position split is not invariance-sensitive and is
+  reported but never fed to these two bars.
+- ``g_a_full`` is the full-coverage reference and carries no bar.
 """
 
 from __future__ import annotations
@@ -166,6 +185,11 @@ class Expectation:
     # -- incremental A5 arms ------------------------------------------------
     forgetting_max: float | None = None
     added_acc_min: float | None = None
+    # -- g-factor arms (coverage / invariance) ------------------------------
+    worst_cell_acc_min: float | None = None
+    worst_cell_acc_max: float | None = None
+    delta_vs_full_min: float | None = None
+    delta_vs_full_max: float | None = None
 
 
 EXPECTED: dict[str, Expectation] = {
@@ -275,6 +299,19 @@ EXPECTED: dict[str, Expectation] = {
     # Reference only: no bar.
     "batch_joint": Expectation(),
     "cosine_whiten": Expectation(),
+    # ── g: coverage response and invariance matching ───────────────────────
+    # Bars from `PSS-g因子优化实验计划.md` §3.1, fixed before the audit run.
+    "g_response_combination": Expectation(
+        worst_cell_acc_min=0.90,
+        delta_vs_full_min=-0.03,
+    ),
+    # Negative control: a single missing axis must stay well behind full
+    # coverage.  If it does not, H2 is false and the combination rule is void.
+    "g_response_single": Expectation(delta_vs_full_max=-0.10),
+    "g_invariance_matched": Expectation(worst_cell_acc_min=0.80),
+    "g_invariance_mismatched": Expectation(worst_cell_acc_max=0.60),
+    # Reference only: no bar.
+    "g_a_full": Expectation(),
     # ── composition: absolute bars on the fixed P5b scale ───────────────────
     "pss_learned": Expectation(
         id_success_min=0.950,
@@ -304,6 +341,8 @@ _UPPER_BOUNDS = {
     "seed_std_max": "seed_std",
     "accuracy_delta_vs_mlp_max": "accuracy_delta_vs_mlp",
     "forgetting_max": "forgetting",
+    "worst_cell_acc_max": "worst_cell_acc",
+    "delta_vs_full_max": "delta_vs_full",
 }
 
 _LOWER_BOUNDS = {
@@ -316,6 +355,8 @@ _LOWER_BOUNDS = {
     "ood_success_min": "ood_success",
     "ood_delta_vs_probe_mlp_min": "ood_delta_vs_probe_mlp",
     "relation_exact4_min": "relation_exact4",
+    "worst_cell_acc_min": "worst_cell_acc",
+    "delta_vs_full_min": "delta_vs_full",
 }
 
 

@@ -10,6 +10,7 @@ All assets are MuJoCo primitives; see ``DATA_CARD.md`` for the caveats.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import numpy as np
@@ -909,3 +910,315 @@ def generate_dataset(
         "occlusion": sum(1 for e in entries if e["kind"] == "occlusion"),
     }
     return summary
+
+
+def _apply_sensor_drift(sample: dict, mode: str, rng: np.random.Generator) -> dict:
+    """Post-render a sample to simulate a sensor/lighting distribution shift.
+
+    Tier C uses this to move the input distribution away from the one the
+    frozen projection saw.  It is deliberately a *global* shift (gain/bias),
+    not per-sample noise, so the stream still has learnable structure.
+    """
+
+    sample = dict(sample)
+    if mode in ("lighting", "both"):
+        original = np.asarray(sample["rgb"])
+        rgb = original.astype(np.float32)
+        gain = float(rng.uniform(0.65, 0.80))
+        bias = float(rng.uniform(-0.12, 0.12))
+        shifted = np.clip(rgb * gain + bias, 0.0, 1.0)
+        if original.dtype == np.uint8:
+            shifted = np.round(shifted * 255.0).astype(np.uint8)
+        else:
+            shifted = shifted.astype(original.dtype)
+        sample["rgb"] = shifted
+    if mode in ("tactile", "both"):
+        tac = np.asarray(sample["tactile"], dtype=np.float32)
+        gain = float(rng.uniform(0.65, 0.85))
+        noise = rng.normal(scale=0.05, size=tac.shape).astype(np.float32)
+        sample["tactile"] = np.clip(tac * gain + noise, 0.0, 1.0)
+    return sample
+
+
+def _parse_instance_label(label: str) -> tuple[str, int]:
+    category, variation = label.rsplit("_v", 1)
+    return category, int(variation)
+
+
+def generate_open_stream(
+    out_dir: str | Path,
+    tier: str = "a",
+    seen_labels: list[str] | None = None,
+    novel_labels: list[str] | None = None,
+    label_mode: str = "category",
+    episodes: int = 20,
+    per_episode: int = 200,
+    novel_rate: float = 0.2,
+    novel_start: int = 5,
+    drift_episode: int = 10,
+    drift_mode: str = "lighting",
+    seed: int = 0,
+    width: int = 128,
+    height: int = 128,
+) -> dict:
+    """Generate an open-category *stream* (tier A/B/C).
+
+    - ``tier a``: novel labels are held-out categories; the label is the category.
+    - ``tier b``: novel labels are new *instances* of known categories; the label
+      is the instance id (fine-grained compositional novelty).
+    - ``tier c``: like tier a, plus a global lighting/tactile shift from
+      ``drift_episode`` onward.
+
+    Every entry has ``episode``, ``is_novel``, ``tier``, ``drift`` and ``label``
+    so the simulator never has to infer the protocol from file names.
+    """
+
+    tier = str(tier).lower()
+    if tier not in ("a", "b", "c"):
+        raise ValueError("tier must be a/b/c")
+    if label_mode not in ("category", "instance"):
+        raise ValueError("label_mode must be category/instance")
+
+    if seen_labels is None:
+        seen_labels = [c for c in CATEGORY_SPECS if c not in HELD_OUT_CATEGORIES]
+    if novel_labels is None:
+        novel_labels = list(HELD_OUT_CATEGORIES)
+    seen_labels = list(seen_labels)
+    novel_labels = list(novel_labels)
+    if not seen_labels or not novel_labels:
+        raise ValueError("seen_labels and novel_labels must be non-empty")
+
+    out = Path(out_dir)
+    (out / "stream").mkdir(parents=True, exist_ok=True)
+    entries: list[dict] = []
+    novel_set = set(novel_labels)
+    rng = np.random.default_rng(seed)
+    counter = 0
+
+    for episode in range(int(episodes)):
+        n_novel = int(round(float(per_episode) * float(novel_rate))) if episode >= novel_start else 0
+        n_seen = int(per_episode) - n_novel
+        labels = list(rng.choice(novel_labels, size=n_novel, replace=True)) if n_novel else []
+        labels += list(rng.choice(seen_labels, size=n_seen, replace=True))
+        rng.shuffle(labels)
+
+        for j, label in enumerate(labels):
+            if label_mode == "instance":
+                category, variation = _parse_instance_label(str(label))
+            else:
+                category = str(label)
+                variation = 100 + episode * int(per_episode) + j
+            sample_seed = int(seed) + 100_000 * episode + j
+            sample = generate_category_sample(
+                category,
+                int(variation),
+                sample_seed,
+                width=width,
+                height=height,
+                views=1,
+                split="stream",
+                variation_specs=True,
+            )
+            drift = bool(tier == "c" and episode >= drift_episode)
+            if drift:
+                sample = _apply_sensor_drift(sample, drift_mode, rng)
+
+            rel = f"stream/ep{episode:03d}_{j:04d}.npz"
+            dataset.save_sample(out / rel, sample)
+            entries.append(
+                {
+                    "id": f"stream_{episode:03d}_{j:04d}",
+                    "kind": "category",
+                    "path": rel,
+                    "split": "stream",
+                    "category": category,
+                    "instance": sample["instance_id"],
+                    "label": str(label),
+                    "episode": int(episode),
+                    "is_novel": bool(str(label) in novel_set),
+                    "tier": tier,
+                    "drift": drift,
+                    "variation": int(variation),
+                }
+            )
+            counter += 1
+
+    config = {
+        "scale": "open_stream",
+        "tier": tier,
+        "label_mode": label_mode,
+        "seed": int(seed),
+        "width": int(width),
+        "height": int(height),
+        "crop_preserve_aspect": True,
+        "episodes": int(episodes),
+        "per_episode": int(per_episode),
+        "novel_rate": float(novel_rate),
+        "novel_start": int(novel_start),
+        "drift_episode": int(drift_episode),
+        "drift_mode": drift_mode,
+        "seen_labels": seen_labels,
+        "novel_labels": novel_labels,
+        "counts": {
+            "entries": counter,
+            "episodes": int(episodes),
+            "per_episode": int(per_episode),
+            "seen_labels": len(seen_labels),
+            "novel_labels": len(novel_labels),
+        },
+        "split_policy": (
+            "All entries have split='stream'; episode/is_novel/drift/label carry "
+            "the protocol. Novel labels are absent before novel_start."
+        ),
+    }
+    dataset.write_index(out, entries, config)
+    dataset.write_data_card(
+        out,
+        entries,
+        config,
+        notes=(
+            "Open-category stream. Tier A = held-out categories; tier B = new "
+            "instances of known categories; tier C = tier A plus a global "
+            "lighting/tactile shift after drift_episode. The label field is the "
+            "category (A/C) or the instance id (B)."
+        ),
+    )
+    return {
+        "out_dir": str(out),
+        "tier": tier,
+        "label_mode": label_mode,
+        "entries": counter,
+        "episodes": int(episodes),
+        "seen_labels": len(seen_labels),
+        "novel_labels": len(novel_labels),
+    }
+
+
+def build_open_stream_from_index(
+    out_dir: str | Path,
+    source_index: str | Path,
+    seen_labels: list[str],
+    novel_labels: list[str],
+    *,
+    tier: str = "a",
+    label_mode: str = "category",
+    episodes: int = 20,
+    per_episode: int = 200,
+    novel_rate: float = 0.2,
+    novel_start: int = 5,
+    drift_episode: int = 10,
+    drift_mode: str = "both",
+    seed: int = 0,
+) -> dict:
+    """Build a stream by re-sampling an existing dataset index.
+
+    This avoids re-rendering MuJoCo scenes: the base ``.npz`` files are copied
+    into the stream directory, and tier C applies the sensor shift to the
+    copied arrays.  Each source sample keeps its original number of views; the
+    stream metadata (episode / is_novel / drift / label) is per entry and is
+    repeated for every view by ``load_stream``.
+    """
+
+    import shutil
+    from collections import defaultdict
+
+    source_index = Path(source_index)
+    source_dir = source_index.parent
+    out = Path(out_dir)
+    (out / "stream").mkdir(parents=True, exist_ok=True)
+    index = json.loads(source_index.read_text(encoding="utf-8"))
+    entries = [e for e in index["entries"] if e.get("kind") == "category"]
+    by_label: dict[str, list[dict]] = defaultdict(list)
+    for entry in entries:
+        label = (
+            str(entry["category"])
+            if label_mode == "category"
+            else str(entry["instance"])
+        )
+        by_label[label].append(entry)
+
+    seen_labels = [str(x) for x in seen_labels]
+    novel_labels = [str(x) for x in novel_labels]
+    missing = [x for x in seen_labels + novel_labels if x not in by_label]
+    if missing:
+        raise ValueError(f"labels missing from source index: {missing[:5]}")
+    if not seen_labels or not novel_labels:
+        raise ValueError("seen_labels and novel_labels must be non-empty")
+
+    rng = np.random.default_rng(int(seed))
+    novel_set = set(novel_labels)
+    new_entries: list[dict] = []
+    for episode in range(int(episodes)):
+        n_novel = int(round(float(per_episode) * float(novel_rate))) if episode >= novel_start else 0
+        labels = list(rng.choice(novel_labels, size=n_novel)) if n_novel else []
+        labels += list(rng.choice(seen_labels, size=int(per_episode) - n_novel))
+        rng.shuffle(labels)
+        for j, label in enumerate(labels):
+            source = by_label[str(label)][int(rng.integers(len(by_label[str(label)])))]
+            drift = bool(tier == "c" and episode >= drift_episode)
+            rel = f"stream/ep{episode:03d}_{j:04d}.npz"
+            if drift:
+                sample = dataset.load_sample(source_dir / source["path"])
+                sample = _apply_sensor_drift(sample, drift_mode, rng)
+                dataset.save_sample(out / rel, sample)
+            else:
+                shutil.copyfile(source_dir / source["path"], out / rel)
+            new_entries.append(
+                {
+                    "id": f"stream_{episode:03d}_{j:04d}",
+                    "kind": "category",
+                    "path": rel,
+                    "split": "stream",
+                    "category": source["category"],
+                    "instance": source["instance"],
+                    "label": str(label),
+                    "episode": int(episode),
+                    "is_novel": bool(str(label) in novel_set),
+                    "tier": tier,
+                    "drift": drift,
+                    "source_id": source["id"],
+                }
+            )
+
+    config = {
+        "scale": "open_stream_from_index",
+        "source_index": str(source_index),
+        "tier": tier,
+        "label_mode": label_mode,
+        "seed": int(seed),
+        "crop_preserve_aspect": bool(index.get("config", {}).get("crop_preserve_aspect", False)),
+        "episodes": int(episodes),
+        "per_episode": int(per_episode),
+        "novel_rate": float(novel_rate),
+        "novel_start": int(novel_start),
+        "drift_episode": int(drift_episode),
+        "drift_mode": drift_mode,
+        "seen_labels": seen_labels,
+        "novel_labels": novel_labels,
+        "counts": {
+            "entries": len(new_entries),
+            "episodes": int(episodes),
+            "seen_labels": len(seen_labels),
+            "novel_labels": len(novel_labels),
+        },
+    }
+    dataset.write_index(out, new_entries, config)
+    dataset.write_data_card(
+        out,
+        new_entries,
+        config,
+        notes=(
+            "Open-category stream built by re-sampling an existing dataset. "
+            "No new MuJoCo renders; tier C applies a global lighting/tactile "
+            "shift to the copied arrays."
+        ),
+    )
+    return {
+        "out_dir": str(out),
+        "tier": tier,
+        "label_mode": label_mode,
+        "entries": len(new_entries),
+        "episodes": int(episodes),
+        "seen_labels": len(seen_labels),
+        "novel_labels": len(novel_labels),
+    }

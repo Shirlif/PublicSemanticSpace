@@ -43,6 +43,17 @@ def _to_numpy(value) -> np.ndarray:
     return np.asarray(value)
 
 
+def _encode_chunked(expert, X: torch.Tensor, chunk: int = 64) -> np.ndarray:
+    """Encode a large batch in chunks so a full dataset fits on an 8 GB GPU."""
+
+    outs = []
+    for start in range(0, len(X), int(chunk)):
+        outs.append(_to_numpy(expert.encode(X[start : start + int(chunk)])))
+    if not outs:
+        return np.empty((0, 0), dtype=np.float32)
+    return np.concatenate(outs, axis=0)
+
+
 def load_paired_features(
     data_dir: str | Path, vision: VisionExpert, tactile: TactileExpert
 ) -> PairedFeatures:
@@ -85,8 +96,8 @@ def load_paired_features(
 
     Xv = torch.as_tensor(np.stack(images), dtype=torch.float32)
     Xt = torch.as_tensor(np.stack(tacs), dtype=torch.float32)
-    V = _to_numpy(vision.encode(Xv)).astype(np.float32)
-    T = _to_numpy(tactile.encode(Xt)).astype(np.float32)
+    V = _encode_chunked(vision, Xv).astype(np.float32)
+    T = _encode_chunked(tactile, Xt).astype(np.float32)
     G = np.stack(geos).astype(np.float32)
     A = np.stack(attrs).astype(np.float32) * ATTR_SCALE
     return PairedFeatures(
