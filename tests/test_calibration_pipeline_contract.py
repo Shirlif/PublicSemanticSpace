@@ -261,3 +261,18 @@ def test_check_flags_signed_gap() -> None:
 def test_check_ignores_unregistered_scenarios() -> None:
     observed = {"some_new_scenario": {"detected": True, "ece_map_fused": 99.0}}
     assert check_robustness_preregistration(observed)["ok"] is True
+
+
+def test_check_flags_unmeasured_recovery() -> None:
+    """A declared cap with no measurement must not look like a pass."""
+    observed = {
+        "drift_sigma@0.20": {
+            "detected": True,
+            "ece_map_fused": 0.030,
+            "fused_accuracy": 0.900,
+            "recovery_samples": None,
+        }
+    }
+    result = check_robustness_preregistration(observed)
+    assert result["ok"] is False
+    assert any("not measured" in m for m in result["mismatches"])

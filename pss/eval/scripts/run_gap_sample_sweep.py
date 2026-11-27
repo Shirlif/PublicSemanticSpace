@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -30,6 +31,7 @@ from pss.projection.calibration_pipeline import (
     _modalities,
     _vote_weights,
     bootstrap_params,
+    calibrate_thresholds_from_batches,
     evaluate_params,
     fit_confidence_maps,
     fit_params,
@@ -110,6 +112,17 @@ def run(args) -> dict:
     gate = _batch(ctx, gate_idx, y_gate)
     test = _batch(ctx, ctx["test_idx"], ctx["y_test"])
 
+    # One set of clean-stream thresholds for every window size, so a size
+    # cannot tune its own detector.
+    rng0 = np.random.default_rng([int(args.seed), 0xC4])
+    threshold_batches = []
+    for _ in range(50):
+        pick = rng0.choice(len(pool), size=min(96, len(pool)), replace=False)
+        threshold_batches.append(_batch(ctx, pool[pick], y_pool[pick]))
+    thresholds = calibrate_thresholds_from_batches(
+        _fit(_batch(ctx, pool, y_pool)), gate, threshold_batches, quantile=0.99
+    )
+
     rows = []
     for n in SIZES:
         n = int(min(n, len(pool)))
@@ -137,7 +150,9 @@ def run(args) -> dict:
                 poisoned = _batch(
                     ctx, idx, poison_labels(labels, frac, n_classes, rng=rng)
                 )
-                pipeline = RobustCalibrationPipeline(params=params, gate_set=gate)
+                pipeline = RobustCalibrationPipeline(
+                    params=params, gate_set=gate, thresholds=thresholds
+                )
                 record = pipeline.step(poisoned)
                 bucket.append(record["state"] != "normal")
 
@@ -189,6 +204,7 @@ def run(args) -> dict:
         "pool": int(len(pool)),
         "seeds": SEEDS,
         "draws": DRAWS,
+        "thresholds": asdict(thresholds),
         "rows": rows,
     }
 

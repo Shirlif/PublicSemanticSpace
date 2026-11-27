@@ -8,9 +8,11 @@ holds the streaming pipeline and exposes the three things the runtime would call
     service.params()                  # temperature / reliability for fusion
     service.confidence(probs_row)     # calibrated confidence or conformal set
 
-Deliberately not wired into ``PerceptionService`` yet: that path decides how the
-recognition loop consumes temperature and reliability, and changing it silently
-would alter every L2 number.  The wiring is a separate, reviewable change.
+Wiring (2026-11-27): ``PerceptionService`` now exposes ``attach_calibration``,
+``update_calibration`` and ``confidence``.  The recognition loop consumes only
+``models.weights`` (reliability); temperature stays on the ranking path, so the
+default behaviour without a service is byte-for-byte unchanged.  The caller
+still has to supply labelled windows and a frozen gate set.
 """
 
 from __future__ import annotations
