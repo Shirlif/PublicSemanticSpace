@@ -37,6 +37,23 @@ Bounds rationale
 Known-open claim: the two ``targeted_*`` scenarios keep ``detected=True``.  Both
 are expected to fail in one window at this scale, and the failure is reported
 rather than removed from the table.
+
+Recovery semantics (2026-11-27)
+-------------------------------
+``recovery_samples`` is the **F6-comparable detection latency**: the number of
+streamed samples after a clean warm-up until the state machine leaves NORMAL.
+The caps 110 / 40 / 25 / 40 mirror F6's measured latency (109 / 36.7 / ~25 /
+40).  A missing or undetected value is a **failure**, not a skipped check: an
+unmeasured claim must never look like a passing one.
+
+Confidence-channel disposal (2026-11-27)
+----------------------------------------
+``confidence_map_accept`` asserts what the confidence channel does with a
+window's map update, separately from single-window detection and from the
+parameter gate.  The rule: keep the candidate when it is not significantly
+further from the frozen gate set, or when it is significantly better on the
+recent trusted slice.  The two ``targeted_*`` rows therefore expect ``False``
+even where ``detected`` stays the (known-open) single-window claim.
 """
 
 from __future__ import annotations
@@ -63,6 +80,7 @@ class CalibrationExpectation:
     detected: bool | None = None
     abstain: bool | None = None
     accept_update: bool | None = None
+    confidence_map_accept: bool | None = None
     ece_map_max: float | None = None
     signed_gap_max: float | None = None
     accuracy_min: float | None = None
@@ -74,6 +92,7 @@ EXPECTED_ROBUSTNESS: dict[str, CalibrationExpectation] = {
     "clean": CalibrationExpectation(
         detected=False,
         abstain=False,
+        confidence_map_accept=True,
         ece_map_max=0.030,
         signed_gap_max=0.050,
         accuracy_min=0.900,
@@ -110,29 +129,39 @@ EXPECTED_ROBUSTNESS: dict[str, CalibrationExpectation] = {
     "duplicate_inject@0.40": CalibrationExpectation(
         detected=True, ece_map_max=0.050,
     ),
-    # ── targeted attacks: KNOWN OPEN.  Detection is expected to fail in one
-    # window at this scale; the row stays so the gap is visible.
+    # ── targeted attacks: KNOWN OPEN for single-window *detection*.  The
+    # confidence channel's own gate is the new, separate disposal: the map
+    # update must be rejected even when `detected` stays False.
     "targeted_agree@0.10": CalibrationExpectation(
-        detected=True, ece_map_max=0.050, signed_gap_max=0.100,
+        detected=True, confidence_map_accept=False,
+        ece_map_max=0.050, signed_gap_max=0.100,
     ),
     "targeted_single_class@0.20": CalibrationExpectation(
-        detected=True, ece_map_max=0.050, signed_gap_max=0.100,
+        detected=True, confidence_map_accept=False,
+        ece_map_max=0.050, signed_gap_max=0.100,
     ),
     # ── source-level poisoning ─────────────────────────────────────────────
     "source_outlier@0.30": CalibrationExpectation(
         detected=True, accept_update=False, ece_map_max=0.050,
     ),
-    # ── covariate drift: the claim is calibration recovery, not acceptance ─
+    # ── covariate drift: the claim is detection latency, not acceptance ─────
+    # ``recovery_samples`` is measured by streaming the drifted window one
+    # sample at a time after a clean warm-up (see run_gap_calibration_robust).
     "drift_sigma@0.10": CalibrationExpectation(
         detected=True, ece_map_max=0.030, accuracy_min=0.850,
         recovery_samples_max=110,
     ),
     "drift_sigma@0.20": CalibrationExpectation(
-        detected=True, ece_map_max=0.050, accuracy_min=0.750,
+        detected=True, confidence_map_accept=True,
+        ece_map_max=0.050, accuracy_min=0.750,
         recovery_samples_max=40,
     ),
     "drift_sigma@0.30": CalibrationExpectation(
-        detected=True, ece_map_max=0.120, accuracy_min=0.600,
+        detected=True,
+        # The confidence map must adapt even when the parameter gate rejects:
+        # confidence adaptation is independent of parameter adaptation.
+        confidence_map_accept=True,
+        ece_map_max=0.120, accuracy_min=0.600,
         recovery_samples_max=25,
     ),
     # ── out-of-distribution: flag and refuse ───────────────────────────────
@@ -163,7 +192,12 @@ def check_robustness_preregistration(
         if actual is None:
             continue
 
-        for field_name in ("detected", "abstain", "accept_update"):
+        for field_name in (
+            "detected",
+            "abstain",
+            "accept_update",
+            "confidence_map_accept",
+        ):
             want = getattr(expected, field_name)
             if want is None or field_name not in actual:
                 continue
@@ -183,6 +217,12 @@ def check_robustness_preregistration(
                 continue
             value = actual[metric]
             if value is None:
+                # A declared cap with no measurement is a failure: silently
+                # skipping it is how a vacuous assertion passes for a year.
+                mismatches.append(
+                    f"{scenario}.{metric}: expected <= {cap}, got None "
+                    "(not measured / not detected)"
+                )
                 continue
             sized = abs(float(value)) if metric.startswith("signed_gap") else float(value)
             if sized > float(cap):

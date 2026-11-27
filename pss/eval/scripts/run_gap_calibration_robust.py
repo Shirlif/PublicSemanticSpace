@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -23,10 +24,17 @@ import numpy as np
 
 from pss.projection.calibration_pipeline import (
     CalibrationBatch,
+    ConfidenceGateThresholds,
     Params,
     RobustCalibrationPipeline,
+    SampleWeights,
     State,
+    TransitionThresholds,
     bootstrap_params,
+    calibrate_confidence_thresholds,
+    calibrate_thresholds_from_batches,
+    classify_state,
+    compare_confidence_maps,
     evaluate_params,
     fit_confidence_maps,
     fit_params,
@@ -136,7 +144,256 @@ def _incumbent(ctx: dict, batch: CalibrationBatch) -> Params:
     return fit_params(batch, score_samples(batch, seed, source_health(batch)))
 
 
-def _run_scenario(spec: dict, ctx: dict, rng: np.random.Generator) -> dict:
+def _batch_from(ctx: dict, embeddings: dict, labels) -> CalibrationBatch:
+    """Batch from explicit embeddings (a rolling window, possibly noised)."""
+    modalities = ctx["modalities"]
+    labels = np.asarray(labels, dtype=np.int64)
+    return CalibrationBatch(
+        embeddings={
+            m: np.asarray(embeddings[m], dtype=np.float64) for m in modalities
+        },
+        prototypes={
+            m: np.asarray(ctx["prototypes"][m], dtype=np.float64) for m in modalities
+        },
+        labels=labels,
+        sources=["s0"] * len(labels),
+        sample_ids=[f"w{i}" for i in range(len(labels))],
+    )
+
+
+def _balanced_order(labels, seed: int) -> np.ndarray:
+    """Round-robin class order so a rolling window stays class-balanced."""
+    labels = np.asarray(labels, dtype=np.int64)
+    rng = np.random.default_rng(int(seed))
+    by_class = {
+        int(c): list(np.where(labels == c)[0]) for c in sorted(set(labels.tolist()))
+    }
+    for c in by_class:
+        rng.shuffle(by_class[c])
+    order: list[int] = []
+    while any(by_class.values()):
+        for c in sorted(by_class):
+            if by_class[c]:
+                order.append(by_class[c].pop())
+    return np.asarray(order, dtype=np.int64)
+
+
+def _clean_batches(
+    ctx: dict,
+    fit_idx,
+    fit_y,
+    *,
+    seed: int,
+    n_windows: int = 50,
+) -> list[CalibrationBatch]:
+    """Bootstrap clean windows; shared by every clean-stream calibration."""
+    idx = np.asarray(fit_idx, dtype=np.int64)
+    y = np.asarray(fit_y, dtype=np.int64)
+    rng = np.random.default_rng([int(seed), 0xC1])
+    batches = []
+    for _ in range(int(n_windows)):
+        pick = rng.integers(0, len(idx), size=len(idx))
+        batches.append(_batch(ctx, idx[pick], y[pick]))
+    return batches
+
+
+def _calibrated_thresholds(
+    ctx: dict,
+    params: Params,
+    gate_batch: CalibrationBatch,
+    fit_idx,
+    fit_y,
+    *,
+    seed: int,
+    n_windows: int = 50,
+) -> TransitionThresholds:
+    """Read the state thresholds off bootstrap clean windows (design §6)."""
+    return calibrate_thresholds_from_batches(
+        params,
+        gate_batch,
+        _clean_batches(ctx, fit_idx, fit_y, seed=seed, n_windows=n_windows),
+        quantile=0.99,
+    )
+
+
+def _clean_stream(
+    ctx: dict,
+    params: Params,
+    gate_batch: CalibrationBatch,
+    fit_idx,
+    fit_y,
+    thresholds: TransitionThresholds,
+    *,
+    seed: int,
+    windows: int = 100,
+) -> dict:
+    """Clean-stream false-alarm rates for the gate and the state machine.
+
+    Every window is forced through the gate, which is stricter than production
+    (which gates every 32 steps).  A rejection here is a false positive on
+    clean data, the cost the design caps at 5%.
+    """
+    idx = np.asarray(fit_idx, dtype=np.int64)
+    y = np.asarray(fit_y, dtype=np.int64)
+    pipeline = RobustCalibrationPipeline(
+        params=params, gate_set=gate_batch, thresholds=thresholds
+    )
+    rng = np.random.default_rng([int(seed), 0xC2])
+    rejects = 0
+    alarms = 0
+    reasons: dict[str, int] = {}
+    for _ in range(int(windows)):
+        pick = rng.integers(0, len(idx), size=len(idx))
+        batch = _batch(ctx, idx[pick], y[pick])
+        record = pipeline.step(batch, force_gate=True)
+        if not record["gate"]["accept"]:
+            rejects += 1
+            reasons[record["gate"]["reason"]] = (
+                reasons.get(record["gate"]["reason"], 0) + 1
+            )
+        if record["state"] != State.NORMAL.value:
+            alarms += 1
+    return {
+        "windows": int(windows),
+        "reject_rate": float(rejects / max(1, windows)),
+        "reject_target": 0.05,
+        "reject_ok": bool(rejects / max(1, windows) < 0.05),
+        "state_alarm_rate": float(alarms / max(1, windows)),
+        "reject_reasons": reasons,
+    }
+
+
+def _recovery_latency(
+    ctx: dict,
+    spec: dict,
+    gate_batch: CalibrationBatch,
+    params: Params,
+    thresholds: TransitionThresholds,
+    *,
+    seed: int,
+    index: int,
+    window_size: int = 96,
+    warmup: int = 96,
+    n_seeds: int = 5,
+) -> dict:
+    """Samples until the state leaves NORMAL after a clean warm-up.
+
+    This is the F6-comparable detection latency: one sample is appended at a
+    time to a rolling window and the state machine is probed on that window.
+    No parameters are updated, so the measurement isolates detection, exactly
+    as F6's latency did.
+
+    The window is 96 samples (6/class), the same size the thresholds were
+    calibrated on.  Probing a smaller or half-filled window lets sample-
+    composition noise in the median prototype fit cross the drift threshold:
+    measured latency then collapses to the same value for every sigma, which
+    measures the protocol, not the detector.
+    """
+    modalities = ctx["modalities"]
+    val_idx = np.asarray(ctx["val_idx"], dtype=np.int64)
+    val_y = np.asarray(ctx["y_val"], dtype=np.int64)
+    kind = spec["kind"]
+    sigma = float(spec.get("sigma", 0.0))
+    keep = int(spec.get("classes", 0))
+    probe = RobustCalibrationPipeline(
+        params=params, gate_set=gate_batch, thresholds=thresholds
+    )
+
+    latencies: list[int] = []
+    first_states: list[str] = []
+    for run in range(int(n_seeds)):
+        rng = np.random.default_rng([int(seed), int(index), run, 0xD1])
+        order = _balanced_order(val_y, seed=int(seed) + 1000 + run)
+        warm_pos = order[: int(warmup)]
+        rest_pos = order[int(warmup) :]
+
+        if kind == "drift":
+            stream_pos = rest_pos
+        elif kind == "label_shift":
+            stream_pos = rest_pos[val_y[rest_pos] < keep]
+            if len(stream_pos) == 0:
+                latencies.append(-1)
+                first_states.append("infeasible")
+                continue
+            need = min(len(rest_pos), max(2 * int(window_size), len(stream_pos)))
+            stream_pos = np.tile(
+                stream_pos, int(np.ceil(need / len(stream_pos)))
+            )[:need]
+        else:
+            stream_pos = rest_pos
+
+        buffer_pos = list(warm_pos[-int(window_size) :])
+        buffer_emb = {
+            m: [
+                np.asarray(ctx["Z"][m][val_idx[p]], dtype=np.float64)
+                for p in buffer_pos
+            ]
+            for m in modalities
+        }
+        labels = [int(val_y[p]) for p in buffer_pos]
+
+        latency = None
+        for k, pos in enumerate(stream_pos):
+            gidx = int(val_idx[pos])
+            for m in modalities:
+                value = np.asarray(ctx["Z"][m][gidx], dtype=np.float64)
+                if kind == "drift":
+                    value = value + sigma * rng.normal(size=value.shape)
+                buffer_emb[m].append(value)
+                if len(buffer_emb[m]) > int(window_size):
+                    buffer_emb[m].pop(0)
+            labels.append(int(val_y[pos]))
+            if len(labels) > int(window_size):
+                labels.pop(0)
+            # Probe only once the rolling window is full: the thresholds were
+            # calibrated on full-size windows, and a half-filled window has
+            # enough sampling noise in the median prototype fit to cross the
+            # drift threshold on its own.
+            if len(labels) < int(window_size):
+                continue
+            window = _batch_from(
+                ctx,
+                {m: np.stack(buffer_emb[m], axis=0) for m in modalities},
+                np.asarray(labels, dtype=np.int64),
+            )
+            evidence = probe.evidence(
+                window, SampleWeights(per_sample=np.ones(len(labels)))
+            )
+            state = classify_state(evidence, thresholds)
+            if state is not State.NORMAL:
+                latency = int(k + 1)
+                first_states.append(state.value)
+                break
+        latencies.append(latency if latency is not None else -1)
+        if latency is None:
+            first_states.append("not_detected")
+
+    detected = [v for v in latencies if v > 0]
+    return {
+        "recovery_samples": float(np.mean(detected)) if detected else None,
+        "detected_seeds": int(len(detected)),
+        "n_seeds": int(n_seeds),
+        "latencies": [int(v) for v in latencies],
+        "first_states": first_states,
+        "window_size": int(window_size),
+        "warmup": int(warmup),
+    }
+
+
+def _run_scenario(
+    spec: dict,
+    ctx: dict,
+    rng: np.random.Generator,
+    *,
+    thresholds: TransitionThresholds,
+    seed: int,
+    index: int,
+    enforce_confidence_gate: bool = True,
+    confidence_thresholds: ConfidenceGateThresholds | None = None,
+) -> dict:
+    if confidence_thresholds is None:
+        confidence_thresholds = ConfidenceGateThresholds()
+
     (fit_idx, fit_y), (hold_idx, hold_y), (gate_idx, gate_y) = _split(ctx)
     modalities = ctx["modalities"]
     n_classes = len(ctx["classes"])
@@ -214,6 +471,7 @@ def _run_scenario(spec: dict, ctx: dict, rng: np.random.Generator) -> dict:
                     "signed_gap": float("nan"),
                     "temperature": {},
                     "reliability": {},
+                    "recovery_samples": None,
                 }
         elif kind == "single":
             labels = poison_single_class(
@@ -264,8 +522,43 @@ def _run_scenario(spec: dict, ctx: dict, rng: np.random.Generator) -> dict:
         )
         incumbent = _incumbent(ctx, clean_fit_batch)
 
-    pipeline = RobustCalibrationPipeline(params=incumbent, gate_set=gate_batch)
+    # The confidence channel's standard map comes from the clean window; the
+    # pipeline re-derives it under the current parameters and gates every
+    # candidate against it.  The gate set is never used for fitting.
+    confidence_reference = clean_fit_batch
+    incumbent_maps = fit_confidence_maps(
+        incumbent,
+        confidence_reference,
+        weights=score_samples(
+            confidence_reference, incumbent, source_health(confidence_reference)
+        ),
+    )
+    pipeline = RobustCalibrationPipeline(
+        params=incumbent,
+        gate_set=gate_batch,
+        thresholds=thresholds,
+        confidence_maps=incumbent_maps,
+        confidence_reference=confidence_reference,
+        confidence_thresholds=confidence_thresholds,
+        confidence_enforce=bool(enforce_confidence_gate),
+    )
     record = pipeline.step(fit_batch, window_holdout=hold_batch, force_gate=True)
+    confidence_maps = pipeline.confidence_maps
+    confidence_record = record.get("confidence") or {}
+
+    # Streaming detection latency, in samples.  Only drift-like scenarios make
+    # this claim; poison scenarios are single-window claims.
+    recovery = None
+    if kind in ("drift", "label_shift"):
+        recovery = _recovery_latency(
+            ctx,
+            spec,
+            gate_batch,
+            incumbent,
+            thresholds,
+            seed=seed,
+            index=index,
+        )
 
     test_batch = CalibrationBatch(
         embeddings=test_emb,
@@ -276,25 +569,12 @@ def _run_scenario(spec: dict, ctx: dict, rng: np.random.Generator) -> dict:
     )
     clean_test_batch = _batch(ctx, ctx["test_idx"], ctx["y_test"])
 
-    # The confidence channel is refitted alongside the calibration, but only on
-    # a window the audit accepted.  A quarantined window would poison the map
-    # exactly as it would poison the temperature.
-    if record["state"] in ("quarantine", "abstain"):
-        map_source = clean_fit_batch
-    else:
-        map_source = fit_batch
-    try:
-        map_state = State(record["state"])
-    except ValueError:
-        map_state = State.NORMAL
-    map_weights = score_samples(
-        map_source,
-        pipeline.params,
-        source_health(map_source),
-        state=map_state,
-    )
-    confidence_maps = fit_confidence_maps(
-        pipeline.params, map_source, weights=map_weights
+    # Conformal channel still uses the accepted window: a quarantined window
+    # would poison it exactly as it would poison the map.
+    map_source = (
+        clean_fit_batch
+        if record["state"] in ("quarantine", "abstain")
+        else fit_batch
     )
 
     metrics = evaluate_params(
@@ -362,13 +642,61 @@ def _run_scenario(spec: dict, ctx: dict, rng: np.random.Generator) -> dict:
         "conformal_coverage": float(conformal.coverage) if conformal else float("nan"),
         "conformal_mean_size": float(conformal.mean_size) if conformal else float("nan"),
         "conformal_target": float(conformal.target_coverage) if conformal else float("nan"),
+        "confidence_gate": confidence_record.get("integrity", {}),
+        "confidence_adapt": confidence_record.get("adaptation", {}),
+        # Reject only when the candidate is too far from the frozen reference.
+        # "Adaptation gain" is kept as a diagnostic, not a requirement: a
+        # harmless no-op update on a clean stream must not be rejected.
+        "confidence_map_integrity_ok": bool(
+            (confidence_record.get("integrity") or {}).get("not_worse", False)
+        ),
+        "confidence_map_adapt_ok": bool(
+            (confidence_record.get("adaptation") or {}).get("better", False)
+        ),
+        # Strict rule: reject whenever the frozen reference degrades.  It is
+        # too brittle on its own: a legitimate drift map can be slightly worse
+        # on the stale reference while being much better on the new world.
+        "confidence_map_strict_accept": bool(
+            (confidence_record.get("integrity") or {}).get("not_worse", False)
+        ),
+        # Recommended: keep a candidate that is either harmless on the frozen
+        # reference or demonstrably better on the recent trusted slice.
+        "confidence_map_accept": bool(confidence_record.get("accepted", False)),
+        "confidence_map_used": confidence_record.get("used", "candidate"),
+        "confidence_gate_enforced": bool(enforce_confidence_gate),
         "accuracy": float(metrics["accuracy"]),
         "mean_confidence": float(metrics["mean_confidence"]),
         "signed_gap": float(metrics["signed_gap"]),
         "temperature": dict(record["temperature"]),
         "reliability": dict(record["reliability"]),
         "pinned": list(record.get("pinned", [])),
+        "recovery_samples": (
+            recovery["recovery_samples"] if recovery is not None else None
+        ),
+        "recovery_detail": recovery,
     }
+
+
+def _delta(value) -> str:
+    """Signed difference for the report; an unmeasured value stays visible."""
+    if value is None or not np.isfinite(float(value)):
+        return "—"
+    return f"{float(value):+.4f}"
+
+
+def _num(value) -> str:
+    if value is None or not np.isfinite(float(value)):
+        return "—"
+    return f"{float(value):.4f}"
+
+
+def _z(value) -> str:
+    if value is None:
+        return "—"
+    v = float(value)
+    if not np.isfinite(v):
+        return "inf" if v > 0 else "—"
+    return f"{v:+.1f}"
 
 
 def _report(metrics: dict) -> str:
@@ -387,6 +715,29 @@ def _report(metrics: dict) -> str:
     ]
     for mismatch in verdict["mismatches"]:
         lines.append(f"  - {mismatch}")
+
+    thresholds = metrics.get("thresholds", {})
+    clean = metrics.get("clean_stream", {})
+    conf = metrics.get("confidence_thresholds", {})
+    lines += [
+        "",
+        "## State thresholds (calibrated on the clean stream)",
+        "",
+        "| threshold | value |",
+        "|---|---:|",
+    ]
+    for key in sorted(thresholds):
+        lines.append(f"| `{key}` | {thresholds[key]} |")
+    lines += [
+        "",
+        "## Clean-stream false alarms",
+        "",
+        f"- windows: **{clean.get('windows', 0)}** (gate forced on every window)",
+        f"- gate rejection rate: **{clean.get('reject_rate', float('nan')):.3f}** "
+        f"(target < 0.05 -> {'PASS' if clean.get('reject_ok') else 'FAIL'})",
+        f"- state alarm rate: **{clean.get('state_alarm_rate', float('nan')):.3f}**",
+        f"- reasons: {clean.get('reject_reasons', {})}",
+    ]
     lines += [
         "",
         "## Scenarios",
@@ -397,15 +748,51 @@ def _report(metrics: dict) -> str:
         "`ECE(no adapt)` is the incumbent calibration on the same set: when the two are",
         "equal, the pipeline did not adapt at all.",
         "",
-        "| scenario | eval | state | detected | accept | ECE(T) | ECE(map) | coverage | set size | ECE(no adapt) | reason |",
-        "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|",
+        "| scenario | eval | state | detected | accept | ECE(T) | ECE(map) | coverage | set size | ECE(no adapt) | recovery | reason |",
+        "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|",
     ]
     for r in rows:
+        recovery = r.get("recovery_samples")
+        recovery_text = "—" if recovery is None else f"{float(recovery):.0f}"
         lines.append(
             f"| {r['scenario']} | {r['evaluation']} | {r['state']} | {r['detected']} | "
             f"{r['accept_update']} | {r['ece']:.4f} | {r['ece_map_fused']:.4f} | "
             f"{r['conformal_coverage']:.3f} | {r['conformal_mean_size']:.2f} | "
-            f"{r['ece_no_adapt']:.4f} | {r['gate_reason']} |"
+            f"{r['ece_no_adapt']:.4f} | {recovery_text} | {r['gate_reason']} |"
+        )
+    lines += [
+        "",
+        "## Confidence-channel gate (P0)",
+        "",
+        "The gate set is the confidence channel's standard answer; the",
+        "tolerances are calibrated on clean windows.",
+        f"`gap_tolerance` = {conf.get('gap_tolerance', float('nan')):.4f},",
+        f"`ece_tolerance` = {conf.get('ece_tolerance', float('nan')):.4f},",
+        f"`z` = {conf.get('z', 2.0):.1f}.",
+        "`gap` is mean confidence minus accuracy; `dGap(gate)` is |gap|",
+        "candidate minus incumbent; `z` is that difference over its paired",
+        "standard error. `gate ok` = the candidate is within the calibrated",
+        "band on the frozen reference; `improve(hold)` = |gap| reduction on the",
+        "recent trusted slice; `adapt ok` = that reduction is significant.",
+        "`would accept` = keep when `gate ok` OR `adapt ok` (a real drift update",
+        "must not be blocked by the stale reference). `map used` shows the",
+        "enforced choice; `--report-only-confidence-gate` disables rejection.",
+        "",
+        "| scenario | n | gap(inc) | gap(cand) | dGap(gate) | z | gate ok | improve(hold) | adapt ok | strict | would accept | map used |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
+    ]
+    for r in rows:
+        gate = r.get("confidence_gate", {})
+        adapt = r.get("confidence_adapt", {})
+        lines.append(
+            f"| {r['scenario']} | {gate.get('n', 0)} | "
+            f"{_num(gate.get('gap_incumbent'))} | {_num(gate.get('gap_candidate'))} | "
+            f"{_delta(gate.get('gap_delta'))} | {_z(gate.get('gap_z'))} | "
+            f"{gate.get('not_worse', False)} | "
+            f"{_delta(adapt.get('gap_improvement'))} | {adapt.get('better', False)} | "
+            f"{r.get('confidence_map_strict_accept', False)} | "
+            f"{r.get('confidence_map_accept', False)} | "
+            f"{r.get('confidence_map_used', 'candidate')} |"
         )
     lines += [
         "",
@@ -414,7 +801,12 @@ def _report(metrics: dict) -> str:
         "- `detected` = the audit flagged mass above the clean floor, or the state is not NORMAL.",
         "- `accept_update` is the gate decision. Low poison fractions may accept because the",
         "  weighted fit already neutralised the rows; the guarantee there is `ECE` staying flat.",
+        "- `recovery` is the number of streamed samples after a clean warm-up until the",
+        "  state leaves NORMAL (F6-comparable detection latency). `—` means not asserted.",
         "- `signed gap = mean_confidence - accuracy`: negative is underconfident.",
+        "- `dGap` in the confidence-channel gate is |mean confidence - accuracy|",
+        "  candidate minus incumbent on the same samples: negative means the",
+        "  candidate is closer to the truth.",
         "",
     ]
     return "\n".join(lines)
@@ -422,10 +814,42 @@ def _report(metrics: dict) -> str:
 
 def run(args) -> dict:
     ctx = _load(args)
+    # Thresholds are read off the clean stream, not hand-picked (design §6).
+    # Every scenario shares them so a scenario cannot tune its own detector.
+    (fit_idx, fit_y), _hold, (gate_idx, gate_y) = _split(ctx)
+    gate_batch = _batch(ctx, gate_idx, gate_y)
+    clean_fit_batch = _batch(ctx, fit_idx, fit_y)
+    incumbent = _incumbent(ctx, clean_fit_batch)
+    clean_batches = _clean_batches(
+        ctx, fit_idx, fit_y, seed=int(args.seed), n_windows=50
+    )
+    thresholds = calibrate_thresholds_from_batches(
+        incumbent, gate_batch, clean_batches, quantile=0.99
+    )
+    # The confidence channel's tolerances come from the same clean windows, so
+    # a scenario cannot tune its own gate either.
+    reference_maps = fit_confidence_maps(incumbent, clean_fit_batch)
+    confidence_thresholds = calibrate_confidence_thresholds(
+        incumbent, reference_maps, clean_batches, quantile=0.99
+    )
+    clean_stream = _clean_stream(
+        ctx, incumbent, gate_batch, fit_idx, fit_y, thresholds, seed=int(args.seed)
+    )
     # Per-scenario RNG: results must not depend on scenario order, otherwise
     # reordering or dropping a scenario silently changes every later number.
     rows = [
-        _run_scenario(spec, ctx, np.random.default_rng([int(args.seed), i]))
+        _run_scenario(
+            spec,
+            ctx,
+            np.random.default_rng([int(args.seed), i]),
+            thresholds=thresholds,
+            seed=int(args.seed),
+            index=i,
+            enforce_confidence_gate=not bool(
+                getattr(args, "report_only_confidence_gate", False)
+            ),
+            confidence_thresholds=confidence_thresholds,
+        )
         for i, spec in enumerate(SCENARIOS)
     ]
     observed = {}
@@ -436,17 +860,27 @@ def run(args) -> dict:
                 "detected",
                 "abstain",
                 "accept_update",
+                "confidence_map_accept",
                 "ece_map_fused",
                 "signed_gap_map_fused",
                 "fused_accuracy",
             )
-            if r.get(key) is not None
         }
+        # Keep the key even when None: an unmeasured or undetected latency must
+        # be visible to the pre-registration checker, not silently dropped.
+        entry["recovery_samples"] = r.get("recovery_samples")
         observed[r["scenario"]] = entry
     return {
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
         "source": ctx.get("kind", "unknown"),
         "counts": ctx.get("counts", {}),
+        "thresholds": asdict(thresholds),
+        "confidence_thresholds": asdict(confidence_thresholds),
+        "threshold_source": {
+            "quantile": 0.99,
+            "source": "bootstrap clean windows (50)",
+        },
+        "clean_stream": clean_stream,
         "scenarios": rows,
         "preregistration": check_robustness_preregistration(observed),
     }
@@ -462,6 +896,12 @@ def main() -> None:
     parser.add_argument("--max-per-class", type=int, default=None)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--out", default="reports/claim_gaps/calibration_robust")
+    parser.add_argument(
+        "--report-only-confidence-gate",
+        action="store_true",
+        help="Compute the confidence-map gate but keep the candidate map "
+        "instead of rejecting it (the decision is still reported).",
+    )
     args = parser.parse_args()
 
     metrics = run(args)
