@@ -39,12 +39,13 @@ from .confidence_map import (
     apply_confidence_map,
     fit_confidence_map,
 )
-from .cusum import CusumBank, CusumDetector, PerClassCusum
+from .cusum import ConfidenceCusum, CusumBank, CusumDetector, PerClassCusum
 from .source_registry import SourceRegistry
 
 __all__ = [
     "PIPELINE_ORDER",
     "CalibrationBatch",
+    "ConfidenceGateThresholds",
     "Evidence",
     "GateDecision",
     "GateThresholds",
@@ -55,7 +56,11 @@ __all__ = [
     "TransitionThresholds",
     "bound_step",
     "bootstrap_params",
+    "calibrate_confidence_thresholds",
+    "calibrate_thresholds_from_batches",
+    "calibrate_transition_thresholds",
     "classify_state",
+    "compare_confidence_maps",
     "evaluate_params",
     "fit_confidence_maps",
     "fit_params",
@@ -203,7 +208,11 @@ class TransitionThresholds:
 
     theta_label: float = 0.85
     theta_cross: float = 0.80
-    theta_drift: float = 0.06
+    # Guard, not a calibrated value.  The clean 0.99 quantile is ~0.025; 0.03
+    # sits just above it and preserves the measured 3% clean state alarm rate.
+    # The old 0.06 placeholder was 2.4x the quantile and inflated drift latency
+    # (36.8 -> 28.8) with no false-alarm benefit.
+    theta_drift: float = 0.03
     theta_inflation: float = 0.15
     theta_spread: float = 0.18
     # The per-class spread test is only meaningful while the global picture is
@@ -214,6 +223,19 @@ class TransitionThresholds:
     # ABSTAIN is sticky, but not forever: this many consecutive NORMAL windows
     # release it automatically.  Without this an unattended system deadlocks.
     abstain_release_windows: int = 3
+
+
+@dataclass(frozen=True)
+class ConfidenceGateThresholds:
+    """Tolerances for the confidence-channel gate (design §4 decision C).
+
+    Defaults are placeholders; ``calibrate_confidence_thresholds`` reads them
+    off clean windows so a scenario cannot tune its own gate.
+    """
+
+    z: float = 2.0
+    gap_tolerance: float = 0.005
+    ece_tolerance: float = 0.020
 
 
 # ---------------------------------------------------------------------------
@@ -1006,6 +1028,115 @@ def evaluate_params(
     }
 
 
+def compare_confidence_maps(
+    incumbent: Mapping[str, ConfidenceMap],
+    candidate: Mapping[str, ConfidenceMap],
+    batch: CalibrationBatch,
+    *,
+    params: Params,
+    key: str = "fused",
+    z: float = 2.0,
+    tolerance: float = 0.005,
+    ece_tolerance: float = 0.020,
+    min_gap_se: float = 1e-3,
+) -> dict[str, float | bool | int | str]:
+    """Paired integrity check for the confidence channel on a trusted reference.
+
+    The gate set is the confidence channel's **standard answer**: a frozen,
+    fit-independent reference on which the mapping's calibration is measured.
+    It is not an answer key for the live input -- the samples differ -- so the
+    check is on the *mapping*, not on individual predictions.
+
+    Both maps are applied to the **same** scores, so the comparison is paired
+    and sample noise largely cancels.
+
+    The primary statistic is the **signed gap** (mean stated confidence minus
+    observed accuracy), because that is exactly "how far the confidence is from
+    the truth".  It is a per-sample mean, so its paired standard error is small;
+    ECE is a binned nonlinear aggregate and is too noisy at 32-64 samples to
+    resolve a sub-percentage-point change.  ECE is kept as a coarse guard
+    against a map that preserves the mean gap while distorting the curve.
+
+    - ``not_worse`` (integrity): the signed gap may not exceed the incumbent's
+      by more than the calibrated ``tolerance``, and ECE may not worsen by more
+      than ``ece_tolerance``.
+    - ``better`` (adaptation): the signed gap must shrink by more than ``z``
+      paired standard errors (with a floor on the SE).
+
+    The user-facing rule is "reject when too far from the reference", i.e. act
+    on ``not_worse``; ``better`` tells a real drift update apart from a poisoned
+    one when the reference is the recent trusted slice.
+    """
+    if key not in incumbent or key not in candidate:
+        return {"n": 0, "not_worse": False, "better": False, "reason": "missing map"}
+    scores, ok = _fused_top1(params, batch)
+    if scores is None or ok is None or len(scores) == 0:
+        return {"n": 0, "not_worse": False, "better": False, "reason": "no scores"}
+
+    y = np.asarray(ok, dtype=np.float64)
+    p_inc = np.asarray(apply_confidence_map(scores, incumbent[key]), dtype=np.float64)
+    p_can = np.asarray(apply_confidence_map(scores, candidate[key]), dtype=np.float64)
+
+    n = int(len(y))
+    d_brier = (p_can - y) ** 2 - (p_inc - y) ** 2
+    mean_dbrier = float(np.mean(d_brier))
+    se_brier = float(np.std(d_brier, ddof=1) / np.sqrt(n)) if n > 1 else 0.0
+
+    gap_inc = float(np.mean(p_inc) - np.mean(y))
+    gap_can = float(np.mean(p_can) - np.mean(y))
+    d_gap = p_can - p_inc
+    se_gap_raw = float(np.std(d_gap, ddof=1) / np.sqrt(n)) if n > 1 else 0.0
+    # Floor the paired SE: when the two maps are nearly identical the raw SE
+    # collapses to zero and a numerical difference produces an arbitrarily
+    # large z.  A 0.1pp floor keeps the test meaningful.
+    se_gap = max(se_gap_raw, min_gap_se) if n > 1 else 0.0
+
+    # Positive means the candidate is further from the truth than the incumbent.
+    gap_worse = abs(gap_can) - abs(gap_inc)
+    gap_improvement = abs(gap_inc) - abs(gap_can)
+    if se_gap > 0.0:
+        gap_z = gap_worse / se_gap
+    else:
+        gap_z = float("inf") if gap_worse > tolerance else 0.0
+
+    ece_inc = float(expected_calibration_error(p_inc, y))
+    ece_can = float(expected_calibration_error(p_can, y))
+    ece_delta = ece_can - ece_inc
+
+    not_worse = bool(gap_worse <= tolerance and ece_delta <= ece_tolerance)
+    better = bool(gap_improvement > z * max(se_gap_raw, min_gap_se))
+
+    reason = "ok"
+    if not not_worse:
+        reason = "degraded on reference"
+    elif not better:
+        reason = "no adaptation gain"
+
+    return {
+        "n": n,
+        "ece_incumbent": ece_inc,
+        "ece_candidate": ece_can,
+        "ece_delta": ece_delta,
+        "brier_incumbent": float(np.mean((p_inc - y) ** 2)),
+        "brier_candidate": float(np.mean((p_can - y) ** 2)),
+        "brier_delta": mean_dbrier,
+        "brier_se": se_brier,
+        "gap_incumbent": gap_inc,
+        "gap_candidate": gap_can,
+        "gap_delta": gap_worse,
+        # Signed change: positive means the candidate is more confident than
+        # the incumbent.  This is the CUSUM input; the absolute ``gap_delta``
+        # is the single-window integrity test.
+        "gap_signed_delta": gap_can - gap_inc,
+        "gap_z": float(gap_z),
+        "gap_se": se_gap_raw,
+        "gap_improvement": gap_improvement,
+        "not_worse": not_worse,
+        "better": better,
+        "reason": reason,
+    }
+
+
 # ---------------------------------------------------------------------------
 # state machine
 # ---------------------------------------------------------------------------
@@ -1036,9 +1167,11 @@ def classify_state(
         return State.ABSTAIN
     if labels_bad:
         return State.QUARANTINE
-    if evidence.drift_score >= 0.5 * thresholds.theta_drift:
-        # Any noticeable feature shift with intact labels is real drift, not
+    if evidence.drift_score >= thresholds.theta_drift:
+        # Noticeable feature shift with intact labels is real drift, not
         # poisoning: poison changes labels, not the feature distribution.
+        # Use the calibrated threshold itself: a hardcoded fraction of it would
+        # be an uncalibrated threshold and false-alarms on the clean tail.
         return State.RECALIBRATE
     if experts_bad:
         return State.RECALIBRATE
@@ -1056,6 +1189,128 @@ def classify_state(
     return State.NORMAL
 
 
+def calibrate_transition_thresholds(
+    clean_evidence: Sequence[Evidence],
+    *,
+    quantile: float = 0.99,
+    floors: TransitionThresholds | None = None,
+) -> TransitionThresholds:
+    """Derive state-machine thresholds from clean-stream evidence.
+
+    Design doc §6: the thresholds are not to be picked by hand; they are read
+    off the clean stream at a high quantile and floored, the same way F6
+    calibrated its drift thresholds.  A degenerate clean sample cannot make the
+    detector hair-trigger because every signal keeps its conservative floor.
+
+    Agreement thresholds shrink as clean disagreement grows; deviation
+    thresholds grow as the clean deviation tail grows.
+    """
+    floors = floors or TransitionThresholds()
+    values = [e for e in clean_evidence if e is not None]
+    if not values:
+        return floors
+
+    def _q(samples: list[float]) -> float:
+        raw = [float(v) for v in samples if np.isfinite(float(v))]
+        if not raw:
+            return 0.0
+        return float(np.quantile(np.asarray(raw), float(quantile)))
+
+    def _bad(signal: str) -> float:
+        # Agreement signals are bad when *low*, so the tail is over their
+        # complement; deviation signals are bad when *high*.
+        return _q([1.0 - float(getattr(e, signal)) for e in values])
+
+    # A threshold must sit below the clean lower tail, not above its upper
+    # tail: use the 99th percentile of clean *disagreement*.
+    theta_label = 1.0 - max(
+        1.0 - float(floors.theta_label), _bad("label_consensus_agreement")
+    )
+    theta_cross = 1.0 - max(
+        1.0 - float(floors.theta_cross), _bad("cross_modal_agreement")
+    )
+    theta_global_ok = 1.0 - max(
+        1.0 - float(floors.theta_global_ok), _bad("label_consensus_agreement")
+    )
+    return replace(
+        floors,
+        theta_label=theta_label,
+        theta_cross=theta_cross,
+        theta_drift=max(float(floors.theta_drift), _q([e.drift_score for e in values])),
+        theta_inflation=max(
+            float(floors.theta_inflation), _q([e.accuracy_inflation for e in values])
+        ),
+        theta_spread=max(
+            float(floors.theta_spread), _q([e.class_agreement_spread for e in values])
+        ),
+        theta_global_ok=theta_global_ok,
+    )
+
+
+def calibrate_thresholds_from_batches(
+    params: Params,
+    gate_set: CalibrationBatch,
+    batches: Sequence[CalibrationBatch],
+    *,
+    quantile: float = 0.99,
+    floors: TransitionThresholds | None = None,
+) -> TransitionThresholds:
+    """Convenience wrapper: compute clean evidence, then calibrate thresholds."""
+    probe = RobustCalibrationPipeline(params=params, gate_set=gate_set)
+    evidence: list[Evidence] = []
+    for batch in batches:
+        neutral = SampleWeights(per_sample=np.ones(len(batch.labels)))
+        evidence.append(probe.evidence(batch, neutral))
+    return calibrate_transition_thresholds(evidence, quantile=quantile, floors=floors)
+
+
+def calibrate_confidence_thresholds(
+    params: Params,
+    reference_maps: Mapping[str, ConfidenceMap],
+    batches: Sequence[CalibrationBatch],
+    *,
+    quantile: float = 0.99,
+    floors: ConfidenceGateThresholds | None = None,
+) -> ConfidenceGateThresholds:
+    """Read the confidence-gate tolerances off clean windows (design §6).
+
+    A clean window cannot test for poison, so this measures only the sampling
+    noise of the map comparison.  Candidate maps are fitted on one clean window
+    and compared on a *different* one, so the in-sample overfit does not shrink
+    the tolerance.  The absolute tolerances are the ``quantile`` of the observed
+    deviations, with the dataclass defaults as floors.  ``z`` stays at the
+    floor: it is a significance choice for the adaptation test, not a noise
+    quantile.
+    """
+    floors = floors or ConfidenceGateThresholds()
+    n = len(batches)
+    if n < 2:
+        return floors
+
+    deltas: list[float] = []
+    eces: list[float] = []
+    for i in range(n):
+        candidate = fit_confidence_maps(params, batches[i])
+        stats = compare_confidence_maps(
+            reference_maps, candidate, batches[(i + 1) % n], params=params
+        )
+        if int(stats.get("n", 0)) <= 1:
+            continue
+        deltas.append(abs(float(stats["gap_delta"])))
+        eces.append(max(0.0, float(stats["ece_delta"])))
+
+    if not deltas:
+        return floors
+    q = lambda values: float(np.quantile(values, float(quantile)))
+    return ConfidenceGateThresholds(
+        # ``z`` is a significance choice, not a noise quantile: it only decides
+        # whether an *improvement* is real, so it stays at the floor.
+        z=float(floors.z),
+        gap_tolerance=max(float(floors.gap_tolerance), q(deltas)),
+        ece_tolerance=max(float(floors.ece_tolerance), q(eces)),
+    )
+
+
 # ---------------------------------------------------------------------------
 # driver
 # ---------------------------------------------------------------------------
@@ -1071,7 +1326,7 @@ class RobustCalibrationPipeline:
     """
 
     params: Params
-    gate_set: CalibrationBatch | None = None
+    gate_set: CalibrationBatch
     thresholds: TransitionThresholds = field(default_factory=TransitionThresholds)
     gate_thresholds: GateThresholds = field(default_factory=GateThresholds)
     gate_every: int = 32
@@ -1086,10 +1341,40 @@ class RobustCalibrationPipeline:
     # Slow-degradation guard: the per-window gate tolerance (1pp) cannot see a
     # steady 0.9pp/window slide.  A CUSUM on fused accuracy can.
     accuracy_cusum: "CusumDetector | None" = None
+    # Confidence channel.  ``confidence_maps`` is the incumbent map, fitted on
+    # a trusted clean window (never on the gate set).  None disables the
+    # channel's gate entirely, preserving the legacy behaviour.
+    confidence_maps: Mapping[str, ConfidenceMap] | None = None
+    # Clean window used to re-derive the standard map under the *current*
+    # parameters, so a parameter update is not mistaken for a map change.
+    confidence_reference: CalibrationBatch | None = None
+    confidence_thresholds: ConfidenceGateThresholds = field(
+        default_factory=ConfidenceGateThresholds
+    )
+    # When False the decision is still computed and recorded, but the
+    # candidate map is used anyway (report-only mode).
+    confidence_enforce: bool = True
+    # Streaming guard for the same low per-window SNR as the label CUSUM: a
+    # persistent gap bias accumulates across windows even when one window
+    # cannot separate it from clean noise.  None disables it.
+    confidence_cusum: "ConfidenceCusum | None" = None
     steps: int = 0
     gate_failures: int = 0
     _recover: int = field(default=0, init=False, repr=False)
     history: list[dict] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        # A missing gate set is not a harmless default: ``evidence`` derives the
+        # drift and accuracy-inflation signals *from* the gate set, so without
+        # it drift is identically zero, and the gate would compare a candidate
+        # against itself.  Fail loudly instead of silently disabling half the
+        # defence.
+        if self.gate_set is None:
+            raise ValueError(
+                "gate_set is required: pass a frozen, fit-independent "
+                "CalibrationBatch.  Without it drift evidence is always zero "
+                "and the integrity check degenerates."
+            )
 
     def step(
         self,
@@ -1144,7 +1429,7 @@ class RobustCalibrationPipeline:
         # legitimate reason, and feeding it to a poison detector would alarm on
         # every drift and block adaptation.
         cusum_reasons: list[str] = []
-        drifting = evidence.drift_score >= 0.5 * self.thresholds.theta_drift
+        drifting = evidence.drift_score >= self.thresholds.theta_drift
         if self.cusum is not None and not drifting:
             cusum_reasons = self.cusum.update(evidence.label_consensus_agreement)
             if cusum_reasons and self.state is not State.ABSTAIN:
@@ -1200,6 +1485,12 @@ class RobustCalibrationPipeline:
             else:
                 self.params = candidate
 
+        confidence_record = None
+        if self.confidence_maps is not None:
+            confidence_record = self._update_confidence(
+                batch, weights, window_holdout
+            )
+
         self.steps += 1
         record = {
             "step": int(self.steps),
@@ -1231,9 +1522,117 @@ class RobustCalibrationPipeline:
                 s for s, status in source_status.items() if status == "quarantined"
             ),
             "accuracy_alarm": bool(accuracy_alarm),
+            "confidence": confidence_record,
         }
         self.history.append(record)
         return record
+
+    def _update_confidence(
+        self,
+        batch: CalibrationBatch,
+        weights: SampleWeights,
+        window_holdout: CalibrationBatch | None,
+    ) -> dict:
+        """Gate the confidence-map update on the frozen reference.
+
+        The gate set is the confidence channel's **standard answer**: a
+        candidate map that is significantly further from it than the incumbent
+        is rejected, unless it is significantly better on the recent trusted
+        slice (a real drift update).  QUARANTINE and ABSTAIN freeze the channel
+        outright -- a quarantined window must not rewrite the map.
+        """
+        if self.state in (State.QUARANTINE, State.ABSTAIN):
+            return {
+                "accepted": False,
+                "used": "incumbent",
+                "reason": f"frozen by {self.state.value}",
+                "integrity": {},
+                "adaptation": {},
+                "cusum_alarm": [],
+            }
+
+        candidate = fit_confidence_maps(self.params, batch, weights=weights)
+        # The standard map is re-derived from the clean reference under the
+        # current parameters; comparing against a map fitted with older
+        # parameters would attribute a parameter change to the map.
+        if self.confidence_reference is not None:
+            reference_weights = score_samples(
+                self.confidence_reference,
+                self.params,
+                source_health(self.confidence_reference),
+            )
+            incumbent = fit_confidence_maps(
+                self.params,
+                self.confidence_reference,
+                weights=reference_weights,
+            )
+        else:
+            incumbent = self.confidence_maps
+
+        limits = self.confidence_thresholds
+        integrity = compare_confidence_maps(
+            incumbent,
+            candidate,
+            self.gate_set,
+            params=self.params,
+            z=limits.z,
+            tolerance=limits.gap_tolerance,
+            ece_tolerance=limits.ece_tolerance,
+        )
+        if window_holdout is not None:
+            adaptation = compare_confidence_maps(
+                incumbent,
+                candidate,
+                window_holdout,
+                params=self.params,
+                z=limits.z,
+                tolerance=limits.gap_tolerance,
+                ece_tolerance=limits.ece_tolerance,
+            )
+        else:
+            adaptation = {
+                "n": 0,
+                "not_worse": False,
+                "better": False,
+                "reason": "no holdout",
+            }
+
+        # Same low per-window SNR as the label CUSUM: the gap effect is small
+        # per window but consistent across windows.  Drift is excluded for the
+        # same reason as the label detector -- a legitimate shift moves the gap
+        # too, and feeding it here would alarm on every drift.
+        cusum_reasons: list[str] = []
+        if self.confidence_cusum is not None and self.state is not State.RECALIBRATE:
+            cusum_reasons = self.confidence_cusum.update(
+                float(integrity.get("gap_signed_delta", 0.0))
+            )
+        if cusum_reasons:
+            self.confidence_maps = incumbent
+            return {
+                "accepted": False,
+                "used": "incumbent",
+                "reason": "confidence cusum: " + ",".join(cusum_reasons),
+                "integrity": dict(integrity),
+                "adaptation": dict(adaptation),
+                "cusum_alarm": cusum_reasons,
+            }
+
+        accepted = bool(integrity["not_worse"] or adaptation["better"])
+        if accepted or not self.confidence_enforce:
+            self.confidence_maps = candidate
+            used = "candidate"
+        else:
+            # Fall back to the clean standard map, not the rejected candidate.
+            self.confidence_maps = incumbent
+            used = "incumbent"
+        return {
+            "accepted": accepted,
+            "used": used,
+            "reason": "ok" if accepted else "rejected: too far from reference",
+            "integrity": dict(integrity),
+            "adaptation": dict(adaptation),
+            "cusum_alarm": [],
+        }
 
     def release_abstain(self, *, reason: str) -> None:
         """Leave ABSTAIN.  Only external signals may call this."""

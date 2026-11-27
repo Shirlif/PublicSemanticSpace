@@ -11,19 +11,26 @@ import pytest
 
 from pss.projection.calibration_pipeline import (
     CalibrationBatch,
+    ConfidenceGateThresholds,
     Evidence,
     GateThresholds,
     Params,
     RobustCalibrationPipeline,
     State,
+    TransitionThresholds,
     bound_step,
+    calibrate_confidence_thresholds,
+    calibrate_transition_thresholds,
     classify_state,
+    compare_confidence_maps,
     evaluate_params,
+    fit_confidence_maps,
     fit_params,
     gate,
     score_samples,
     source_health,
 )
+from pss.projection.confidence_map import ConfidenceMap
 from pss.projection.online import (
     poison_agree_with_prediction,
     poison_single_class,
@@ -508,3 +515,117 @@ def test_poison_single_class_only_touches_the_target() -> None:
     )
     assert np.array_equal(poisoned[10:], labels[10:])
     assert np.sum(poisoned[:10] != 0) == 5
+
+
+# ── gate-set requirement and clean-stream threshold calibration ─────────────
+
+
+def test_gate_set_is_required() -> None:
+    """Without a gate set, drift evidence is zero and the gate self-compares."""
+    with pytest.raises(ValueError, match="gate_set is required"):
+        RobustCalibrationPipeline(params=_clean_params(), gate_set=None)
+
+
+def test_thresholds_are_floored_on_a_clean_stream() -> None:
+    evs = [
+        Evidence(
+            cross_modal_agreement=0.99,
+            label_consensus_agreement=0.99,
+            drift_score=0.0,
+            suspect_mass=0.0,
+        )
+        for _ in range(20)
+    ]
+    floors = TransitionThresholds()
+    calibrated = calibrate_transition_thresholds(evs)
+    assert calibrated.theta_label == floors.theta_label
+    assert calibrated.theta_cross == floors.theta_cross
+    assert calibrated.theta_drift == floors.theta_drift
+
+
+def test_thresholds_follow_a_noisy_clean_stream() -> None:
+    """A genuinely noisy clean stream raises the deviation thresholds."""
+    evs = [
+        Evidence(
+            cross_modal_agreement=0.75,
+            label_consensus_agreement=0.80,
+            drift_score=0.09,
+            suspect_mass=0.0,
+            accuracy_inflation=0.20,
+            class_agreement_spread=0.25,
+        )
+        for _ in range(20)
+    ]
+    calibrated = calibrate_transition_thresholds(evs)
+    assert calibrated.theta_label == pytest.approx(0.80)
+    assert calibrated.theta_cross == pytest.approx(0.75)
+    assert calibrated.theta_drift == pytest.approx(0.09)
+    assert calibrated.theta_inflation == pytest.approx(0.20)
+    assert calibrated.theta_spread == pytest.approx(0.25)
+
+
+def test_confidence_map_gate_rejects_a_map_too_far_from_the_reference() -> None:
+    """P0: a candidate map far from the frozen reference must be rejected.
+
+    The gate compares the *map*, not individual predictions: the reference
+    samples differ from the live input, so per-sample answer matching would be
+    meaningless.
+    """
+    batch, _ = _data(n=60)
+    params = _clean_params()
+    clean_maps = fit_confidence_maps(params, batch)
+
+    same = compare_confidence_maps(clean_maps, clean_maps, batch, params=params)
+    assert same["not_worse"] is True
+    assert same["better"] is False
+
+    fused = clean_maps["fused"]
+    # Synthetic data is perfectly separable, so the reference map saturates at
+    # 1.0; a flat 0.5 map is unambiguously too far from it.
+    skewed = ConfidenceMap(
+        edges=fused.edges,
+        values=tuple([0.5] * fused.n_bins),
+    )
+    bad = dict(clean_maps)
+    bad["fused"] = skewed
+
+    far = compare_confidence_maps(clean_maps, bad, batch, params=params)
+    assert far["not_worse"] is False
+    assert far["ece_delta"] > 0.0
+
+
+def test_confidence_thresholds_are_floored_and_clean_calibrated() -> None:
+    """Tolerances come from clean windows; ``z`` stays a significance choice."""
+    params = _clean_params()
+    reference, _ = _data(n=90, seed=0)
+    reference_maps = fit_confidence_maps(params, reference)
+    batches = [_data(n=90, seed=s)[0] for s in range(1, 7)]
+
+    limits = calibrate_confidence_thresholds(
+        params, reference_maps, batches, quantile=0.99
+    )
+    floors = ConfidenceGateThresholds()
+    assert limits.z == pytest.approx(floors.z)
+    assert limits.gap_tolerance >= floors.gap_tolerance
+    assert limits.ece_tolerance >= floors.ece_tolerance
+
+
+def test_pipeline_freezes_confidence_map_under_quarantine() -> None:
+    """A quarantined window must not rewrite the confidence map."""
+    params = _clean_params()
+    clean, _ = _data(n=90, seed=0)
+    gate, _ = _data(n=60, seed=7)
+    incumbent = fit_confidence_maps(params, clean)
+    pipeline = RobustCalibrationPipeline(
+        params=params,
+        gate_set=gate,
+        confidence_maps=incumbent,
+        confidence_reference=clean,
+    )
+    poisoned, _ = _data(n=90, seed=3, flip=0.6)
+    record = pipeline.step(poisoned, window_holdout=clean, force_gate=True)
+
+    assert record["state"] in ("quarantine", "abstain")
+    assert record["confidence"]["accepted"] is False
+    assert record["confidence"]["used"] == "incumbent"
+    assert pipeline.confidence_maps is incumbent

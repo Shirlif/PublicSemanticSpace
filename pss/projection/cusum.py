@@ -27,7 +27,9 @@ import numpy as np
 __all__ = [
     "CusumBank",
     "CusumDetector",
+    "ConfidenceCusum",
     "PerClassCusum",
+    "calibrate_confidence_cusum",
     "calibrate_cusum",
     "calibrate_per_class",
 ]
@@ -99,6 +101,55 @@ class CusumBank:
         return {
             "agreement_down": self.agreement_down.to_dict(),
             "agreement_up": self.agreement_up.to_dict(),
+        }
+
+
+@dataclass
+class ConfidenceCusum:
+    """Two one-sided CUSUMs on the confidence channel's signed gap change.
+
+    ``gap_up`` catches persistent **overconfidence** (targeted "agree" and
+    single-class attacks sharpen the map); ``gap_down`` catches persistent
+    **underconfidence** (random label flipping flattens it).  The input is the
+    per-window change of the signed gap (mean confidence - accuracy) on the
+    frozen reference, so a zero-mean clean stream accumulates nothing.
+    """
+
+    gap_up: CusumDetector
+    gap_down: CusumDetector
+
+    @classmethod
+    def calibrated(
+        cls,
+        clean_values,
+        *,
+        slack_sd: float = 0.4,
+        threshold_sd: float = 4.0,
+    ) -> "ConfidenceCusum":
+        reference, slack, threshold = calibrate_confidence_cusum(
+            clean_values, slack_sd=slack_sd, threshold_sd=threshold_sd
+        )
+        return cls(
+            gap_up=CusumDetector(reference, slack, threshold, direction=+1.0),
+            gap_down=CusumDetector(reference, slack, threshold, direction=-1.0),
+        )
+
+    def update(self, signed_gap_delta: float) -> list[str]:
+        reasons: list[str] = []
+        if self.gap_up.update(signed_gap_delta):
+            reasons.append("gap_up")
+        if self.gap_down.update(signed_gap_delta):
+            reasons.append("gap_down")
+        return reasons
+
+    @property
+    def alarmed(self) -> bool:
+        return self.gap_up.alarms > 0 or self.gap_down.alarms > 0
+
+    def to_dict(self) -> dict:
+        return {
+            "gap_up": self.gap_up.to_dict(),
+            "gap_down": self.gap_down.to_dict(),
         }
 
 
@@ -202,3 +253,17 @@ def calibrate_cusum(
     sd = float(np.std(values, ddof=1)) if values.size > 1 else 0.0
     sd = max(sd, 1e-3)
     return reference, slack_sd * sd, threshold_sd * sd
+
+
+def calibrate_confidence_cusum(
+    clean_values: np.ndarray,
+    *,
+    slack_sd: float = 0.4,
+    threshold_sd: float = 4.0,
+) -> tuple[float, float, float]:
+    """Calibrate both gap directions on clean signed-gap changes.
+
+    Same defaults as the label CUSUM: a full standard deviation of slack
+    exceeds the targeted-attack effect and the detector never accumulates.
+    """
+    return calibrate_cusum(clean_values, slack_sd=slack_sd, threshold_sd=threshold_sd)

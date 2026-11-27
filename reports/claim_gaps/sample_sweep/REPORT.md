@@ -1,6 +1,6 @@
 # Gap: sample-size sweep
 
-> generated: 2026-11-27 03:56:32 UTC
+> generated: 2026-11-27 09:50:55 UTC
 > source: real
 > classes: 16  pool: 128  seeds: 5  draws: 40
 

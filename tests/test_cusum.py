@@ -5,8 +5,10 @@ from __future__ import annotations
 import numpy as np
 
 from pss.projection.cusum import (
+    ConfidenceCusum,
     CusumBank,
     CusumDetector,
+    calibrate_confidence_cusum,
     calibrate_cusum,
     calibrate_per_class,
 )
@@ -42,6 +44,25 @@ def test_cusum_detects_a_sustained_small_shift() -> None:
             first = i
             break
     assert first is not None and first <= 30
+
+
+def test_confidence_cusum_detects_a_persistent_bias() -> None:
+    bank = ConfidenceCusum.calibrated(np.zeros(50))
+    fired = [bank.update(0.01) for _ in range(10)]
+    assert any(fired)
+    assert bank.gap_up.alarms >= 1
+
+
+def test_confidence_cusum_detects_persistent_underconfidence() -> None:
+    bank = ConfidenceCusum.calibrated(np.zeros(50))
+    fired = [bank.update(-0.01) for _ in range(10)]
+    assert any(fired)
+    assert bank.gap_down.alarms >= 1
+
+
+def test_confidence_cusum_ignores_a_zero_stream() -> None:
+    bank = ConfidenceCusum.calibrated(np.zeros(50))
+    assert all(bank.update(0.0) == [] for _ in range(50))
 
 
 def test_cusum_does_not_fire_on_the_wrong_direction() -> None:

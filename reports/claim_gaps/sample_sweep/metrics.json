@@ -1,10 +1,21 @@
 {
-  "generated": "2026-11-27 03:56:32 UTC",
+  "generated": "2026-11-27 09:50:55 UTC",
   "source": "real",
   "classes": 16,
   "pool": 128,
   "seeds": 5,
   "draws": 40,
+  "thresholds": {
+    "theta_label": 0.85,
+    "theta_cross": 0.8,
+    "theta_drift": 0.03,
+    "theta_inflation": 0.15,
+    "theta_spread": 0.18,
+    "theta_global_ok": 0.9270833333333334,
+    "quarantine_recover_windows": 3,
+    "gate_fail_abstain": 3,
+    "abstain_release_windows": 3
+  },
   "rows": [
     {
       "window": 24,
