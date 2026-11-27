@@ -24,6 +24,7 @@
 | `PSS_VS_TRANSFORMER_EXPERIMENT.md` | PSS vs Transformer 的实验协议、指标、杀死标准 |
 | `PSS_VS_TRANSFORMER_RESULTS.md` | 六维对比结果：闭集、re-ID、开放集、增量更新、冲突、规划、scaling |
 | `PSS-五优先级最终结论.md` | 五个优先级的结论，以及“明确不能声称”的清单 |
+| `PSS-读出与推理优化总报告.md` | A 线（读出）与 B 线（关系/搜索）的统一结论：混合顺序、读出上限、覆盖与搜索 |
 
 ### 计划 — `docs/plans/`
 
@@ -34,6 +35,7 @@
 | `PSS-IsaacSim-实施计划.md` | Isaac Sim 评测平台的实施计划 |
 | `PSS-IsaacSim-评测平台设计.md` | Isaac Sim 平台的 spec、bundle、指标设计 |
 | `PSS-后续研究方向评估.md` | 对照论文 §7–§8 与 claim-gap 证据，对外部未来方向清单做事实核对与任务优先级排序 |
+| `PSS-读出与推理优化执行方案.md` | 归因 v2 之后的优化方案：A0 闸门召回、双头读出、度量蒸馏、关系头覆盖与配对基线；含 P0 实测结果 |
 
 ### 阶段报告 — `docs/phases/`
 
