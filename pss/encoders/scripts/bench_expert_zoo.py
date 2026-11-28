@@ -45,7 +45,12 @@ from pss.encoders.data import crop_object, load_index, normalize_image
 from pss.encoders.geometry import geometry_features
 from pss.encoders.tactile import load_tactile_expert
 from pss.encoders.vision import load_vision_expert
+from pss.encoders.vision.handcrafted import (
+    default_out_dim as handcrafted_out_dim,
+    handcrafted_features,
+)
 from pss.encoders.vision.pretrained import load_pretrained_expert
+from pss.prototypes.scorers import MahalanobisScorer, predict_classes
 from pss.sim.dataset import load_sample
 
 ATTR_NAMES = ("hardness", "roughness", "thermal", "size_x", "size_y")
@@ -79,7 +84,11 @@ class RawView:
 # ── data ────────────────────────────────────────────────────────────────────
 
 
-def load_raw_views(data_dir: str | Path, max_samples: int | None = None) -> tuple[list[RawView], bool]:
+def load_raw_views(
+    data_dir: str | Path,
+    max_samples: int | None = None,
+    split_by_view: bool = False,
+) -> tuple[list[RawView], bool]:
     data_dir = Path(data_dir)
     index = load_index(data_dir)
     preserve_aspect = bool(index.get("config", {}).get("crop_preserve_aspect", False))
@@ -105,7 +114,14 @@ def load_raw_views(data_dir: str | Path, max_samples: int | None = None) -> tupl
             dtype=np.float32,
         ) * ATTR_SCALE
         tactile_all = sample["tactile"]
-        for v in range(int(sample["rgb"].shape[0])):
+        n_views = int(sample["rgb"].shape[0])
+        for v in range(n_views):
+            # Optional cross-view protocol: the last two views are val/test and
+            # the earlier ones train. Held-out categories stay open-set.
+            if split_by_view and str(sample["split"]) != "test_category":
+                split = "train" if v < n_views - 2 else ("val" if v == n_views - 2 else "test")
+            else:
+                split = str(sample["split"])
             views.append(
                 RawView(
                     rgb=sample["rgb"][v],
@@ -118,7 +134,7 @@ def load_raw_views(data_dir: str | Path, max_samples: int | None = None) -> tupl
                     ),
                     attrs=attrs.copy(),
                     category=str(sample["category"]),
-                    split=str(sample["split"]),
+                    split=split,
                     instance=str(sample["instance_id"]),
                     sample_id=str(entry["id"]),
                     view=v,
@@ -400,6 +416,53 @@ class GeometryAdapter(ExpertAdapter):
         return geometry_features(view.depth, view.seg, view.geom_id)
 
 
+class HandcraftedVisionAdapter(ExpertAdapter):
+    """Zero-parameter colour/HOG/LBP baseline for the vision expert.
+
+    Uses the same segmentation crop as the CNN experts, so the only difference
+    is the descriptor: learned weights vs classical image statistics.
+    """
+
+    modality = "vision"
+
+    def __init__(self, name: str, image_size: int = 64, cell: int = 16) -> None:
+        super().__init__(name)
+        self.image_size = int(image_size)
+        self.cell = int(cell)
+        self.out_dim = handcrafted_out_dim(self.image_size, self.cell)
+
+    def _encode_crop(self, crop: np.ndarray) -> np.ndarray:
+        return handcrafted_features(crop, size=self.image_size, cell=self.cell)
+
+    def encode(
+        self, views: list[RawView], preserve_aspect: bool, batch_size: int = 256
+    ) -> np.ndarray:
+        out = []
+        for view in views:
+            crop = crop_object(
+                view.rgb,
+                view.seg,
+                view.geom_id,
+                self.image_size,
+                preserve_aspect=preserve_aspect,
+            )
+            out.append(self._encode_crop(crop))
+        return np.stack(out).astype(np.float32)
+
+    def encode_one(self, view: RawView, preserve_aspect: bool) -> np.ndarray:
+        crop = crop_object(
+            view.rgb,
+            view.seg,
+            view.geom_id,
+            self.image_size,
+            preserve_aspect=preserve_aspect,
+        )
+        return self._encode_crop(crop)
+
+    def params(self) -> int:
+        return 0
+
+
 def resolve_file(source: str, default_name: str | None = None) -> Path:
     path = Path(str(source))
     if path.is_dir() and default_name:
@@ -427,6 +490,8 @@ def build_adapter(spec: dict, device: str, allow_download: bool) -> ExpertAdapte
     if name == "vision_smallcnn_v0":
         expert = load_vision_expert(resolve_file(spec["source"], "vision.pt"), device=device)
         return VisionTorchAdapter(name, expert.encoder, spec_image_size(spec), device)
+    if name == "vision_handcrafted_v0":
+        return HandcraftedVisionAdapter(name, spec_image_size(spec, 64))
     if name == "vision_squeezenet_expert_v0":
         model = load_pretrained_expert(resolve_file(spec["source"]), device=device)
         return VisionTorchAdapter(name, model, spec_image_size(spec), device)
@@ -690,7 +755,237 @@ def cross_modal(feats_a, feats_b, meta: dict, split: str = "test") -> dict:
     }
 
 
-# ── cost ────────────────────────────────────────────────────────────────────
+# ── fusion audit ────────────────────────────────────────────────────────────
+
+
+def _seen_task(meta: dict, label_key: str = "category") -> dict:
+    """Build seen-class train/val/test indices shared by every expert.
+
+    ``label_key="instance"`` is the cross-view instance task: each instance is
+    its own class, so the audit can run on the same views with a harder label.
+    """
+    key = "instances" if label_key == "instance" else "categories"
+    labels = np.asarray(meta[key])
+    splits = np.asarray(meta["splits"])
+    seen_classes = sorted(set(labels[splits == "train"].tolist()))
+    class_to_idx = {c: i for i, c in enumerate(seen_classes)}
+    y_all = np.array([class_to_idx.get(c, -1) for c in labels], dtype=np.int64)
+    seen_mask = y_all >= 0
+    return {
+        "classes": seen_classes,
+        "y": y_all,
+        "train": np.where((splits == "train") & seen_mask)[0],
+        "val": np.where((splits == "val") & seen_mask)[0],
+        "test": np.where((splits == "test") & seen_mask)[0],
+    }
+
+
+def _standardize_blocks(features: dict[str, np.ndarray], task: dict) -> dict[str, np.ndarray]:
+    """Per-expert standardization fit on train, so widths do not dominate concat."""
+    out: dict[str, np.ndarray] = {}
+    for name, feats in features.items():
+        feats = np.asarray(feats, dtype=np.float64)
+        scaler = StandardScaler().fit(feats[task["train"]])
+        out[name] = scaler.transform(feats)
+    return out
+
+
+def _fit_lda(X_train, y_train) -> MahalanobisScorer:
+    """Pooled-covariance LDA, the same A_full estimator as the g audit."""
+    return MahalanobisScorer().fit(np.asarray(X_train, dtype=np.float64), y_train)
+
+
+def fusion_audit(
+    features: dict[str, np.ndarray],
+    meta: dict,
+    label_key: str = "category",
+) -> dict:
+    """Measure whether experts are complementary enough for fusion to pay.
+
+    The decisive number is ``gap_vs_best_single``: ``A_full`` of the concatenated
+    pool minus the test accuracy of the best single expert chosen on val.  A gap
+    near zero means more experts will not help; a gap of several points means the
+    runtime has complementary information to exploit.  ``oracle_any`` counts
+    samples where at least one individual expert is right; it is a diagnostic
+    reference for expert coverage, not an upper bound on a joint classifier.
+    """
+    task = _seen_task(meta, label_key=label_key)
+    names = sorted(features)
+    if len(names) < 2:
+        raise SkipExpert("fusion audit needs at least two experts")
+    n = len(task["y"])
+    for name in names:
+        if len(features[name]) != n:
+            raise SkipExpert(
+                f"{name}: {len(features[name])} feature rows != {n} views"
+            )
+
+    X = _standardize_blocks(features, task)
+    y = task["y"]
+    tr, va, te = task["train"], task["val"], task["test"]
+    if len(tr) == 0 or len(te) == 0:
+        raise SkipExpert("empty train/test split for the fusion audit")
+
+    per_expert: dict[str, dict] = {}
+    preds_test: dict[str, np.ndarray] = {}
+    scores_val: dict[str, np.ndarray] = {}
+    scores_test: dict[str, np.ndarray] = {}
+    for name in names:
+        Xtr, Xva, Xte = X[name][tr], X[name][va], X[name][te]
+        scorer = _fit_lda(Xtr, y[tr])
+        val_pred = (
+            predict_classes(scorer, Xva) if len(va) else np.array([], dtype=np.int64)
+        )
+        test_pred = predict_classes(scorer, Xte)
+        if len(va):
+            scores_val[name] = np.asarray(scorer.scores(Xva))
+        scores_test[name] = np.asarray(scorer.scores(Xte))
+        per_expert[name] = {
+            "dim": int(features[name].shape[1]),
+            "val_acc": float(np.mean(val_pred == y[va])) if len(va) else float("nan"),
+            "test_acc": float(np.mean(test_pred == y[te])),
+        }
+        preds_test[name] = test_pred
+
+    # Honest single-expert reference: choose on val, report test.
+    best_name = max(
+        names,
+        key=lambda name: (
+            per_expert[name]["val_acc"] if not math.isnan(per_expert[name]["val_acc"]) else -1.0,
+            per_expert[name]["test_acc"],
+        ),
+    )
+    best_single_test = per_expert[best_name]["test_acc"]
+    # Optimistic reference: choose the winner on test (selection leakage).
+    max_name = max(names, key=lambda name: per_expert[name]["test_acc"])
+    max_single_test = per_expert[max_name]["test_acc"]
+
+    Xtr_all = np.concatenate([X[name][tr] for name in names], axis=1)
+    Xva_all = np.concatenate([X[name][va] for name in names], axis=1) if len(va) else None
+    Xte_all = np.concatenate([X[name][te] for name in names], axis=1)
+    scorer_all = _fit_lda(Xtr_all, y[tr])
+    all_pred_test = predict_classes(scorer_all, Xte_all)
+    all_test = float(np.mean(all_pred_test == y[te]))
+    all_val = (
+        float(np.mean(predict_classes(scorer_all, Xva_all) == y[va]))
+        if Xva_all is not None
+        else float("nan")
+    )
+
+    # Cheap realizable combiner: discriminative linear head on the concat.
+    lr = make_pipeline(
+        StandardScaler(),
+        LogisticRegression(max_iter=3000, class_weight="balanced"),
+    )
+    lr.fit(Xtr_all, y[tr])
+    lr_test = float(np.mean(lr.predict(Xte_all) == y[te]))
+
+    # Decision-level fusion: z-score each expert's LDA scores on val, then sum.
+    vote_test = float("nan")
+    weighted_vote_test = float("nan")
+    gate_top1_test = float("nan")
+    gate_soft_test = float("nan")
+    if len(va):
+        z_test: dict[str, np.ndarray] = {}
+        for name in names:
+            mu = scores_val[name].mean(axis=0, keepdims=True)
+            sigma = scores_val[name].std(axis=0, keepdims=True) + 1e-9
+            z_test[name] = (scores_test[name] - mu) / sigma
+
+        equal = sum(z_test[name] for name in names)
+        vote_test = float(np.mean(equal.argmax(axis=1) == y[te]))
+
+        # Reliability weighting from val accuracy, with chance subtracted.
+        chance = 1.0 / max(len(task["classes"]), 1)
+        raw_w = np.array(
+            [max(per_expert[name]["val_acc"] - chance, 0.0) for name in names],
+            dtype=np.float64,
+        )
+        if raw_w.sum() <= 0:
+            raw_w = np.ones(len(names), dtype=np.float64)
+        weights = raw_w / raw_w.sum()
+        weighted = sum(w * z_test[name] for w, name in zip(weights, names))
+        weighted_vote_test = float(np.mean(weighted.argmax(axis=1) == y[te]))
+
+        # Per-sample confidence gate: pick the most confident expert, or a
+        # softmax mixture of experts weighted by their top-class confidence.
+        confidence = np.stack(
+            [z_test[name].max(axis=1) for name in names], axis=1
+        )
+        per_expert_pred = np.stack(
+            [z_test[name].argmax(axis=1) for name in names], axis=1
+        )
+        chosen = confidence.argmax(axis=1)
+        gate_top1_test = float(
+            np.mean(per_expert_pred[np.arange(len(te)), chosen] == y[te])
+        )
+        gate_w = np.exp(confidence - confidence.max(axis=1, keepdims=True))
+        gate_w /= gate_w.sum(axis=1, keepdims=True)
+        gated = sum(
+            gate_w[:, i : i + 1] * z_test[name] for i, name in enumerate(names)
+        )
+        gate_soft_test = float(np.mean(gated.argmax(axis=1) == y[te]))
+
+    # Error correlation / disagreement: the ceiling on ensemble gain.
+    errors = {name: (preds_test[name] != y[te]).astype(np.float64) for name in names}
+    corr: list[float] = []
+    disagreement: list[float] = []
+    for i, first in enumerate(names):
+        for second in names[i + 1 :]:
+            if np.std(errors[first]) > 0 and np.std(errors[second]) > 0:
+                corr.append(float(np.corrcoef(errors[first], errors[second])[0, 1]))
+            disagreement.append(float(np.mean(preds_test[first] != preds_test[second])))
+
+    correct = np.stack([preds_test[name] == y[te] for name in names], axis=1)
+    oracle_any = float(correct.any(axis=1).mean())
+
+    per_class = []
+    for cls_idx, cls in enumerate(task["classes"]):
+        mask = y[te] == cls_idx
+        if not mask.any():
+            continue
+        hits = correct[mask].mean(axis=0)
+        best = names[int(np.argmax(hits))]
+        per_class.append(
+            {
+                "class": cls,
+                "support": int(mask.sum()),
+                "best_expert": best,
+                "best_acc": float(hits.max()),
+                "n_experts_correct": int((hits > 0).sum()),
+            }
+        )
+    per_class.sort(key=lambda row: (row["best_acc"], -row["support"], row["class"]))
+    n_no_expert = sum(1 for row in per_class if row["n_experts_correct"] == 0)
+    n_single_expert = sum(1 for row in per_class if row["n_experts_correct"] == 1)
+
+    return {
+        "label_key": label_key,
+        "n_classes": len(task["classes"]),
+        "experts": per_expert,
+        "best_single": best_name,
+        "best_single_test": float(best_single_test),
+        "max_single_test": float(max_single_test),
+        "max_single_name": max_name,
+        "all_concat_test": float(all_test),
+        "all_concat_val": float(all_val),
+        "gap_vs_best_single": float(all_test - best_single_test),
+        "gap_vs_max_single": float(all_test - max_single_test),
+        "concat_lr_test": lr_test,
+        "vote_lda_test": vote_test,
+        "weighted_vote_test": weighted_vote_test,
+        "gate_top1_test": gate_top1_test,
+        "gate_soft_test": gate_soft_test,
+        "oracle_any": oracle_any,
+        "mean_error_corr": float(np.mean(corr)) if corr else float("nan"),
+        "mean_disagreement": float(np.mean(disagreement)) if disagreement else float("nan"),
+        "n_no_expert": int(n_no_expert),
+        "n_single_expert": int(n_single_expert),
+        "per_class": per_class,
+    }
+
+
+
 
 
 def _sync(device: str) -> None:
@@ -789,7 +1084,100 @@ def _split_counts(splits) -> dict:
     return dict(sorted(Counter(splits).items()))
 
 
+def _append_fusion(lines: list[str], fusion: dict) -> None:
+    lines += [
+        f"## 9. 融合互补性审计（label=`{fusion['label_key']}`，{fusion['n_classes']} 类）",
+        "",
+        "> 单专家由 **val** 选中后报 test；`A_full(all)` 用 concat 特征 + pooled-covariance LDA，"
+        "在 train 拟合、test 评估。`gap` 接近 0 表示专家冗余，继续加专家没有收益。",
+        "",
+        "| 专家 | 维度 | val top-1 | test top-1 |",
+        "|---|---:|---:|---:|",
+    ]
+    for name, row in fusion["experts"].items():
+        lines.append(
+            f"| `{name}` | {row['dim']} | {_fmt(row['val_acc'])} "
+            f"| {_fmt(row['test_acc'])} |"
+        )
+    lines += [
+        "",
+        "| 量 | 值 |",
+        "|---|---:|",
+        f"| best single（val 选中：`{fusion['best_single']}`） | {_fmt(fusion['best_single_test'])} |",
+        f"| max single（test 选中：`{fusion['max_single_name']}`，乐观） | {_fmt(fusion['max_single_test'])} |",
+        f"| all concat A_full（test） | **{_fmt(fusion['all_concat_test'])}** |",
+        f"| all concat A_full（val） | {_fmt(fusion['all_concat_val'])} |",
+        f"| **gap vs best single** | **{_fmt(fusion['gap_vs_best_single'])}** |",
+        f"| gap vs max single | {_fmt(fusion['gap_vs_max_single'])} |",
+        f"| concat + LR（未调参参照） | {_fmt(fusion['concat_lr_test'])} |",
+        f"| 决策级融合（等权 z-score 求和） | {_fmt(fusion['vote_lda_test'])} |",
+        f"| 决策级融合（val 可靠性加权） | {_fmt(fusion['weighted_vote_test'])} |",
+        f"| 决策级融合（逐样本置信门控 top-1） | {_fmt(fusion['gate_top1_test'])} |",
+        f"| 决策级融合（逐样本置信 softmax 门控） | {_fmt(fusion['gate_soft_test'])} |",
+        f"| oracle any（逐样本任选单专家，参照不是上界） | {_fmt(fusion['oracle_any'])} |",
+        f"| 平均错误相关 | {_fmt(fusion['mean_error_corr'])} |",
+        f"| 平均 disagreement | {_fmt(fusion['mean_disagreement'])} |",
+        f"| 全部专家都错的类 | {fusion['n_no_expert']}/{fusion['n_classes']} |",
+        f"| 仅一个专家对的类 | {fusion['n_single_expert']}/{fusion['n_classes']} |",
+        "",
+    ]
+    if fusion["per_class"] and max(row["support"] for row in fusion["per_class"]) <= 1:
+        lines += [
+            "> 每类 test 支撑只有 1 个视图；per-class 行只作诊断，不要当精度估计。",
+            "",
+        ]
+    lines += [
+        "| class | support | best expert | best acc | 至少一个专家对 |",
+        "|---|---:|---|---:|---:|",
+    ]
+    rows = [row for row in fusion["per_class"] if row["support"] >= 2]
+    if not rows:
+        rows = fusion["per_class"][:6]
+    for row in rows[:12]:
+        lines.append(
+            f"| `{_cell(row['class'])}` | {row['support']} "
+            f"| `{_cell(row['best_expert'])}` | {_fmt(row['best_acc'])} "
+            f"| {row['n_experts_correct']}/{len(fusion['experts'])} |"
+        )
+    lines.append("")
+
+
 def render_markdown(payload: dict) -> str:
+    if payload.get("fusion_only"):
+        lines = [
+            "# Phase 3 专家融合审计（仅 A_full，自动生成）",
+            "",
+            f"> 生成时间：{payload['generated']}",
+            f"> 数据：`{payload['data']}`",
+            f"> 契约：`{payload['experts_config']}`",
+            f"> 设备：`{payload['device']}`",
+            f"> 视图数：{payload['n_views']}",
+            "",
+            "## 1. 数据划分",
+            "",
+            "| split | views |",
+            "|---|---:|",
+        ]
+        for split, count in payload["counts"].items():
+            lines.append(f"| {split} | {count} |")
+        lines += [
+            "",
+            "## 2. 候选状态",
+            "",
+            "| ExpertSpec | 模态 | 状态 | 特征 |",
+            "|---|---|---|---|",
+        ]
+        for name, result in payload["results"].items():
+            spec = result.get("spec", {})
+            lines.append(
+                f"| `{name}` | {_cell(spec.get('modality', ''))} "
+                f"| {result['status']} | {_cell(result.get('features_shape'))} |"
+            )
+        lines.append("")
+        if payload.get("fusion_audit"):
+            _append_fusion(lines, payload["fusion_audit"])
+        return "\n".join(lines)
+
     lines = [
         "# Phase 3 专家选型结果（自动生成）",
         "",
@@ -928,6 +1316,11 @@ def render_markdown(payload: dict) -> str:
         "- 本报告不自动下结论；按 `eval/expert_zoo.md` 的 G1–G4 与 K-E1–K-E5 判据人工决策。",
         "",
     ]
+
+    fusion = payload.get("fusion_audit")
+    if fusion:
+        _append_fusion(lines, fusion)
+
     return "\n".join(lines)
 
 
@@ -952,7 +1345,9 @@ def resolve_device(value: str) -> str:
 def run_bakeoff(args) -> dict:
     ensure_utf8()
     config = load_config(args.experts)
-    views, preserve_aspect = load_raw_views(args.data, args.max_samples)
+    views, preserve_aspect = load_raw_views(
+        args.data, args.max_samples, split_by_view=args.split_by_view
+    )
     if not views:
         raise SystemExit(f"no category views found in {args.data}")
 
@@ -985,16 +1380,18 @@ def run_bakeoff(args) -> dict:
                 raise SkipExpert(
                     f"feature rows {feats.shape[0]} != views {len(views)}"
                 )
-            results[name] = {
+            entry = {
                 "status": "ran",
                 "spec": spec,
                 "features_shape": list(feats.shape),
-                "evaluation": evaluate_expert(feats, meta, seeds),
-                "cost": measure_cost(
-                    adapter, views, preserve_aspect, device, args.latency_repeats
-                ),
                 "license_ok": spec.get("license") in allowed,
             }
+            if not args.fusion_only:
+                entry["evaluation"] = evaluate_expert(feats, meta, seeds)
+                entry["cost"] = measure_cost(
+                    adapter, views, preserve_aspect, device, args.latency_repeats
+                )
+            results[name] = entry
             features[name] = feats
             print(f"[ran] {name}: {tuple(feats.shape)}")
         except SkipExpert as exc:
@@ -1014,16 +1411,29 @@ def run_bakeoff(args) -> dict:
 
     ran_names = [name for name, result in results.items() if result["status"] == "ran"]
     cross: dict = {}
-    for i, first in enumerate(ran_names):
-        for second in ran_names[i + 1 :]:
-            if results[first]["spec"].get("modality") == results[second]["spec"].get("modality"):
-                continue
-            cross[f"{first}->{second}"] = cross_modal(
-                features[first], features[second], meta
-            )
-            cross[f"{second}->{first}"] = cross_modal(
-                features[second], features[first], meta
-            )
+    if not args.fusion_only:
+        for i, first in enumerate(ran_names):
+            for second in ran_names[i + 1 :]:
+                if (
+                    results[first]["spec"].get("modality")
+                    == results[second]["spec"].get("modality")
+                ):
+                    continue
+                cross[f"{first}->{second}"] = cross_modal(
+                    features[first], features[second], meta
+                )
+                cross[f"{second}->{first}"] = cross_modal(
+                    features[second], features[first], meta
+                )
+
+    fusion = None
+    if args.fusion_audit and len(features) >= 2:
+        try:
+            fusion = fusion_audit(features, meta, label_key=args.fusion_label)
+            print("[fusion] audited", ", ".join(fusion["experts"]))
+        except SkipExpert as exc:
+            print(f"[fusion-skip] {exc}")
+            fusion = None
 
     payload = {
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
@@ -1035,6 +1445,8 @@ def run_bakeoff(args) -> dict:
         "counts": _split_counts(meta["splits"]),
         "results": results,
         "cross_modal": cross,
+        "fusion_audit": fusion,
+        "fusion_only": bool(args.fusion_only),
     }
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -1064,6 +1476,27 @@ def main() -> None:
         "--allow-licenses", nargs="+", default=list(DEFAULT_ALLOWED_LICENSES)
     )
     parser.add_argument("--allow-download", action="store_true")
+    parser.add_argument(
+        "--fusion-audit",
+        action="store_true",
+        help="report A_full of the concatenated expert pool vs the best single expert",
+    )
+    parser.add_argument(
+        "--fusion-label",
+        choices=["category", "instance"],
+        default="category",
+        help="label space for the fusion audit; instance = cross-view instance task",
+    )
+    parser.add_argument(
+        "--fusion-only",
+        action="store_true",
+        help="skip per-expert probes/costs and only extract features + run the fusion audit",
+    )
+    parser.add_argument(
+        "--split-by-view",
+        action="store_true",
+        help="last two views per sample are val/test (cross-view protocol)",
+    )
     args = parser.parse_args()
     run_bakeoff(args)
 

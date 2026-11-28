@@ -11,7 +11,8 @@ vision:
   ``smallcnn``        task-trained SmallCNN (current baseline);
   ``dinov2``          frozen DINOv2 CLS/patch-mean;
   ``dinov2_vlad``     frozen DINOv2 patch tokens + fitted VLAD codebook;
-  ``clip``            frozen CLIP ViT-L/14 vision tower.
+  ``clip``            frozen CLIP ViT-L/14 vision tower;
+  ``handcrafted``     zero-parameter colour/HOG/LBP descriptor (no checkpoint).
 tactile:
   ``mlp``             current 8x8 tactile MLP;
   ``conv``            residual conv tactile encoder;
@@ -38,6 +39,7 @@ def build_vision_encoder(
     pool: str = "cls",
     codebook: str | Path | None = None,
     model_id: str | None = None,
+    image_size: int = 64,
 ):
     """Return a frozen vision encoder object with ``encode``/``image_size``.
 
@@ -46,6 +48,12 @@ def build_vision_encoder(
     768-d CLIP tower).  It is ignored by the task-trained ``smallcnn``.
     """
     kind = str(kind)
+    if kind == "handcrafted":
+        from pss.encoders.vision.handcrafted import load_handcrafted_encoder
+
+        # Zero parameters, no checkpoint and no device placement: the
+        # descriptor runs on NumPy and ignores ``device``/``expert_dir``.
+        return load_handcrafted_encoder(size=image_size)
     if kind == "smallcnn":
         from pss.encoders.vision import load_vision_expert
 

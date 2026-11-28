@@ -5,6 +5,7 @@ pytest.importorskip("torch")
 pytest.importorskip("sklearn")
 
 from pss.encoders.scripts.bench_expert_zoo import (
+    HandcraftedVisionAdapter,
     OctopiTactileAdapter,
     RawView,
     RealTactileAdapter,
@@ -12,7 +13,9 @@ from pss.encoders.scripts.bench_expert_zoo import (
     _json_safe,
     _spearman,
     _stratified_subset,
+    build_adapter,
     cross_modal,
+    fusion_audit,
     spec_image_size,
 )
 
@@ -104,3 +107,93 @@ def test_real_tactile_batch_is_encoder_ready():
     )
     x = adapter._batch([view])
     assert tuple(x.shape) == (1, 3, 64, 64)
+
+
+def _vision_view() -> RawView:
+    rng = np.random.default_rng(0)
+    rgb = rng.integers(0, 256, (64, 64, 3), dtype=np.uint8)
+    seg = np.ones((64, 64, 2), dtype=np.int32) * 7
+    return RawView(
+        rgb=rgb,
+        depth=np.ones((64, 64), dtype=np.float32),
+        seg=seg,
+        geom_id=7,
+        tactile=np.zeros(64, dtype=np.float32),
+        geometry=np.zeros(16, dtype=np.float32),
+        attrs=np.zeros(5, dtype=np.float32),
+        category="cup",
+        split="train",
+        instance="cup_0",
+        sample_id="cat_cup_0",
+        view=0,
+    )
+
+
+def test_handcrafted_adapter_matches_spec_dim():
+    adapter = build_adapter(
+        {
+            "name": "vision_handcrafted_v0",
+            "input_schema": {"rgb": [3, 64, 64]},
+        },
+        device="cpu",
+        allow_download=False,
+    )
+    assert isinstance(adapter, HandcraftedVisionAdapter)
+    feats = adapter.encode([_vision_view()], preserve_aspect=False)
+    assert tuple(feats.shape) == (1, adapter.out_dim)
+    assert adapter.params() == 0
+    assert np.isfinite(feats).all()
+
+
+def _fusion_meta(n_per_class: int = 50, n_val: int = 10, n_test: int = 10):
+    """Four balanced classes with train/val/test splits."""
+    cats, splits = [], []
+    for cls in range(4):
+        for split, count in (("train", n_per_class), ("val", n_val), ("test", n_test)):
+            cats.extend([f"c{cls}"] * count)
+            splits.extend([split] * count)
+    return {
+        "categories": np.asarray(cats),
+        "splits": np.asarray(splits),
+        "instances": np.asarray(cats),
+        "sample_ids": np.asarray([f"s{i}" for i in range(len(cats))]),
+        "views": np.zeros(len(cats), dtype=np.int64),
+        "attrs": np.zeros((len(cats), 5), dtype=np.float32),
+    }
+
+
+def _block_features(meta, means, rng, noise: float = 0.05):
+    cats = np.asarray(meta["categories"])
+    out = np.empty((len(cats), len(means[0])), dtype=np.float64)
+    for cls in range(len(means)):
+        idx = np.where(cats == f"c{cls}")[0]
+        out[idx] = np.asarray(means[cls]) + noise * rng.normal(size=(len(idx), len(means[0])))
+    return out.astype(np.float32)
+
+
+def test_fusion_audit_detects_complementary_experts():
+    rng = np.random.default_rng(0)
+    meta = _fusion_meta()
+    # Expert A separates {0,1}; expert B separates {2,3}. Neither is complete,
+    # but the concat is.
+    feat_a = _block_features(meta, [(0.0, 0.0), (1.0, 0.0), (2.0, 0.0), (2.0, 0.0)], rng)
+    feat_b = _block_features(meta, [(0.0, 0.0), (0.0, 0.0), (1.0, 0.0), (2.0, 0.0)], rng)
+    out = fusion_audit({"a": feat_a, "b": feat_b}, meta)
+    assert out["all_concat_test"] > 0.95
+    assert out["gap_vs_best_single"] > 0.15
+    assert out["oracle_any"] >= out["all_concat_test"]
+    assert out["mean_disagreement"] > 0.0
+    for key in ("vote_lda_test", "weighted_vote_test", "gate_top1_test", "gate_soft_test"):
+        assert 0.0 <= out[key] <= 1.0
+
+
+def test_fusion_audit_redundant_experts_have_no_gap():
+    rng = np.random.default_rng(1)
+    meta = _fusion_meta()
+    feat = _block_features(meta, [(0.0, 0.0), (2.0, 0.0), (4.0, 0.0), (6.0, 0.0)], rng)
+    out = fusion_audit({"a": feat, "b": feat.copy()}, meta)
+    assert out["all_concat_test"] >= 0.95
+    assert abs(out["gap_vs_best_single"]) < 0.02
+    assert out["mean_error_corr"] == pytest.approx(1.0, abs=1e-6) or np.isnan(
+        out["mean_error_corr"]
+    )

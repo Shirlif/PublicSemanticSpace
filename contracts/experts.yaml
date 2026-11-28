@@ -80,6 +80,23 @@ experts:
     owner: perception
     notes: 当前基线 A；16 维手工特征 + LR，test 0.911。
 
+  - name: vision_handcrafted_v0
+    modality: vision
+    route: R0
+    status: planned
+    input_schema:
+      rgb: [3, 64, 64]
+    preprocess: handcrafted_rgb_v1
+    feature_layer: fixed
+    output_dim: 440
+    normalize: none
+    license: project-internal
+    latency_ms: null
+    source: pss/encoders/vision/handcrafted.py
+    version: "0.1.0"
+    owner: perception
+    notes: 非神经网络对照（HSV 直方图 + HOG + LBP + 颜色网格，0 参数）；用于量化“多少准确率来自学习”。待 bake-off。
+
   # ── R1：现成模型候选（bake-off 的 B/C 组） ────────────────────────────
   - name: vision_dinov2_vit_s14
     modality: vision

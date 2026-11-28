@@ -83,4 +83,18 @@ def load_vision_expert(path: str | Path, device: str = "cpu") -> VisionExpert:
     )
 
 
-__all__ = ["SmallCNNEncoder", "VisionExpert", "load_vision_expert", "save_vision_expert"]
+from .handcrafted import (  # noqa: E402  (kept after the CNN definitions)
+    HandcraftedVisionEncoder,
+    handcrafted_features,
+    load_handcrafted_encoder,
+)
+
+__all__ = [
+    "SmallCNNEncoder",
+    "VisionExpert",
+    "load_vision_expert",
+    "save_vision_expert",
+    "HandcraftedVisionEncoder",
+    "handcrafted_features",
+    "load_handcrafted_encoder",
+]
