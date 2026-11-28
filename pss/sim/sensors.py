@@ -190,10 +190,14 @@ class SensorRig:
             for obj in self.scene.objects
         }
         for c in self.contacts():
-            # Support contacts with the table/floor are not tactile events.
-            if c["instance1"] in ("table", "floor") or c["instance2"] in ("table", "floor"):
+            # Only object-object contacts are tactile.  Table/floor/bin/
+            # occluder/unknown endpoints are support or environment contacts;
+            # adding them to the object map creates false tactile events
+            # (e.g. a ball that falls off the table onto the floor).
+            a, b = c["instance1"], c["instance2"]
+            if a not in maps or b not in maps:
                 continue
-            for inst in (c["instance1"], c["instance2"]):
+            for inst in (a, b):
                 if inst not in maps:
                     continue
                 obj = next(o for o in self.scene.objects if o.instance_id == inst)

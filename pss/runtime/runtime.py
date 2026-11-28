@@ -101,6 +101,11 @@ class PSSRuntime:
         associator=None,
         metric_max_cost: float = 10.0,
         permissions: str = "admin",
+        axis_mode: str = "off",
+        axis_boundary=None,
+        axis_sigma: float = 0.0,
+        axis_eps: float = 0.02,
+        axis_abstain: float = 0.0,
     ):
         self.state = state or CognitiveState()
         self.perception = perception
@@ -116,7 +121,18 @@ class PSSRuntime:
         self.relations = relation_layer or RelationFactLayer(
             write_policy=write_policy,
             use_default_write=use_default_write,
+            axis_mode=axis_mode,
+            axis_boundary=axis_boundary,
+            axis_sigma=axis_sigma,
+            axis_eps=axis_eps,
+            axis_abstain=axis_abstain,
         )
+        if relation_layer is not None and axis_mode != "off":
+            relation_layer.rule_set.axis_mode = axis_mode
+            relation_layer.rule_set.axis_boundary = axis_boundary
+            relation_layer.rule_set.axis_sigma = float(axis_sigma)
+            relation_layer.rule_set.axis_eps = float(axis_eps)
+            relation_layer.rule_set.axis_abstain = float(axis_abstain)
         self.planner = planner
         self.outputs = outputs or OutputRouter()
         self.uncertainty = uncertainty or UncertaintyService()

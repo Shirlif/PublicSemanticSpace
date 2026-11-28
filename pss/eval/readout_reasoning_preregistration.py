@@ -190,6 +190,22 @@ class Expectation:
     worst_cell_acc_max: float | None = None
     delta_vs_full_min: float | None = None
     delta_vs_full_max: float | None = None
+    # -- upper-bound review arms (registered before U1/U2/U4) ---------------
+    # U1 swaps the vision backbone and asserts the A4 gain against the
+    # deployed prototype readout on the same representation, not against an
+    # absolute accuracy (the split is fixed but the representation is not).
+    accuracy_delta_vs_proto_min: float | None = None
+    accuracy_delta_vs_proto_max: float | None = None
+    # U1 negative control: a reranker may only reorder the gate's candidates,
+    # so its gain is asserted against that same gate, not against the proto.
+    accuracy_delta_vs_gate_min: float | None = None
+    accuracy_delta_vs_gate_max: float | None = None
+    # U3: gap between symbolic-coordinate and learned-embedding relation
+    # composition; upper bound because a large gap means losslessness is a
+    # real bottleneck.
+    composition_gap_max: float | None = None
+    # U3: error on the absence cell (missing isolation direction).
+    absence_cell_error_max: float | None = None
 
 
 EXPECTED: dict[str, Expectation] = {
@@ -312,6 +328,95 @@ EXPECTED: dict[str, Expectation] = {
     "g_invariance_mismatched": Expectation(worst_cell_acc_max=0.60),
     # Reference only: no bar.
     "g_a_full": Expectation(),
+    # ── U: architecture upper-bound review ─────────────────────────────────
+    # Registered before U1/U2/U4 in
+    # ``docs/plans/PSS-架构上界复核与下一阶段.md`` §5.2.
+    # U1: same 384-class view-instance task, vision backbone swapped for a
+    # real DINOv2 encoder.  The claim is that A4's gain transfers, not that
+    # the absolute accuracy is unchanged.
+    "u_real_proto": Expectation(),
+    "u_real_lda_whiten": Expectation(
+        accuracy_delta_vs_proto_min=0.080,
+        auroc_min=0.990,
+        unseen_reject_at_95_min=0.950,
+    ),
+    # Negative control: a learned reranker must not recover a gain the gate
+    # already has.  If it does, A2's "linear readout is the ceiling" fails.
+    "u_real_rerank": Expectation(accuracy_delta_vs_gate_max=0.005),
+    "u_real_mlp": Expectation(),
+    # U1b: closed-set from LDA, open-set from the prototype head.  This is the
+    # dual-head form the joint-readout report recommends; the bars are the
+    # same as the single-head LDA because the claim is "keep the closed-set
+    # gain without losing open-set".
+    "u_real_dual_head": Expectation(
+        accuracy_delta_vs_proto_min=0.080,
+        auroc_min=0.990,
+        unseen_reject_at_95_min=0.950,
+    ),
+    # U2: real-geometry coverage, same bars as G2.
+    "u_geo_baseline": Expectation(),
+    "u_geo_combination": Expectation(
+        worst_cell_acc_min=0.900,
+        delta_vs_full_min=-0.030,
+    ),
+    "u_geo_single": Expectation(delta_vs_full_max=-0.100),
+    # no-op: more of an already-covered pair type must stay far below full
+    # coverage; if it closes the gap, the coverage explanation is wrong.
+    "u_geo_noop": Expectation(delta_vs_full_max=-0.100),
+    "u_geo_full": Expectation(),
+    # U3: symbolic vs learned composition; L_gap > 0.10 means losslessness is
+    # a real bottleneck, <= 0.05 means it is not.
+    "u_comp_symbolic": Expectation(),
+    "u_comp_learned": Expectation(
+        composition_gap_max=0.050,
+        absence_cell_error_max=0.200,
+    ),
+    # U3b: embedding + explicit coordinates.  If this closes the gap, the fix
+    # is the geometry channel, not more representation capacity.
+    "u_comp_hybrid": Expectation(
+        composition_gap_max=0.050,
+        absence_cell_error_max=0.200,
+    ),
+    # U3c: separate coordinate and embedding branches, summed at logit level.
+    "u_comp_branch": Expectation(
+        composition_gap_max=0.050,
+        absence_cell_error_max=0.200,
+    ),
+    # U3d: coordinate skeleton + alpha-scaled embedding residual, with alpha
+    # chosen on a held-out slice of train.  This is the bounded-calibration
+    # form, not joint training.
+    "u_comp_residual": Expectation(
+        composition_gap_max=0.050,
+        absence_cell_error_max=0.200,
+    ),
+    # U3e: patch-token / position-aware representation without explicit
+    # coordinates.  Same bars as U3b-d.
+    "u_comp_patch": Expectation(
+        composition_gap_max=0.050,
+        absence_cell_error_max=0.200,
+    ),
+    # U1c: text-conditioned CLIP two-tower proxy (no VLM weights cached).
+    # The 16-class category task is easier than 384-class view-instance, so
+    # the delta bar is non-negative rather than +0.08.
+    "u_real_vlm_proxy": Expectation(
+        accuracy_delta_vs_proto_min=0.000,
+        auroc_min=0.990,
+        unseen_reject_at_95_min=0.950,
+    ),
+    # U6: explicit geometry skeleton under sensor noise (sim2real readiness,
+    # not a real robot).  Bar is read at the highest calibrated noise level.
+    "u_geom_noise": Expectation(
+        worst_cell_acc_min=0.850,
+        delta_vs_full_min=-0.100,
+    ),
+    # Boundary benchmark (D1–D5): the deployable soft/noise-aware dead zone
+    # must reach the contract-noise near-aligned worst cell.
+    "u_boundary_soft": Expectation(worst_cell_acc_min=0.800),
+    # U4: long-term incremental maintenance (delete / merge on top of A5).
+    "u_incr_delete_merge": Expectation(
+        forgetting_max=0.030,
+        added_acc_min=0.930,
+    ),
     # ── composition: absolute bars on the fixed P5b scale ───────────────────
     "pss_learned": Expectation(
         id_success_min=0.950,
@@ -343,6 +448,10 @@ _UPPER_BOUNDS = {
     "forgetting_max": "forgetting",
     "worst_cell_acc_max": "worst_cell_acc",
     "delta_vs_full_max": "delta_vs_full",
+    "accuracy_delta_vs_proto_max": "accuracy_delta_vs_proto",
+    "accuracy_delta_vs_gate_max": "accuracy_delta_vs_gate",
+    "composition_gap_max": "composition_gap",
+    "absence_cell_error_max": "absence_cell_error",
 }
 
 _LOWER_BOUNDS = {
@@ -357,6 +466,8 @@ _LOWER_BOUNDS = {
     "relation_exact4_min": "relation_exact4",
     "worst_cell_acc_min": "worst_cell_acc",
     "delta_vs_full_min": "delta_vs_full",
+    "accuracy_delta_vs_proto_min": "accuracy_delta_vs_proto",
+    "accuracy_delta_vs_gate_min": "accuracy_delta_vs_gate",
 }
 
 

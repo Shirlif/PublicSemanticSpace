@@ -44,6 +44,13 @@ class RelationRuleSet:
     version: int = 1
     source: str = "hand"
     history: list[dict] = field(default_factory=list)
+    # Axis predicates are opt-in so the historical in/contact/near behaviour is
+    # unchanged by default.  ``axis_boundary`` is a fitted GridBayesBoundary.
+    axis_mode: str = "off"  # "off" | "hard" | "bayes"
+    axis_boundary: object | None = None
+    axis_sigma: float = 0.0
+    axis_eps: float = 0.02
+    axis_abstain: float = 0.0
 
     def snapshot(self) -> dict:
         return {
@@ -104,6 +111,18 @@ class RelationRuleSet:
                     conf = float(np.clip(1.0 - d / self.near_dist, 0.05, 1.0))
                     out.append(RelationRecord(a, "near", b, conf, "learned_rule"))
                     out.append(RelationRecord(b, "near", a, conf, "learned_rule"))
+        if self.axis_mode != "off":
+            from .bayes_predicate import AxisPredicate
+
+            out.extend(
+                AxisPredicate(
+                    boundary=self.axis_boundary,
+                    sigma=float(self.axis_sigma),
+                    eps=float(self.axis_eps),
+                    abstain=float(self.axis_abstain),
+                    mode=self.axis_mode,
+                ).records(instances)
+            )
         return out
 
     # ── fitting ─────────────────────────────────────────────────────────────

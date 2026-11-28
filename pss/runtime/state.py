@@ -250,7 +250,10 @@ class CognitiveState:
         self.goals = payload["goals"]
         self.plans = payload["plans"]
         self.uncertainty = payload["uncertainty"]
-        self.audit = payload["audit"]
+        # Audit is append-only: rollback restores state fields but deliberately
+        # does not truncate the audit log.  Restoring ``payload["audit"]`` would
+        # let a later rollback erase a permission_denied entry, which is a
+        # tamper-evidence hole (U5 primary completeness 0.800).
         self.version = payload["version"]
         self.audit.append(
             AuditEntry(self.version, "rollback", f"v{version}", None, None, "runtime", f"to v{version}")

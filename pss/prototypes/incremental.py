@@ -101,6 +101,79 @@ class IncrementalLDABank:
         self._since_refit += 1
         self._maybe_refit()
 
+    # -- deletion / merge --------------------------------------------------- #
+    def remove_class(self, label: int) -> None:
+        """Drop one class and its reservoir rows; refresh policy still applies.
+
+        Deletion is the maintenance case A5 never tested: it changes the
+        between-class scatter, so a frozen precision is an approximation.  The
+        caller can force a refit by constructing the bank with
+        ``refit_every=1`` or by calling :meth:`refit_now`.
+        """
+
+        label = int(label)
+        if label not in self.classes_:
+            raise KeyError(f"class {label} not in bank")
+        start = time.perf_counter()
+        mask = self.y_ != label
+        self.Z_ = self.Z_[mask]
+        self.y_ = self.y_[mask]
+        k = int(np.searchsorted(self.classes_, label))
+        self.classes_ = np.delete(self.classes_, k)
+        self.means_ = np.delete(self.means_, k, axis=0)
+        self.mean_update_seconds += time.perf_counter() - start
+        self._since_refit += 1
+        self._maybe_refit()
+
+    def merge_classes(self, label_from: int, label_into: int) -> None:
+        """Merge ``label_from`` into ``label_into`` (e.g. duplicate entities)."""
+
+        label_from = int(label_from)
+        label_into = int(label_into)
+        if label_from == label_into:
+            return
+        for label in (label_from, label_into):
+            if label not in self.classes_:
+                raise KeyError(f"class {label} not in bank")
+        start = time.perf_counter()
+        self.y_[self.y_ == label_from] = label_into
+        k_from = int(np.searchsorted(self.classes_, label_from))
+        k_into = int(np.searchsorted(self.classes_, label_into))
+        merged_mean = self.Z_[self.y_ == label_into].mean(0)
+        self.classes_ = np.delete(self.classes_, k_from)
+        self.means_ = np.delete(self.means_, k_from, axis=0)
+        # ``label_into`` keeps its rank because its index was below/above the
+        # deleted one; recompute by search after the deletion.
+        k_into = int(np.searchsorted(self.classes_, label_into))
+        self.means_[k_into] = merged_mean
+        self.mean_update_seconds += time.perf_counter() - start
+        self._since_refit += 1
+        self._maybe_refit()
+
+    def refit_now(self) -> None:
+        """Force a precision refresh (used after delete/merge audits)."""
+
+        self._refit()
+
+    # -- rollback ----------------------------------------------------------- #
+    def snapshot(self) -> tuple:
+        return (
+            self.Z_.copy(),
+            self.y_.copy(),
+            self.classes_.copy(),
+            self.means_.copy(),
+            self.precision_.copy(),
+            int(self.n_refits),
+            float(self.refit_seconds),
+            int(self._since_refit),
+        )
+
+    def restore(self, snap: tuple) -> None:
+        (
+            self.Z_, self.y_, self.classes_, self.means_, self.precision_,
+            self.n_refits, self.refit_seconds, self._since_refit,
+        ) = snap
+
     # -- scoring ----------------------------------------------------------- #
     def scores(self, Z: np.ndarray) -> np.ndarray:
         Z = np.asarray(Z, dtype=np.float64)

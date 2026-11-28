@@ -304,12 +304,23 @@ class RelationFactLayer:
         write_policy=None,
         use_default_write: bool = True,
         rule_set: RelationRuleSet | None = None,
+        axis_mode: str = "off",
+        axis_boundary=None,
+        axis_sigma: float = 0.0,
+        axis_eps: float = 0.02,
+        axis_abstain: float = 0.0,
     ):
         # TMS-backed by default; an explicit store (including the legacy
         # MultiSourceFactStore) is still accepted unchanged.
         self.facts = facts or TMSFactStore()
         self.rules = rules
         self.rule_set = rule_set if rule_set is not None else _load_relation_rules()
+        if axis_mode != "off":
+            self.rule_set.axis_mode = axis_mode
+            self.rule_set.axis_boundary = axis_boundary
+            self.rule_set.axis_sigma = float(axis_sigma)
+            self.rule_set.axis_eps = float(axis_eps)
+            self.rule_set.axis_abstain = float(axis_abstain)
         self.write_policy = (
             write_policy
             if write_policy is not None
@@ -538,6 +549,11 @@ class RelationFactLayer:
         added = 0
         for record in records:
             self._remember(record)
+            origin = (
+                record.source
+                if record.source in ("bayes_geometry", "hard_geometry")
+                else "symbolic"
+            )
             state.add_relation(
                 Relation(
                     source=record.subject,
@@ -545,7 +561,7 @@ class RelationFactLayer:
                     relation_type="symbolic",
                     predicate=record.predicate,
                     probability=float(record.confidence),
-                    origin="symbolic",
+                    origin=origin,
                     frame=getattr(record, "frame", "world"),
                 )
             )
