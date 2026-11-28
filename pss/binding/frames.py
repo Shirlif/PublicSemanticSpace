@@ -63,9 +63,25 @@ def _translation(value) -> np.ndarray:
 
 
 def _rotation_angle(r: np.ndarray) -> float:
-    """Geodesic angle (radians) of a rotation matrix: ``arccos((tr - 1) / 2)``."""
+    """Geodesic angle (radians) of a rotation matrix.
+
+    Uses ``atan2(|skew(R)|, (tr(R) - 1) / 2)`` instead of ``arccos``.  Near the
+    identity, ``arccos`` is ill-conditioned (its derivative is infinite), so a
+    round-trip residual of ~1e-16 in the trace turns into ~1e-8 radians because
+    of floating-point rounding.  The atan2 form is accurate to machine
+    precision for small angles and still returns the correct branch up to pi.
+    """
     cosine = (float(np.trace(r)) - 1.0) * 0.5
-    return float(np.arccos(np.clip(cosine, -1.0, 1.0)))
+    sine = 0.5 * float(
+        np.linalg.norm(
+            [
+                r[2, 1] - r[1, 2],
+                r[0, 2] - r[2, 0],
+                r[1, 0] - r[0, 1],
+            ]
+        )
+    )
+    return float(np.arctan2(sine, cosine))
 
 
 @dataclass(frozen=True, eq=False)
