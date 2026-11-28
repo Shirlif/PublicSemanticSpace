@@ -47,6 +47,7 @@
 | 组 | ExpertSpec | 模态 | 路线 | 特征层 | 输出维度 | 许可 | 状态 |
 |---|---|---|---|---|---|---|---|
 | A | `vision_smallcnn_v0` | vision | R0 | penultimate | 256 | project-internal | 已跑 |
+| A | `vision_handcrafted_v0` | vision | R0 | fixed | 440 | project-internal | 已跑（2026-11-28） |
 | A | `tactile_mlp_v0` | tactile | R0 | penultimate | 64 | project-internal | 已跑 |
 | A | `geometry_handcrafted_v0` | geometry | R0 | fixed | 16 | project-internal | 已跑 |
 | B | `vision_dinov2_vit_s14` | vision | R1 | `blocks.11.norm1` | 384 | Apache-2.0 | 已跑 |
@@ -173,6 +174,29 @@
 > Octopi 为 303.4M 参数、1.66GB CUDA 峰值；延迟含 3 帧重复输入。
 
 > 延迟为 batch=1、RTX 4070 Laptop；峰值显存为前 64 个 view 的 CUDA 峰值，仅作量级参考。
+
+### 5.6 非神经网络视觉对照与真实图像复核（2026-11-28）
+
+新增 0 参数手工视觉专家 `vision_handcrafted_v0`（HSV + HOG + LBP，440 维），并在真实图像文件上复核三条路线。完整报告：`docs/experiments/PSS-手工视觉专家与真实图像复核.md`。
+
+合成基准（`data/category_pretrain`，1920 视图，3 seeds）：
+
+| 专家 | 闭集 top-1 | 开集 AUROC | 属性 R² | 延迟 p50 | 参数量 |
+|---|---:|---:|---:|---:|---:|
+| `vision_smallcnn_v0` | **0.990** | **0.752** | **0.688** | 1.43 ms | 274,560 |
+| `vision_handcrafted_v0` | 0.964 | 0.519 | 0.592 | 1.13 ms | **0** |
+| `vision_dinov2_vit_s14` | 0.965 | 0.605 | 0.495 | 6.27 ms | 22,056,576 |
+
+真实图像文件（CLEVR-CoGenT，组合偏移 valB；以及 TAO/Charades 真实照片 12 类）：
+
+| 数据 | 任务 | SmallCNN | DINOv2 | 手工 |
+|---|---|---:|---:|---:|
+| CLEVR valB | `front_shape` | 0.350 | **0.998** | 0.884 |
+| CLEVR valB | `front_material` | 0.914 | **0.986** | 0.985 |
+| CLEVR valB | `front_size` | 0.979 | 0.998 | **1.000** |
+| TAO test | `category`（12 类） | 0.244 | **0.456** | 0.285 |
+
+结论：**神经网络不是唯一途径，但也不是可无条件替代**。封闭合成域上手工特征闭集≈DINOv2；开放集和真实照片上冻结预训练骨干明显更强；材质/尺寸等物理属性上手工特征以 0 参数打平。SmallCNN 在 CLEVR 组合偏移下 0.882→0.350，是“特征几何决定 PSS 下游”的直接证据。
 
 ---
 

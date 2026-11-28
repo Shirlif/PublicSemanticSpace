@@ -95,7 +95,7 @@ experts:
     source: pss/encoders/vision/handcrafted.py
     version: "0.1.0"
     owner: perception
-    notes: 非神经网络对照（HSV 直方图 + HOG + LBP + 颜色网格，0 参数）；用于量化“多少准确率来自学习”。待 bake-off。
+    notes: 非神经网络对照（HSV 直方图 + HOG + LBP + 颜色网格，0 参数）。bake-off：闭集 0.964、开集 AUROC 0.519、属性 0.592；闭集≈DINOv2，开放集接近随机；保留为对照，不进主线。
 
   # ── R1：现成模型候选（bake-off 的 B/C 组） ────────────────────────────
   - name: vision_dinov2_vit_s14
