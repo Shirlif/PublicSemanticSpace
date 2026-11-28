@@ -92,6 +92,49 @@ class Observation:
         )
         self.refresh_staleness()
 
+    def stamp_streams(
+        self,
+        timings: dict[str, tuple[float, float]] | None = None,
+        *,
+        t_ref: float | None = None,
+        max_latency_ms: dict[str, float] | float | None = None,
+    ) -> list[str]:
+        """Attach producer-supplied capture/arrival times and refresh staleness.
+
+        ``timings`` maps ``modality -> (t_capture, t_arrival)`` in seconds,
+        measured on the same clock.  Modalities present in ``raw`` but absent
+        from ``timings`` are treated as synchronous with ``t_ref`` (which
+        defaults to the current ``t_ref``).  Existing streams are updated in
+        place; missing ones are created from ``raw``.
+
+        Real drivers should call this after filling ``raw`` and before handing
+        the observation to the tracker or runtime.
+        """
+        if t_ref is not None:
+            self.t_ref = float(t_ref)
+        timings = timings or {}
+        for modality, vector in self.raw.items():
+            capture, arrival = timings.get(modality, (self.t_ref, self.t_ref))
+            stream = self.streams.get(modality)
+            if stream is None:
+                stream = ModalityObservation(
+                    modality=modality,
+                    vector=np.asarray(vector, dtype=np.float32),
+                    t_capture=float(capture),
+                    t_arrival=float(arrival),
+                )
+                self.streams[modality] = stream
+            else:
+                stream.vector = np.asarray(vector, dtype=np.float32)
+                stream.t_capture = float(capture)
+                stream.t_arrival = float(arrival)
+            stream.validate()
+            self.time_skew_ms[modality] = round(
+                (float(stream.t_capture) - float(self.t_ref)) * 1000.0, 6
+            )
+        self.refresh_staleness(max_latency_ms)
+        return list(self.stale_modalities)
+
     def refresh_staleness(
         self, max_latency_ms: dict[str, float] | float | None = None
     ) -> list[str]:
@@ -286,7 +329,15 @@ def extract_frame(
     models: PerceptionModels,
     noise: PoseNoise,
     min_pixels: int = 20,
+    timings: dict[str, tuple[float, float]] | None = None,
+    t_ref: float | None = None,
 ) -> list[Observation]:
+    """Build per-object observations for one frame.
+
+    ``timings`` optionally supplies real ``(t_capture, t_arrival)`` seconds
+    per modality (for asynchronous sensors).  Without it every stream is
+    synchronous with ``frame``, preserving the historical behaviour.
+    """
     rgb = sample["rgb"][frame]
     depth = sample["depth"][frame]
     seg = sample["segmentation"][frame]
@@ -385,23 +436,37 @@ def extract_frame(
         for modality, available in flags.items():
             if not available:
                 raw.pop(modality, None)
-        # Attach the timing contract.  Producers that have real capture times
-        # can overwrite these before calling the tracker; here one frame is
-        # synchronous by construction.
+        # Attach the timing contract.  Default is synchronous with ``frame``;
+        # a real driver passes ``timings`` to stamp capture/arrival seconds.
+        ref = float(frame if t_ref is None else t_ref)
         streams = {
             modality: ModalityObservation(
                 modality=modality,
                 vector=np.asarray(vector, dtype=np.float32),
-                t_capture=float(frame),
-                t_arrival=float(frame),
+                t_capture=ref,
+                t_arrival=ref,
             )
             for modality, vector in raw.items()
         }
-        valid_raw = {
-            modality: stream.vector
-            for modality, stream in streams.items()
-            if stream.valid and not stream.stale
-        }
+        observation = Observation(
+            gt_id=meta["gt_id"],
+            pos=meta["pos"],
+            quat=meta["quat"],
+            appearance=raw["vision"],
+            raw=raw,
+            confidence=meta["confidence"],
+            category=meta["category"],
+            frame=frame,
+            gt_category=meta["category"],
+            category_score=1.0,
+            modality_reliability=dict(models.weights or {}),
+            t_ref=ref,
+            streams=streams,
+        )
+        if timings is not None:
+            observation.stamp_streams(timings, t_ref=ref)
+        valid_raw = observation.valid_raw()
+
         gt_category = meta["category"]
         category = gt_category
         category_score = 1.0
@@ -422,23 +487,9 @@ def extract_frame(
                 category = None
             unknown = bool(result.unknown)
             conflict = bool(result.conflict)
-        obs.append(
-            Observation(
-                gt_id=meta["gt_id"],
-                pos=meta["pos"],
-                quat=meta["quat"],
-                appearance=raw["vision"],
-                raw=raw,
-                confidence=meta["confidence"],
-                category=category,
-                frame=frame,
-                gt_category=gt_category,
-                category_score=category_score,
-                unknown=unknown,
-                conflict=conflict,
-                modality_reliability=dict(models.weights or {}),
-                t_ref=float(frame),
-                streams=streams,
-            )
-        )
+        observation.category = category
+        observation.category_score = category_score
+        observation.unknown = unknown
+        observation.conflict = conflict
+        obs.append(observation)
     return obs

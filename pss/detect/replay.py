@@ -262,23 +262,29 @@ def replay_bundle(
         observations = []
         for (_, row), appearance in zip(frame_rows, appearances):
             identity = str(row["emb_ref"])
-            observations.append(
-                Observation(
-                    gt_id=identity,
-                    pos=np.asarray(row["pose_xyz"], dtype=float),
-                    quat=np.asarray(row["pose_quat"], dtype=float),
-                    appearance=appearance,
-                    raw={
-                        "vision": np.zeros(4),
-                        "geometry": np.zeros(4),
-                        "tactile": np.zeros(4),
-                    },
-                    confidence=float(row["score"]),
-                    category=str(row["class_pred"]),
-                    frame=frame_idx,
-                    gt_category=str(row["class_pred"]),
-                )
+            observation = Observation(
+                gt_id=identity,
+                pos=np.asarray(row["pose_xyz"], dtype=float),
+                quat=np.asarray(row["pose_quat"], dtype=float),
+                appearance=appearance,
+                raw={
+                    "vision": np.zeros(4),
+                    "geometry": np.zeros(4),
+                    "tactile": np.zeros(4),
+                },
+                confidence=float(row["score"]),
+                category=str(row["class_pred"]),
+                frame=frame_idx,
+                gt_category=str(row["class_pred"]),
             )
+            # The bundle's t_s is the simulated capture time for this frame.
+            # Replay is synchronous, so capture and arrival coincide; a real
+            # asynchronous driver would pass its own timings instead.
+            observation.stamp_streams(
+                {modality: (t_s, t_s) for modality in observation.raw},
+                t_ref=t_s,
+            )
+            observations.append(observation)
 
         if guard is not None:
             result, timed_out, latency_ms = guard.call(

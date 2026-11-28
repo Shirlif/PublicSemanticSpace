@@ -202,10 +202,23 @@ class PerceptionService:
                 return reliability
         return None
 
-    def observe(self, sample, frame: int):
+    def observe(self, sample, frame: int, *, timings=None, t_ref=None):
+        """Build observations for one frame.
+
+        ``timings`` maps ``modality -> (t_capture, t_arrival)`` in seconds;
+        real drivers pass it so stale filtering uses sensor time rather than
+        the frame index.
+        """
         if self.models is None:
             raise RuntimeError("perception service has no models")
-        return extract_frame(sample, frame, self.models, self.noise)
+        return extract_frame(
+            sample,
+            frame,
+            self.models,
+            self.noise,
+            timings=timings,
+            t_ref=t_ref,
+        )
 
     def attach_calibration(self, calibration: "CalibrationService | None") -> None:
         """Enable or disable streaming calibration without rebuilding models."""
