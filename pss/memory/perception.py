@@ -30,6 +30,37 @@ from pss.prototypes.recognize import recognize
 
 
 @dataclass
+class ModalityObservation:
+    """One modality's vector plus the timing metadata needed for fusion.
+
+    ``t_capture`` and ``t_arrival`` are in seconds on the same ``clock``.  A
+    stream is stale when ``|t_capture - t_ref|`` exceeds the modality's
+    ``max_latency_ms`` budget, or when the producer marked it invalid.
+    """
+
+    modality: str
+    vector: np.ndarray
+    t_capture: float
+    t_arrival: float
+    clock: str = "monotonic"
+    sensor_id: str = ""
+    valid: bool = True
+    stale: bool = False
+    quality: float = 1.0
+
+    def validate(self) -> None:
+        if not self.modality:
+            raise ValueError("modality must be non-empty")
+        if self.t_arrival < self.t_capture:
+            raise ValueError(
+                f"modality {self.modality!r}: t_arrival < t_capture "
+                f"({self.t_arrival} < {self.t_capture}); check the clock domain"
+            )
+        if not 0.0 <= float(self.quality) <= 1.0:
+            raise ValueError(f"quality must be in [0,1], got {self.quality}")
+
+
+@dataclass
 class Observation:
     gt_id: str
     pos: np.ndarray
@@ -44,6 +75,76 @@ class Observation:
     unknown: bool = False
     conflict: bool = False
     modality_reliability: dict[str, float] = field(default_factory=dict)
+    # Temporal contract (W5).  Defaults keep every existing constructor valid.
+    t_ref: float = 0.0
+    streams: dict[str, ModalityObservation] = field(default_factory=dict)
+    time_skew_ms: dict[str, float] = field(default_factory=dict)
+    stale_modalities: list[str] = field(default_factory=list)
+
+    def add_stream(self, stream: ModalityObservation, t_ref: float | None = None) -> None:
+        """Register a timed modality stream and recompute staleness."""
+        stream.validate()
+        if t_ref is not None:
+            self.t_ref = float(t_ref)
+        self.streams[stream.modality] = stream
+        self.time_skew_ms[stream.modality] = round(
+            (float(stream.t_capture) - float(self.t_ref)) * 1000.0, 6
+        )
+        self.refresh_staleness()
+
+    def refresh_staleness(
+        self, max_latency_ms: dict[str, float] | float | None = None
+    ) -> list[str]:
+        """Mark streams stale against the registry budget; return stale names."""
+        from pss.contracts.modality import ModalityContractError, get_spec
+
+        stale: list[str] = []
+        for modality, stream in self.streams.items():
+            if isinstance(max_latency_ms, dict):
+                limit = max_latency_ms.get(modality)
+            else:
+                limit = max_latency_ms
+            if limit is None:
+                try:
+                    limit = get_spec(modality).max_latency_ms
+                except ModalityContractError:
+                    limit = 50.0
+            skew = abs(float(stream.t_capture) - float(self.t_ref)) * 1000.0
+            stream.stale = bool(not stream.valid or skew > float(limit))
+            if stream.stale:
+                stale.append(modality)
+        self.stale_modalities = sorted(stale)
+        return list(self.stale_modalities)
+
+    def valid_raw(self) -> dict[str, np.ndarray]:
+        """Vectors safe to fuse: non-stale streams, else the legacy ``raw``."""
+        if self.streams:
+            usable = {
+                modality: np.asarray(stream.vector)
+                for modality, stream in self.streams.items()
+                if stream.valid and not stream.stale
+            }
+            return usable
+        return dict(self.raw)
+
+    def temporal_summary(self) -> dict:
+        return {
+            "t_ref": float(self.t_ref),
+            "time_skew_ms": dict(self.time_skew_ms),
+            "stale_modalities": list(self.stale_modalities),
+            "streams": {
+                modality: {
+                    "t_capture": float(stream.t_capture),
+                    "t_arrival": float(stream.t_arrival),
+                    "clock": stream.clock,
+                    "sensor_id": stream.sensor_id,
+                    "valid": bool(stream.valid),
+                    "stale": bool(stream.stale),
+                    "quality": float(stream.quality),
+                }
+                for modality, stream in self.streams.items()
+            },
+        }
 
 
 class PoseNoise:

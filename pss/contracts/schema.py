@@ -16,10 +16,15 @@ from typing import Literal
 
 import numpy as np
 
+from .modality import active_modalities
+
 SPACE_VERSION = "0.1.1"
 PUBLIC_DIM = 128
 SLOT_COUNT = 4
-MODALITIES = ("vision", "tactile", "geometry")
+# Derived from contracts/modalities.yaml (active modalities only).  Kept as a
+# module-level constant for backward compatibility; new code should call
+# ``get_modalities()`` instead.
+MODALITIES = active_modalities()
 BINDING_SCHEME = "hadamard"
 
 # Capacity and drift budgets measured by bench/binding_stability.py (Phase 0).

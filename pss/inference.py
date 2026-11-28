@@ -13,6 +13,7 @@ import numpy as np
 import torch
 from PIL import Image
 
+from pss.contracts.modality import get_modalities, get_spec
 from pss.contracts.schema import SPACE_VERSION
 from pss.encoders.data import normalize_image
 from pss.encoders.geometry import geometry_features
@@ -29,7 +30,29 @@ from pss.prototypes import (
     recognize_joint,
 )
 
-MODALITIES = ("vision", "tactile", "geometry")
+MODALITIES = get_modalities()
+DEFAULT_WEIGHTS = {m: get_spec(m).reliability_prior for m in MODALITIES}
+
+
+def load_available_heads(
+    projection_dir: str | Path,
+    device: str = "cpu",
+    modalities: tuple[str, ...] | None = None,
+) -> tuple[dict, list[str]]:
+    """Load the projection heads that exist; report the ones that do not.
+
+    This is the dynamic part of ``PublicSemanticSpace``: a modality without a
+    projection file is simply inactive, not a construction error.
+    """
+    heads: dict = {}
+    inactive: list[str] = []
+    for modality in modalities or MODALITIES:
+        path = Path(projection_dir) / f"{modality}.pt"
+        if path.exists():
+            heads[modality] = load_projection(path, device=device)
+        else:
+            inactive.append(modality)
+    return heads, inactive
 
 
 class PublicSemanticSpace:
@@ -59,9 +82,13 @@ class PublicSemanticSpace:
             modality="tactile",
             version=f"wtmm@{SPACE_VERSION}",
         ).encoder
-        self.heads = {
-            m: load_projection(Path(projection_dir) / f"{m}.pt", device=self.device)
-            for m in MODALITIES
+        self.heads, self.inactive_modalities = load_available_heads(
+            projection_dir, device=self.device
+        )
+        self.modalities = tuple(self.heads)
+        self.weights = {
+            modality: get_spec(modality).reliability_prior
+            for modality in self.modalities
         }
         self.bank_path = Path(bank_path)
         self.bank = PrototypeBank.load(self.bank_path) if self.bank_path.exists() else None
@@ -74,6 +101,19 @@ class PublicSemanticSpace:
             if self.joint is not None
             else "prototype"
         )
+
+    def describe(self) -> dict:
+        """Report the active/inactive modalities and their registry versions."""
+        return {
+            "space_version": SPACE_VERSION,
+            "modalities": list(self.modalities),
+            "inactive_modalities": list(self.inactive_modalities),
+            "weights": dict(self.weights),
+            "readout": self.readout_choice,
+            "modality_versions": {
+                modality: get_spec(modality).version for modality in self.modalities
+            },
+        }
 
     @torch.no_grad()
     def encode_image(self, image) -> np.ndarray:
@@ -115,7 +155,7 @@ class PublicSemanticSpace:
                 m: self.heads[m](
                     torch.as_tensor(getattr(feats, m), dtype=torch.float32, device=self.device)
                 ).cpu().numpy()
-                for m in MODALITIES
+                for m in self.modalities
             }
         splits = np.array(feats.splits)
         classes = sorted({feats.categories[i] for i in np.where(splits == "train")[0]})
@@ -123,19 +163,29 @@ class PublicSemanticSpace:
             [i for i in np.where(splits == "train")[0] if feats.categories[i] in classes],
             dtype=int,
         )
-        bank = build_bank(feats, Z, train_idx, classes, version="public_space_v1")
+        bank = build_bank(
+            feats,
+            Z,
+            train_idx,
+            classes,
+            version="public_space_v1",
+            modality_versions={m: get_spec(m).version for m in Z},
+        )
         self.bank_path.parent.mkdir(parents=True, exist_ok=True)
         bank.save(self.bank_path)
         self.bank = bank
 
         # Joint discriminative readout on the same 128-d features.  The mask
-        # models let a query with only vision/tactile/geometry still work.
+        # models let a query with only a subset of modalities still work.
         y_train = np.array([classes.index(feats.categories[i]) for i in train_idx])
+        modalities = tuple(Z)
+        mask_strategy = "all" if len(modalities) <= 3 else "single_plus_all"
         self.joint = JointReadout.fit(
-            {m: Z[m][train_idx] for m in MODALITIES},
+            {m: Z[m][train_idx] for m in modalities},
             y_train,
             classes,
-            modalities=MODALITIES,
+            modalities=modalities,
+            mask_strategy=mask_strategy,
         )
         val_idx = np.array(
             [i for i in np.where(splits == "val")[0] if feats.categories[i] in classes],
@@ -144,16 +194,16 @@ class PublicSemanticSpace:
         self.readout_choice = "prototype"
         if len(val_idx):
             raw_scores = self.joint.scores_batch(
-                {m: Z[m][val_idx] for m in MODALITIES}
+                {m: Z[m][val_idx] for m in modalities}
             )
             y_val = np.array([classes.index(feats.categories[i]) for i in val_idx])
             joint_acc = float(np.mean(raw_scores.argmax(axis=1) == y_val))
             self.joint.threshold = float(np.percentile(raw_scores.max(axis=1), 5))
 
-            weights = {"vision": 1.0, "tactile": 0.5, "geometry": 0.95}
+            weights = {m: self.weights[m] for m in modalities}
             proto_correct = 0
             for i in val_idx:
-                query = {m: Z[m][i] for m in MODALITIES}
+                query = {m: Z[m][i] for m in modalities}
                 result = recognize(
                     query, bank, weights=weights, use_tree=False, top_k=1
                 )
@@ -193,9 +243,9 @@ class PublicSemanticSpace:
         if geometry is not None:
             query["geometry"] = self.encode_geometry(*geometry)
         if not query:
-            raise ValueError("provide at least one of image / tactile / geometry")
+            raise ValueError("provide at least one modality value")
 
-        weights = {"vision": 1.0, "tactile": 0.5, "geometry": 0.95}
+        weights = {m: self.weights.get(m, 1.0) for m in query}
         use_joint = readout == "joint" or (
             readout == "auto" and self.readout_choice == "joint"
         )

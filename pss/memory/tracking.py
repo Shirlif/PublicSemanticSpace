@@ -180,7 +180,8 @@ class Tracker:
         track.quat = obs.quat.copy()
         if obs.category is not None:
             track.category = obs.category
-        track.raw = {k: np.asarray(v, dtype=float).copy() for k, v in obs.raw.items()}
+        raw = obs.valid_raw() if getattr(obs, "streams", None) else obs.raw
+        track.raw = {k: np.asarray(v, dtype=float).copy() for k, v in raw.items()}
         track.confidence = obs.confidence
         track.last_seen = t
         track.missed = 0
@@ -189,6 +190,7 @@ class Tracker:
         self.graph.index.update(track.id, old_pos, track.pos)
 
     def _new_track(self, obs: Observation, t: int) -> Track:
+        raw = obs.valid_raw() if getattr(obs, "streams", None) else obs.raw
         track = Track(
             id=self.graph.new_id(),
             pos=obs.pos.copy(),
@@ -198,7 +200,7 @@ class Tracker:
             confidence=obs.confidence,
             first_seen=t,
             last_seen=t,
-            raw={k: np.asarray(v, dtype=float).copy() for k, v in obs.raw.items()},
+            raw={k: np.asarray(v, dtype=float).copy() for k, v in raw.items()},
         )
         self.graph.add(track)
         return track

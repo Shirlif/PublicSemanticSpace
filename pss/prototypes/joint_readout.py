@@ -29,10 +29,10 @@ from pathlib import Path
 
 import numpy as np
 
+from pss.contracts.schema import MODALITIES, SPACE_VERSION
+
 from .recognize import RecognitionResult
 from .scorers import MahalanobisScorer
-
-MODALITIES = ("vision", "tactile", "geometry")
 
 
 def _canonical(mask, modalities) -> tuple[str, ...]:
@@ -47,8 +47,44 @@ def _softmax(scores: np.ndarray) -> np.ndarray:
     return exp / max(exp.sum(), 1e-12)
 
 
-def _masks(modalities: tuple[str, ...]):
-    for size in range(1, len(modalities) + 1):
+def _masks(
+    modalities: tuple[str, ...],
+    *,
+    strategy: str = "all",
+    max_size: int | None = None,
+    observed: set[tuple[str, ...]] | None = None,
+):
+    """Enumerate the modality masks a readout should train.
+
+    ``all`` (legacy) fits every non-empty subset.  With more than three
+    modalities that is combinatorial, so the compatibility plan adds:
+
+    - ``single_plus_all``: each single modality plus the full set;
+    - ``max_size``: every subset up to ``max_size``;
+    - ``observed``: exactly the masks present in the training batches.
+    """
+    if strategy == "observed":
+        if observed is None:
+            raise ValueError("observed mask strategy requires observed_masks")
+        wanted = {
+            tuple(m for m in modalities if m in subset)
+            for subset in observed
+            if set(subset) <= set(modalities)
+        }
+        yield from sorted(wanted, key=lambda mask: (len(mask), mask))
+        return
+    if strategy == "single_plus_all":
+        for modality in modalities:
+            yield (modality,)
+        if len(modalities) > 1:
+            yield tuple(modalities)
+        return
+    if strategy not in {"all", "max_size"}:
+        raise ValueError(f"unknown mask strategy {strategy!r}")
+    limit = len(modalities) if max_size is None else min(int(max_size), len(modalities))
+    if strategy == "max_size" and max_size is None:
+        raise ValueError("max_size strategy requires max_mask_size")
+    for size in range(1, limit + 1):
         for subset in combinations(modalities, size):
             yield tuple(subset)
 
@@ -64,6 +100,7 @@ class JointReadout:
     version: str = "joint_readout_v1"
     threshold: float | None = None
     metadata: dict = field(default_factory=dict)
+    space_version: str = SPACE_VERSION
 
     # ── fitting ─────────────────────────────────────────────────────────────
 
@@ -76,6 +113,10 @@ class JointReadout:
         modalities: tuple[str, ...] = MODALITIES,
         version: str = "joint_readout_v1",
         shrinkage: float = 1e-3,
+        *,
+        mask_strategy: str = "all",
+        max_mask_size: int | None = None,
+        observed_masks: set[tuple[str, ...]] | None = None,
     ) -> "JointReadout":
         modalities = tuple(m for m in modalities if m in Z)
         if not modalities:
@@ -88,8 +129,16 @@ class JointReadout:
             scale = arr.std(axis=0)
             scalers[modality] = (mean, np.clip(scale, 1e-8, None))
 
+        masks = list(
+            _masks(
+                modalities,
+                strategy=mask_strategy,
+                max_size=max_mask_size,
+                observed=observed_masks,
+            )
+        )
         models: dict[tuple[str, ...], MahalanobisScorer] = {}
-        for mask in _masks(modalities):
+        for mask in masks:
             X = cls._concat(Z, scalers, mask)
             models[mask] = MahalanobisScorer(shrinkage=shrinkage).fit(X, y)
         return cls(
@@ -98,8 +147,44 @@ class JointReadout:
             scalers=scalers,
             models=models,
             version=version,
-            metadata={"shrinkage": float(shrinkage)},
+            metadata={
+                "shrinkage": float(shrinkage),
+                "mask_strategy": mask_strategy,
+                "max_mask_size": max_mask_size,
+                "trained_masks": [list(mask) for mask in masks],
+            },
         )
+
+    @classmethod
+    def fit_class_centroids(
+        cls,
+        Z: dict[str, np.ndarray],
+        classes: list[str],
+        modalities: tuple[str, ...] = MODALITIES,
+        **kwargs,
+    ) -> "JointReadout":
+        """Fit one row per class, for modality batches collected separately.
+
+        ``Z[modality]`` must be ``(C, D)``: one centroid per class.  This is the
+        approximation used when no single row has every modality; it is marked
+        ``approximate`` in the metadata.
+        """
+        for modality, arr in Z.items():
+            arr = np.asarray(arr)
+            if arr.ndim != 2 or arr.shape[0] != len(classes):
+                raise ValueError(
+                    f"{modality}: expected ({len(classes)}, D) class centroids, "
+                    f"got {arr.shape}"
+                )
+        model = cls.fit(
+            Z,
+            np.arange(len(classes), dtype=np.int64),
+            classes,
+            modalities=modalities,
+            **kwargs,
+        )
+        model.metadata["approximate"] = True
+        return model
 
     @staticmethod
     def _concat(Z: dict[str, np.ndarray], scalers, mask) -> np.ndarray:
@@ -160,7 +245,10 @@ class JointReadout:
     def add_class(self, label: str, query: dict[str, np.ndarray]) -> None:
         """Add a class mean to every mask model; the precision stays frozen."""
         idx = self._index(label)
+        available = set(query)
         for mask, scorer in self.models.items():
+            if not set(mask) <= available:
+                continue
             z = self._concat(query, self.scalers, mask).reshape(1, -1)
             if idx in set(int(c) for c in np.asarray(scorer.classes_)):
                 scorer.update_class(idx, z)
@@ -173,7 +261,10 @@ class JointReadout:
             self.add_class(label, query)
             return
         idx = self.classes.index(label)
+        available = set(query)
         for mask, scorer in self.models.items():
+            if not set(mask) <= available:
+                continue
             z = self._concat(query, self.scalers, mask).reshape(1, -1)
             scorer.update_class(idx, z)
 
@@ -213,6 +304,7 @@ class JointReadout:
             "threshold": self.threshold,
             "masks": [list(mask) for mask in self.models],
             "metadata": self.metadata,
+            "space_version": self.space_version,
         }
         payload = {"meta_json": np.array(json.dumps(meta, ensure_ascii=False))}
         for modality, (mean, scale) in self.scalers.items():
@@ -255,6 +347,7 @@ class JointReadout:
             version=str(meta["version"]),
             threshold=meta.get("threshold"),
             metadata=meta.get("metadata", {}),
+            space_version=str(meta.get("space_version", "0.1.1")),
         )
 
 
@@ -297,11 +390,16 @@ def recognize_joint(
                     )
                 )
                 for m in modalities
+                if bank.has_prototype(m, category)
             }
         high = [m for m in modalities if weights.get(m, 0.0) >= conflict_weight]
         for modality in high:
-            sims = bank.modality_scores(query[modality], modality)
-            modality_top[modality] = bank.categories[int(np.argmax(sims))]
+            sims = np.asarray(
+                bank.modality_scores(query[modality], modality), dtype=np.float64
+            ).copy()
+            sims[~bank.valid_mask(modality)] = -np.inf
+            if np.isfinite(sims).any():
+                modality_top[modality] = bank.categories[int(np.argmax(sims))]
         conflict = len(set(modality_top.values())) > 1
 
     unknown = bool(threshold is not None and raw.max() < threshold)

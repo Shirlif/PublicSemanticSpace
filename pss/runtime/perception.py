@@ -235,6 +235,11 @@ class PerceptionService:
 
     def describe(self) -> dict:
         projection = self.config.projection_dir if not self.fallback else BASE_PROJECTION
+        from pss.contracts.modality import get_modalities, get_spec
+
+        supported = ("vision", "tactile", "geometry")
+        active = [m for m in get_modalities() if m in supported]
+        inactive = [m for m in get_modalities() if m not in supported]
         calibration = {}
         metrics_path = Path(projection) / "metrics.json"
         if metrics_path.exists():
@@ -258,6 +263,11 @@ class PerceptionService:
             "device": self.device,
             "fallback": self.fallback,
             "error": self.error,
+            "active_modalities": active,
+            "inactive_modalities": inactive,
+            "modality_versions": {
+                m: get_spec(m).version for m in active if m in get_modalities()
+            },
             "admission": self._admission_summary(),
             "calibration": calibration,
             "reliability": dict(getattr(self.models, "weights", None) or {}),

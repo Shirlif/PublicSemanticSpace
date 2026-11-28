@@ -72,29 +72,41 @@ def recognize(
             if category in candidates:
                 shortlist.add(category)
 
-    # Level 4: exact cosine on the shortlist, weighted fusion.
+    # Level 4: exact cosine on the shortlist, weighted fusion.  A category
+    # that has no prototype in a modality simply does not contribute that
+    # modality's weight; the denominator is per category, not global.
     per_modality: dict[str, dict[str, float]] = {}
     for category in shortlist:
         i = bank.categories.index(category)
         per_modality[category] = {
-            m: float(np.dot(l2(query[m]), bank.protos[m][i])) for m in modalities
+            m: float(np.dot(l2(query[m]), bank.protos[m][i]))
+            for m in modalities
+            if bank.has_prototype(m, category)
         }
-    denom = sum(weights[m] for m in modalities)
-    scores = {
-        c: sum(weights[m] * per_modality[c][m] for m in modalities) / denom
-        for c in shortlist
-    }
+    scores = {}
+    for category in shortlist:
+        available = per_modality[category]
+        denom = sum(weights[m] for m in available)
+        if denom <= 0:
+            continue
+        scores[category] = (
+            sum(weights[m] * value for m, value in available.items()) / denom
+        )
     ranked = sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))[:top_k]
 
     # Conflict: high-weight modalities disagree on their own top-1.
     high = [m for m in modalities if weights.get(m, 0.0) >= conflict_weight]
     modality_top: dict[str, str] = {}
     for m in high:
-        sims = bank.modality_scores(query[m], m)
-        modality_top[m] = bank.categories[int(np.argmax(sims))]
+        sims = np.asarray(bank.modality_scores(query[m], m), dtype=np.float64).copy()
+        sims[~bank.valid_mask(m)] = -np.inf
+        if np.isfinite(sims).any():
+            modality_top[m] = bank.categories[int(np.argmax(sims))]
     conflict = len(set(modality_top.values())) > 1
 
-    unknown = bool(threshold is not None and (not ranked or ranked[0][1] < threshold))
+    unknown = bool(
+        not ranked or (threshold is not None and ranked[0][1] < threshold)
+    )
     return RecognitionResult(
         ranked=ranked,
         per_modality=per_modality,

@@ -1,0 +1,92 @@
+# 公共语义空间 · 模态注册表
+#
+# 本文件是“有哪些模态”的唯一真源。新增模态只改这里 + adapter + 投影头 +
+# 契约测试，不改 PSS 核心。
+#
+# 字段说明：
+#   kind             模态的物理/信号类别（dense_rgb / contact_grid / depth / waveform ...）
+#   input_schema     原始输入形状；仅作文档与校验提示
+#   native_dim       专家输出维度；变长模态写 null
+#   preprocess       预处理契约名
+#   normalize        进入公共空间前的归一化方式：l2 / none / standardize
+#   time_unit        时间单位：frame / ms / s
+#   max_latency_ms   该模态允许的最大采集延迟；超过则标记 stale
+#   reliability_prior 融合先验可靠性 [0,1]；校准后应覆盖
+#   missing_policy   缺失时的策略：skip / impute / raise
+#   calibration      校准方式：temperature / none
+#   capabilities     能力标签（检索用，不做语义推断）
+#   status           active / experimental / retired
+#
+# 版本规则见 contracts/README.md。新增模态属于 minor：SPACE_VERSION 0.1.1 -> 0.2.0。
+
+schema_version: "0.2.0"
+defaults:
+  normalize: l2
+  time_unit: frame
+  max_latency_ms: 50
+  missing_policy: skip
+  calibration: temperature
+  status: active
+
+modalities:
+  vision:
+    kind: dense_rgb
+    input_schema: {rgb: [3, 64, 64]}
+    native_dim: 256
+    preprocess: imagenet_normalize_v1
+    normalize: l2
+    time_unit: frame
+    max_latency_ms: 50
+    reliability_prior: 1.00
+    missing_policy: skip
+    calibration: temperature
+    capabilities: [dense, object_crop]
+    status: active
+    version: "0.1.0"
+
+  tactile:
+    kind: contact_grid
+    input_schema: {contact_grid: [8, 8]}
+    native_dim: 64
+    preprocess: contact_grid_v1
+    normalize: l2
+    time_unit: frame
+    max_latency_ms: 20
+    reliability_prior: 0.50
+    missing_policy: skip
+    calibration: temperature
+    capabilities: [dense, contact]
+    status: active
+    version: "0.1.0"
+
+  geometry:
+    kind: depth_segmentation
+    input_schema: {depth: [H, W], segmentation: [H, W]}
+    native_dim: 16
+    preprocess: geometry_features_v1
+    normalize: l2
+    time_unit: frame
+    max_latency_ms: 50
+    reliability_prior: 0.95
+    missing_policy: skip
+    calibration: temperature
+    capabilities: [dense, geometric]
+    status: active
+    version: "0.1.0"
+
+  # 示例：保留在注册表里，默认不进入 MODALITIES。启用时需要 adapter、
+  # 投影头、校准集和契约测试。
+  audio:
+    kind: waveform
+    input_schema: {waveform: [16000]}
+    native_dim: null
+    preprocess: logmel_v1
+    normalize: standardize
+    time_unit: ms
+    max_latency_ms: 100
+    reliability_prior: 0.60
+    missing_policy: skip
+    calibration: temperature
+    capabilities: [temporal]
+    status: experimental
+    version: "0.0.1"

@@ -1,3 +1,12 @@
+from .modality import (
+    ModalityContractError,
+    ModalitySpec,
+    active_modalities,
+    get_modalities,
+    get_spec,
+    load_modalities,
+    resolve_modalities,
+)
 from .schema import (
     BINDING_SCHEME,
     MODALITIES,
@@ -15,6 +24,8 @@ from .schema import (
 __all__ = [
     "BINDING_SCHEME",
     "MODALITIES",
+    "ModalityContractError",
+    "ModalitySpec",
     "PUBLIC_DIM",
     "REBIND_ERROR_BUDGET",
     "RECOMMENDED_MAX_SUPERPOSITION",
@@ -23,5 +34,10 @@ __all__ = [
     "Entity",
     "PrototypeNode",
     "Relation",
+    "active_modalities",
+    "get_modalities",
+    "get_spec",
     "l2_normalize",
+    "load_modalities",
+    "resolve_modalities",
 ]

@@ -23,6 +23,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from pss.contracts.schema import SPACE_VERSION
+
 PUBLIC_DIM = 128
 
 
@@ -91,6 +93,7 @@ class ProjectionHead(nn.Module):
             nn.Linear(self.hidden, self.out_dim),
         )
         self.skip = nn.Linear(work_dim, self.out_dim, bias=False) if self.residual else None
+        self.space_version = SPACE_VERSION
 
     def fit_whitening(self, X: np.ndarray) -> "ProjectionHead":
         if self.whiten is None:
@@ -116,6 +119,7 @@ def save_projection(path: str | Path, head: ProjectionHead) -> None:
             "whiten_dim": head.whiten_dim,
             "residual": bool(head.residual),
             "whitening_fitted": bool(getattr(head.whiten, "fitted", False)),
+            "space_version": head.space_version,
         },
         Path(path),
     )
@@ -133,5 +137,6 @@ def load_projection(path: str | Path, device: str = "cpu") -> ProjectionHead:
     head.load_state_dict(payload["state_dict"])
     if head.whiten is not None:
         head.whiten.fitted = bool(payload.get("whitening_fitted", True))
+    head.space_version = str(payload.get("space_version", "0.1.1"))
     head.eval()
     return head
