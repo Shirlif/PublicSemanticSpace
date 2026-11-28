@@ -21,6 +21,7 @@ from pss.encoders.tactile.wtmm import WTMMTactileExpert, load_wtmm_tactile
 from pss.encoders.vision import load_vision_expert
 from pss.experts.adapter import admit_encoder
 from pss.projection import load_projection
+from pss.projection.calibration import load_calibration
 from pss.projection.features import load_paired_features
 from pss.prototypes import (
     JointReadout,
@@ -32,6 +33,19 @@ from pss.prototypes import (
 
 MODALITIES = get_modalities()
 DEFAULT_WEIGHTS = {m: get_spec(m).reliability_prior for m in MODALITIES}
+
+
+def resolve_weights(
+    modalities,
+    calibration: dict | None = None,
+) -> dict[str, float]:
+    """Registry priors, overridden by a calibration record when present."""
+    weights = {m: get_spec(m).reliability_prior for m in modalities}
+    if calibration:
+        for modality, record in calibration.items():
+            if modality in weights:
+                weights[modality] = float(record.reliability)
+    return weights
 
 
 def load_available_heads(
@@ -63,6 +77,7 @@ class PublicSemanticSpace:
         projection_dir: str | Path = "checkpoints/projection_wtmm",
         bank_path: str | Path = "checkpoints/public_space_v1/bank.npz",
         device: str | None = None,
+        calibration_path: str | Path | None = None,
     ):
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         # Both experts are admitted against the same contract the registry and
@@ -86,10 +101,18 @@ class PublicSemanticSpace:
             projection_dir, device=self.device
         )
         self.modalities = tuple(self.heads)
-        self.weights = {
-            modality: get_spec(modality).reliability_prior
-            for modality in self.modalities
-        }
+        # Optional per-modality calibration artifact.  It overrides the
+        # registry priors with validation-fitted reliability (and keeps the
+        # temperatures available for callers that calibrate scores).
+        if calibration_path is None:
+            candidate = Path(projection_dir) / "calibration.json"
+        else:
+            candidate = Path(calibration_path)
+        self.calibration_path = candidate if candidate.exists() else None
+        self.calibration = (
+            load_calibration(candidate) if self.calibration_path is not None else {}
+        )
+        self.weights = resolve_weights(self.modalities, self.calibration)
         self.bank_path = Path(bank_path)
         self.bank = PrototypeBank.load(self.bank_path) if self.bank_path.exists() else None
         self.joint_path = self.bank_path.parent / "joint_readout.npz"
@@ -109,6 +132,13 @@ class PublicSemanticSpace:
             "modalities": list(self.modalities),
             "inactive_modalities": list(self.inactive_modalities),
             "weights": dict(self.weights),
+            "calibration_path": (
+                str(self.calibration_path) if self.calibration_path else None
+            ),
+            "calibration": {
+                modality: record.to_dict()
+                for modality, record in self.calibration.items()
+            },
             "readout": self.readout_choice,
             "modality_versions": {
                 modality: get_spec(modality).version for modality in self.modalities

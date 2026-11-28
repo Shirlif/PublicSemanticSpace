@@ -152,3 +152,45 @@ HRR 不仅近似，而且**迭代下误差指数发散**，不能用于 rebind �
 | 叠加 `memory` | — | ~7.9 |
 
 因此：`fact` 只能用于快速相似度检索；任何需要取回具体角色的场景都必须读 `parts`。
+
+## 9. 两个 YAML 的分工（2026-11-28）
+
+| 文件 | 角色 | 谁读它 | 改了会怎样 |
+|---|---|---|---|
+| `contracts/modalities.yaml` | **模态真源**：有哪些模态、维度、归一化、时间预算、缺失策略 | `pss/contracts/modality.py`；`MODALITIES` 由此派生 | 新增 `active` 模态会立刻进入 `get_modalities()` |
+| `contracts/experts.yaml` | **专家登记/评审清单**：候选、许可、评测记录 | 人工评审、`bench_expert_zoo` 的配置 | **不会**自动改变生产；生产仍由 `pss/encoders/registry.py` 和 `pss/experts/` 按 `kind` 构建 |
+
+规则：
+
+1. 新增模态：先改 `modalities.yaml`，再加 adapter、投影头、校准与契约测试。
+2. 新增专家：同时改 `experts.yaml`（登记）与 `pss/encoders/registry.py` / `pss/experts/`（执行）；两者缺一视为未完成。
+3. `tests/test_experts_contract.py` 会检查登记的模态是否存在、维度/许可/状态是否完整，防止 YAML 与代码漂移。
+
+## 10. 版本与 artifact 强制（2026-11-28）
+
+当前 `SPACE_VERSION = "0.1.1"`。首次真正新增一个 `active` 模态时升到 `0.2.0`；本轮只准备了注册表和测试，未改版本号。
+
+| 变更 | 版本 | 后果 | 迁移 |
+|---|---|---|---|
+| `PUBLIC_DIM` / 归一化 / 绑定 / `SLOT_COUNT` | **major** | 全部历史向量作废 | 全量重算，不能在线迁移 |
+| 新增模态 / 新专家 / 新投影头 | **minor** | 旧向量仍有效 | 旧 artifact 可加载；写 manifest |
+| 阈值 / 校准 / 元数据 | **patch** | 不失效 | 直接覆盖 |
+
+加载强制：
+
+- `PrototypeBank.load`、`JointReadout.load`、`load_projection` 默认调用
+  `assert_compatible(artifact.space_version, SPACE_VERSION)`；
+- 旧复现包或迁移工具可显式传 `strict=False`；
+- 不兼容错误包含 artifact 名、两个版本号和迁移提示。
+
+工具：
+
+- `python -m pss.runtime.migrate --kind bank|readout|projection --path ...`：只补元数据，不改向量；
+- `pss.runtime.artifacts.ArtifactRegistry`：checksum 记录、版本解析与回滚。
+
+变更记录：
+
+| 版本 | 变更 |
+|---|---|
+| 0.1.2（规划） | 模态注册表、部分模态原型库、动态读出、时间契约、artifact 版本强制；`SPACE_VERSION` 仍为 0.1.1 |
+| 0.2.0（规划） | 首个新增 `active` 模态启用时升级；旧 0.1.1 artifact 仍兼容 |

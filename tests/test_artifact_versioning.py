@@ -115,3 +115,37 @@ def test_artifact_registry_rollback(tmp_path):
     assert registry.resolve("bank").read_bytes() == b"v2"
     restored = registry.rollback("bank", "v1", target=tmp_path / "restored.npz")
     assert restored.read_bytes() == b"v1"
+
+
+def test_bank_load_enforces_version_with_escape_hatch(tmp_path):
+    path = tmp_path / "bank.npz"
+    _legacy_bank(path)
+    bank = PrototypeBank.load(path)
+    bank.space_version = "99.0.0"
+    bank.save(path)
+    with pytest.raises(IncompatibleArtifactError):
+        PrototypeBank.load(path)
+    assert PrototypeBank.load(path, strict=False).space_version == "99.0.0"
+
+
+def test_readout_load_enforces_version_with_escape_hatch(tmp_path):
+    path = tmp_path / "readout.npz"
+    readout = _readout()
+    readout.space_version = "99.0.0"
+    readout.save(path)
+    with pytest.raises(IncompatibleArtifactError):
+        JointReadout.load(path)
+    assert JointReadout.load(path, strict=False).space_version == "99.0.0"
+
+
+def test_projection_load_enforces_version_with_escape_hatch(tmp_path):
+    pytest.importorskip("torch")
+    from pss.projection.heads import ProjectionHead, load_projection, save_projection
+
+    path = tmp_path / "vision.pt"
+    head = ProjectionHead(4, 8)
+    head.space_version = "99.0.0"
+    save_projection(path, head)
+    with pytest.raises(IncompatibleArtifactError):
+        load_projection(path)
+    assert load_projection(path, strict=False).space_version == "99.0.0"

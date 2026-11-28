@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from pss.contracts.schema import SPACE_VERSION
+from pss.contracts.versioning import assert_compatible
 
 
 def l2(v) -> np.ndarray:
@@ -153,7 +154,7 @@ class PrototypeBank:
         np.savez_compressed(path, **payload)
 
     @classmethod
-    def load(cls, path: str | Path) -> "PrototypeBank":
+    def load(cls, path: str | Path, *, strict: bool = True) -> "PrototypeBank":
         with np.load(Path(path), allow_pickle=False) as f:
             categories = json.loads(str(f["categories_json"]))
             stats = json.loads(str(f["stats_json"]))
@@ -180,6 +181,10 @@ class PrototypeBank:
                 for k in f.files
                 if k.startswith("proto_")
             }
+        if strict:
+            assert_compatible(
+                space_version, SPACE_VERSION, artifact_name="prototype bank"
+            )
         return cls(
             categories=categories,
             protos=protos,

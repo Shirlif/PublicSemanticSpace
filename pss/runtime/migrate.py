@@ -40,7 +40,7 @@ def _manifest(artifact: str, path: Path, modalities, **kwargs) -> ArtifactManife
 
 def migrate_bank(path: str | Path) -> ArtifactManifest:
     path = Path(path)
-    bank = PrototypeBank.load(path)
+    bank = PrototypeBank.load(path, strict=False)
     if not is_compatible(bank.space_version, SPACE_VERSION):
         raise IncompatibleArtifactError(
             f"bank at {path} is {bank.space_version}; current {SPACE_VERSION}"
@@ -57,7 +57,7 @@ def migrate_bank(path: str | Path) -> ArtifactManifest:
 
 def migrate_readout(path: str | Path) -> ArtifactManifest:
     path = Path(path)
-    readout = JointReadout.load(path)
+    readout = JointReadout.load(path, strict=False)
     if not is_compatible(readout.space_version, SPACE_VERSION):
         raise IncompatibleArtifactError(
             f"readout at {path} is {readout.space_version}; current {SPACE_VERSION}"
@@ -74,7 +74,7 @@ def migrate_readout(path: str | Path) -> ArtifactManifest:
 
 def migrate_projection(path: str | Path, device: str = "cpu") -> ArtifactManifest:
     path = Path(path)
-    head = load_projection(path, device=device)
+    head = load_projection(path, device=device, strict=False)
     if not is_compatible(head.space_version, SPACE_VERSION):
         raise IncompatibleArtifactError(
             f"projection at {path} is {head.space_version}; current {SPACE_VERSION}"

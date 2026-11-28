@@ -15,10 +15,14 @@ better justified than hand-tuned constants.
 
 from __future__ import annotations
 
+import json
 from dataclasses import asdict, dataclass
+from pathlib import Path
 
 import numpy as np
 from scipy.optimize import minimize_scalar
+
+from pss.contracts.schema import SPACE_VERSION
 
 
 @dataclass
@@ -29,9 +33,46 @@ class ModalityCalibration:
     val_accuracy: float
     val_nll: float
     n_val: int
+    space_version: str = SPACE_VERSION
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+def save_calibration(
+    path: str | Path, calibration: dict[str, ModalityCalibration]
+) -> Path:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "version": "calibration_v1",
+        "space_version": SPACE_VERSION,
+        "modalities": {name: record.to_dict() for name, record in calibration.items()},
+    }
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
+
+
+def load_calibration(path: str | Path) -> dict[str, ModalityCalibration]:
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    records = data.get("modalities", data)
+    out: dict[str, ModalityCalibration] = {}
+    for name, row in records.items():
+        if not isinstance(row, dict):
+            continue
+        known = {
+            "modality",
+            "temperature",
+            "reliability",
+            "val_accuracy",
+            "val_nll",
+            "n_val",
+            "space_version",
+        }
+        payload = {k: v for k, v in row.items() if k in known}
+        payload.setdefault("modality", name)
+        out[name] = ModalityCalibration(**payload)
+    return out
 
 
 def _unit(x: np.ndarray) -> np.ndarray:

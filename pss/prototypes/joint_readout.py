@@ -30,6 +30,7 @@ from pathlib import Path
 import numpy as np
 
 from pss.contracts.schema import MODALITIES, SPACE_VERSION
+from pss.contracts.versioning import assert_compatible
 
 from .recognize import RecognitionResult
 from .scorers import MahalanobisScorer
@@ -317,7 +318,7 @@ class JointReadout:
         np.savez_compressed(path, **payload)
 
     @classmethod
-    def load(cls, path: str | Path) -> "JointReadout":
+    def load(cls, path: str | Path, *, strict: bool = True) -> "JointReadout":
         with np.load(Path(path), allow_pickle=False) as f:
             meta = json.loads(str(f["meta_json"]))
             modalities = tuple(meta["modalities"])
@@ -339,6 +340,11 @@ class JointReadout:
                 )
                 scorer.covariance_frozen = True
                 models[mask] = scorer
+        space_version = str(meta.get("space_version", "0.1.1"))
+        if strict:
+            assert_compatible(
+                space_version, SPACE_VERSION, artifact_name="joint readout"
+            )
         return cls(
             classes=list(meta["classes"]),
             modalities=modalities,
@@ -347,7 +353,7 @@ class JointReadout:
             version=str(meta["version"]),
             threshold=meta.get("threshold"),
             metadata=meta.get("metadata", {}),
-            space_version=str(meta.get("space_version", "0.1.1")),
+            space_version=space_version,
         )
 
 

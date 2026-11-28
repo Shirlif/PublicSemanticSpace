@@ -96,3 +96,59 @@ def test_registry_budget_is_used_by_default():
     )
     obs.refresh_staleness()
     assert obs.stale_modalities == ["tactile"]
+
+
+def _timed_obs(tactile_time: float) -> Observation:
+    raw = {
+        "vision": np.ones(128),
+        "geometry": np.ones(128),
+        "tactile": np.ones(128),
+    }
+    obs = _obs(raw=raw)
+    obs.add_stream(
+        ModalityObservation("vision", raw["vision"], 10.0, 10.0), t_ref=10.0
+    )
+    obs.add_stream(
+        ModalityObservation("geometry", raw["geometry"], 10.0, 10.0), t_ref=10.0
+    )
+    obs.add_stream(
+        ModalityObservation("tactile", raw["tactile"], tactile_time, 10.0),
+        t_ref=10.0,
+    )
+    obs.refresh_staleness({"vision": 50.0, "geometry": 50.0, "tactile": 20.0})
+    return obs
+
+
+def test_entity_tokens_exclude_stale_streams():
+    from pss.memory.learned_metric import pad_observations
+
+    fresh = _timed_obs(10.0)
+    stale = _timed_obs(8.0)
+    assert stale.stale_modalities == ["tactile"]
+
+    tokens_stale, mask_stale = pad_observations([stale], include_tactile=True)
+    tokens_fresh, mask_fresh = pad_observations([fresh], include_tactile=True)
+    assert mask_stale[0] == mask_fresh[0] == 1.0
+    assert not np.allclose(tokens_stale[0], tokens_fresh[0])
+    # The stale token must equal the fresh token with the tactile block zeroed.
+    tactile_dim = 128  # pss.memory.learned_metric.TACTILE_DIM
+    prefix = tokens_fresh.shape[1] - tactile_dim
+    assert np.allclose(tokens_stale[0][:prefix], tokens_fresh[0][:prefix])
+    assert np.allclose(tokens_stale[0][prefix:], 0.0)
+
+
+def test_stale_tactile_does_not_change_entity_identity():
+    from pss.runtime.layers import EntityLayer
+
+    layer = EntityLayer(use_default_relations=False, use_default_active=False)
+    first = _timed_obs(10.0)
+    layer.ingest([first], 0)
+    track_id = next(iter(layer.graph.tracks))
+    assert "tactile" in layer.graph.tracks[track_id].raw
+
+    second = _timed_obs(8.0)
+    second.frame = 1
+    layer.ingest([second], 1)
+    assert next(iter(layer.graph.tracks)) == track_id
+    assert "tactile" not in layer.graph.tracks[track_id].raw
+

@@ -24,6 +24,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from pss.contracts.schema import SPACE_VERSION
+from pss.contracts.versioning import assert_compatible
 
 PUBLIC_DIM = 128
 
@@ -125,7 +126,9 @@ def save_projection(path: str | Path, head: ProjectionHead) -> None:
     )
 
 
-def load_projection(path: str | Path, device: str = "cpu") -> ProjectionHead:
+def load_projection(
+    path: str | Path, device: str = "cpu", *, strict: bool = True
+) -> ProjectionHead:
     payload = torch.load(Path(path), map_location=device, weights_only=False)
     head = ProjectionHead(
         int(payload["in_dim"]),
@@ -138,5 +141,9 @@ def load_projection(path: str | Path, device: str = "cpu") -> ProjectionHead:
     if head.whiten is not None:
         head.whiten.fitted = bool(payload.get("whitening_fitted", True))
     head.space_version = str(payload.get("space_version", "0.1.1"))
+    if strict:
+        assert_compatible(
+            head.space_version, SPACE_VERSION, artifact_name="projection head"
+        )
     head.eval()
     return head

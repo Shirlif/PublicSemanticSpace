@@ -165,7 +165,10 @@ class EntityLayer:
         obs_tokens = np.stack(
             [
                 entity_token(
-                    o.pos, o.raw, o.category or o.gt_category, include_tactile=True
+                    o.pos,
+                    o.valid_raw() if getattr(o, "streams", None) else o.raw,
+                    o.category or o.gt_category,
+                    include_tactile=True,
                 )
                 for o in observations
             ]

@@ -675,17 +675,25 @@ python -m pytest tests/test_temporal_contract.py \
 | W2 部分模态 | 完成 | `build_bank` 支持 `train_idx` 字典与 `coverage/missing/imputed`、`recognize` 按可用模态融合、`tests/test_partial_modality_bank.py` |
 | W3 动态读出 | 完成 | `all/single_plus_all/max_size/observed` mask 策略、`fit_class_centroids`、部分模态热更新、`tests/test_joint_readout_masks.py` |
 | W4 动态空间 | 完成 | `load_available_heads`、动态权重/`describe()`、`PerceptionService.describe()`、`tests/test_dynamic_space.py` |
-| W5 时间契约 | 完成（契约层） | `ModalityObservation`、`Observation.add_stream/refresh_staleness/valid_raw`、tracking 使用有效流、`tests/test_temporal_contract.py` |
-| W6 版本迁移 | 完成 | `pss/contracts/versioning.py`、artifact `space_version`、`pss/runtime/migrate.py`、`pss/runtime/artifacts.py`、`tests/test_artifact_versioning.py` |
-| W7 契约测试 | 完成（合成） | 13 项兼容性矩阵、模态契约测试、`docs/plans/PSS-模态上线检查清单.md` |
+| W5 时间契约 | 完成（含接线） | `ModalityObservation`、`Observation.add_stream/refresh_staleness/valid_raw`、tracking / `entity_token` / `pad_observations` / runtime missing 检测均使用有效流、`tests/test_temporal_contract.py` |
+| W6 版本迁移 | 完成（强制） | `pss/contracts/versioning.py`、artifact `space_version`、三个 load 入口 `assert_compatible`（`strict=False` 逃生口）、`pss/runtime/migrate.py`、`pss/runtime/artifacts.py`、`tests/test_artifact_versioning.py` |
+| W7 契约测试 | 完成（合成） | 13 项兼容性矩阵、模态契约测试、专家登记一致性、校准 artifact 测试、`docs/plans/PSS-模态上线检查清单.md` |
+
+**本轮补齐（2026-11-28，二轮）**：
+
+- W5 接线：`EntityLayer._tokens`、`pad_observations`、`runtime.ingest` 缺失模态检测都改用 `valid_raw()`；`extract_frame` 给每个流附时间戳。
+- W6 强制：`PrototypeBank.load` / `JointReadout.load` / `load_projection` 默认 `assert_compatible`；迁移工具用 `strict=False`。
+- 分工文档：`contracts/README.md` §9 明确 `modalities.yaml` 是模态真源、`experts.yaml` 是登记清单；新增 `tests/test_experts_contract.py`。
+- 校准接入：`PublicSemanticSpace` 可选加载 `projection_dir/calibration.json`，用校准 reliability 覆盖注册表先验；新增 `tests/test_calibration_artifact.py`。
 
 **尚未完成**：
 
 - 真实种子集（30 物体 × 3 模态 × 2 会话）需要硬件采集；当前矩阵是合成扰动。
-- 真实感知生产者尚未填充 `t_capture/t_arrival`；契约已就绪，需在 `PerceptionService.extract_frame` 接入。
+- 真实感知生产者尚未填充真实 `t_capture/t_arrival`；契约与默认同步时间已接入，需在驱动层替换。
 - 首次真正新增模态时，`SPACE_VERSION` 从 `0.1.1` 升到 `0.2.0`；本轮未改版本号。
 - `pss/demos/`、`pss/eval/scripts/` 仍使用兼容常量 `MODALITIES`，未强制迁移。
 - `ArtifactRegistry` 已可用，但尚未接入所有加载路径；当前是显式调用。
+- 校准的 temperature 已加载并可见，但 `recognize` 仍只用 reliability 权重；按温度归一化分数是后续可选路径。
 
 **验证命令**：
 

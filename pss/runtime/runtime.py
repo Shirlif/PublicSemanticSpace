@@ -165,7 +165,11 @@ class PSSRuntime:
         missing = {}
         reliability: dict[str, list[float]] = {}
         for obs in observations:
-            raw = getattr(obs, "raw", {}) or {}
+            raw = (
+                obs.valid_raw()
+                if getattr(obs, "streams", None)
+                else (getattr(obs, "raw", {}) or {})
+            )
             absent = [m for m in modalities if m not in raw]
             if absent:
                 missing[str(getattr(obs, "gt_id", "unknown"))] = absent

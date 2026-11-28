@@ -110,7 +110,10 @@ def pad_observations(
     # Fast path: every entity has both core modalities. Avoids one
     # concatenate + one one-hot allocation per entity, which dominates when
     # the pruned matcher scores hundreds of small components.
-    raws = [getattr(obs, "raw", {}) for obs in items]
+    raws = [
+        obs.valid_raw() if getattr(obs, "streams", None) else getattr(obs, "raw", {}) or {}
+        for obs in items
+    ]
     if items and all("vision" in r and "geometry" in r for r in raws):
         count = len(items)
         vision = np.stack([np.asarray(r["vision"], dtype=np.float32) for r in raws])
@@ -151,7 +154,11 @@ def pad_observations(
     tokens = np.zeros((n, dim), dtype=np.float32)
     for i, obs in enumerate(items):
         category = getattr(obs, "category", None) or getattr(obs, "gt_category", None)
-        raw = getattr(obs, "raw", {})
+        raw = (
+            obs.valid_raw()
+            if getattr(obs, "streams", None)
+            else getattr(obs, "raw", {}) or {}
+        )
         if "vision" not in raw or "geometry" not in raw:
             continue
         tokens[i] = entity_token(

@@ -385,6 +385,23 @@ def extract_frame(
         for modality, available in flags.items():
             if not available:
                 raw.pop(modality, None)
+        # Attach the timing contract.  Producers that have real capture times
+        # can overwrite these before calling the tracker; here one frame is
+        # synchronous by construction.
+        streams = {
+            modality: ModalityObservation(
+                modality=modality,
+                vector=np.asarray(vector, dtype=np.float32),
+                t_capture=float(frame),
+                t_arrival=float(frame),
+            )
+            for modality, vector in raw.items()
+        }
+        valid_raw = {
+            modality: stream.vector
+            for modality, stream in streams.items()
+            if stream.valid and not stream.stale
+        }
         gt_category = meta["category"]
         category = gt_category
         category_score = 1.0
@@ -392,7 +409,7 @@ def extract_frame(
         conflict = False
         if models.bank is not None:
             result = recognize(
-                raw,
+                valid_raw,
                 models.bank,
                 weights=models.weights,
                 use_tree=False,
@@ -420,6 +437,8 @@ def extract_frame(
                 unknown=unknown,
                 conflict=conflict,
                 modality_reliability=dict(models.weights or {}),
+                t_ref=float(frame),
+                streams=streams,
             )
         )
     return obs
