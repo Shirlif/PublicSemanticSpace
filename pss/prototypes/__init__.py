@@ -4,6 +4,7 @@ from .admission import AdmissionResult, pre_review
 from .bank import PrototypeBank, build_bank
 from .build import run_phase5
 from .conflict import ConflictDecision, conflict_aware_recognize
+from .joint_readout import JointReadout, recognize_joint
 from .recognize import RecognitionResult, recognize
 from .scorers import (
     CosineProtoScorer,
@@ -20,6 +21,7 @@ __all__ = [
     "AdmissionResult",
     "ConflictDecision",
     "CosineProtoScorer",
+    "JointReadout",
     "KNNScorer",
     "MahalanobisScorer",
     "NoveltyMap",
@@ -34,6 +36,7 @@ __all__ = [
     "pre_review",
     "predict_classes",
     "recognize",
+    "recognize_joint",
     "run_phase5",
     "save_tree",
     "tree_candidates",

@@ -19,7 +19,13 @@ from pss.encoders.tactile.wtmm import WTMMTactileExpert, load_wtmm_tactile
 from pss.encoders.vision import load_vision_expert
 from pss.projection import load_projection
 from pss.projection.features import load_paired_features
-from pss.prototypes import PrototypeBank, build_bank, recognize
+from pss.prototypes import (
+    JointReadout,
+    PrototypeBank,
+    build_bank,
+    recognize,
+    recognize_joint,
+)
 
 MODALITIES = ("vision", "tactile", "geometry")
 
@@ -46,6 +52,15 @@ class PublicSemanticSpace:
         }
         self.bank_path = Path(bank_path)
         self.bank = PrototypeBank.load(self.bank_path) if self.bank_path.exists() else None
+        self.joint_path = self.bank_path.parent / "joint_readout.npz"
+        self.joint = (
+            JointReadout.load(self.joint_path) if self.joint_path.exists() else None
+        )
+        self.readout_choice = (
+            str(self.joint.metadata.get("readout_choice", "prototype"))
+            if self.joint is not None
+            else "prototype"
+        )
 
     @torch.no_grad()
     def encode_image(self, image) -> np.ndarray:
@@ -99,9 +114,62 @@ class PublicSemanticSpace:
         self.bank_path.parent.mkdir(parents=True, exist_ok=True)
         bank.save(self.bank_path)
         self.bank = bank
+
+        # Joint discriminative readout on the same 128-d features.  The mask
+        # models let a query with only vision/tactile/geometry still work.
+        y_train = np.array([classes.index(feats.categories[i]) for i in train_idx])
+        self.joint = JointReadout.fit(
+            {m: Z[m][train_idx] for m in MODALITIES},
+            y_train,
+            classes,
+            modalities=MODALITIES,
+        )
+        val_idx = np.array(
+            [i for i in np.where(splits == "val")[0] if feats.categories[i] in classes],
+            dtype=int,
+        )
+        self.readout_choice = "prototype"
+        if len(val_idx):
+            raw_scores = self.joint.scores_batch(
+                {m: Z[m][val_idx] for m in MODALITIES}
+            )
+            y_val = np.array([classes.index(feats.categories[i]) for i in val_idx])
+            joint_acc = float(np.mean(raw_scores.argmax(axis=1) == y_val))
+            self.joint.threshold = float(np.percentile(raw_scores.max(axis=1), 5))
+
+            weights = {"vision": 1.0, "tactile": 0.5, "geometry": 0.95}
+            proto_correct = 0
+            for i in val_idx:
+                query = {m: Z[m][i] for m in MODALITIES}
+                result = recognize(
+                    query, bank, weights=weights, use_tree=False, top_k=1
+                )
+                proto_correct += bool(
+                    result.ranked and result.ranked[0][0] == feats.categories[i]
+                )
+            proto_acc = proto_correct / len(val_idx)
+            # Only switch when the joint head is actually better on val; the
+            # prototype stays the safer open-set/hot-update head otherwise.
+            self.readout_choice = (
+                "joint" if joint_acc > proto_acc + 0.01 else "prototype"
+            )
+            self.joint.metadata["readout_choice"] = self.readout_choice
+            self.joint.metadata["val_acc"] = {
+                "prototype": float(proto_acc),
+                "joint": joint_acc,
+            }
+        self.joint_path.parent.mkdir(parents=True, exist_ok=True)
+        self.joint.save(self.joint_path)
         return bank
 
-    def recognize(self, image=None, tactile=None, geometry=None, top_k: int = 3) -> dict:
+    def recognize(
+        self,
+        image=None,
+        tactile=None,
+        geometry=None,
+        top_k: int = 3,
+        readout: str = "auto",
+    ) -> dict:
         if self.bank is None:
             raise RuntimeError("prototype bank missing; call build_bank() first")
         query = {}
@@ -115,17 +183,33 @@ class PublicSemanticSpace:
             raise ValueError("provide at least one of image / tactile / geometry")
 
         weights = {"vision": 1.0, "tactile": 0.5, "geometry": 0.95}
-        result = recognize(
-            query,
-            self.bank,
-            weights={m: weights[m] for m in query},
-            use_tree=False,
-            top_k=top_k,
+        use_joint = readout == "joint" or (
+            readout == "auto" and self.readout_choice == "joint"
         )
+        if self.joint is not None and use_joint:
+            result = recognize_joint(
+                query,
+                self.joint,
+                bank=self.bank,
+                top_k=top_k,
+                weights={m: weights[m] for m in query},
+                threshold=self.joint.threshold,
+            )
+            used = "joint"
+        else:
+            result = recognize(
+                query,
+                self.bank,
+                weights={m: weights[m] for m in query},
+                use_tree=False,
+                top_k=top_k,
+            )
+            used = "prototype"
         return {
             "ranked": [(c, float(s)) for c, s in result.ranked],
             "per_modality_top": result.modality_top,
             "conflict": result.conflict,
             "unknown": result.unknown,
             "modalities": list(query),
+            "readout": used,
         }
