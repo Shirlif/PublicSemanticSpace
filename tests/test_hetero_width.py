@@ -109,9 +109,15 @@ def test_registry_passes_model_id_to_clip(monkeypatch):
 
     captured = {}
 
+    class _FakeClip:
+        out_dim = 768
+
+        def encode(self, images):
+            return torch.zeros((len(images), 768))
+
     def fake_loader(**kwargs):
         captured.update(kwargs)
-        return object()
+        return _FakeClip()
 
     monkeypatch.setattr(clip_mod, "load_clip_vision_encoder", fake_loader)
     build_vision_encoder("clip", model_id="openai/clip-vit-base-patch16")

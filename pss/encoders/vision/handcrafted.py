@@ -183,3 +183,12 @@ def load_handcrafted_encoder(
     size: int = 64, cell: int = 16, hog_bins: int = 9
 ) -> HandcraftedVisionEncoder:
     return HandcraftedVisionEncoder(size=size, cell=cell, hog_bins=hog_bins)
+
+
+# Public aliases so the tactile descriptor can reuse the same primitives
+# without copying the HOG/LBP code.
+as_uint8_rgb = _as_uint8_rgb
+colour_histograms = _colour_histograms
+hog_features = _hog
+lbp_features = _lbp
+colour_grid = _colour_grid

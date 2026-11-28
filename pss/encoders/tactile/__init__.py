@@ -82,12 +82,20 @@ from .conv import (  # noqa: E402  (kept after the MLP loader to avoid cycles)
     load_tactile_conv_expert,
     save_tactile_conv_expert,
 )
+from .handcrafted import (  # noqa: E402
+    HandcraftedTactileEncoder,
+    handcrafted_tactile_features,
+    load_handcrafted_tactile,
+)
 
 __all__ = [
+    "HandcraftedTactileEncoder",
     "TactileConvEncoder",
     "TactileConvExpert",
     "TactileExpert",
     "TactileMLP",
+    "handcrafted_tactile_features",
+    "load_handcrafted_tactile",
     "load_tactile_conv_expert",
     "load_tactile_expert",
     "save_tactile_conv_expert",

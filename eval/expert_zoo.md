@@ -49,6 +49,7 @@
 | A | `vision_smallcnn_v0` | vision | R0 | penultimate | 256 | project-internal | 已跑 |
 | A | `vision_handcrafted_v0` | vision | R0 | fixed | 440 | project-internal | 已跑（2026-11-28） |
 | A | `tactile_mlp_v0` | tactile | R0 | penultimate | 64 | project-internal | 已跑 |
+| A | `tactile_handcrafted_v0` | tactile | R0 | fixed | 118 (8x8) | project-internal | 已跑（真实触觉，2026-11-28） |
 | A | `geometry_handcrafted_v0` | geometry | R0 | fixed | 16 | project-internal | 已跑 |
 | B | `vision_dinov2_vit_s14` | vision | R1 | `blocks.11.norm1` | 384 | Apache-2.0 | 已跑 |
 | B2 | `vision_squeezenet_expert_v0` | vision | R1.5 | penultimate | 256 | BSD-3-Clause | 已跑 |
@@ -197,6 +198,17 @@
 | TAO test | `category`（12 类） | 0.244 | **0.456** | 0.285 |
 
 结论：**神经网络不是唯一途径，但也不是可无条件替代**。封闭合成域上手工特征闭集≈DINOv2；开放集和真实照片上冻结预训练骨干明显更强；材质/尺寸等物理属性上手工特征以 0 参数打平。SmallCNN 在 CLEVR 组合偏移下 0.882→0.350，是“特征几何决定 PSS 下游”的直接证据。
+
+真实触觉复核（PhysiCLeAR 真实 GelSight：333/36/39 clips；WT-MM 真实 12×32：2853/613/607 窗口）：
+
+| 数据 / 任务 | 手工 | 合成 MLP | 真实预训练 CNN | 多数类 |
+|---|---:|---:|---:|---:|
+| PhysiCLeAR roughness | **0.692** | 0.385 | 0.641（PhysiCLeAR）/ 0.667（WT-MM） | 0.402 |
+| PhysiCLeAR texture | **0.744** | 0.282 | 0.641（PhysiCLeAR）/ 0.667（WT-MM） | 0.468 |
+| PhysiCLeAR hardness | 0.462 | 0.538（F1 0.233） | 0.385（PhysiCLeAR）/ 0.462（WT-MM） | 0.438 |
+| WT-MM gripper 开/合 | 0.364 | **0.605** | 0.328（WT-MM） | 0.537 |
+
+粗糙度/纹理上 0 参数手工特征最强；硬度没有专家真正学会（单帧静态信号不足）；WT-MM 夹爪状态由监督过的小 MLP 最好。合成 8×8 对照：MLP 闭集 0.220 vs 手工 0.184，但属性 R² 0.309 vs 0.369（手工的 hardness 0.921 / roughness 0.870 均更高）。详见 `docs/experiments/PSS-真实触觉专家复核.md`。
 
 ---
 

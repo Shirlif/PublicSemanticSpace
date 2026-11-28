@@ -44,6 +44,7 @@ from pss._console import ensure_utf8
 from pss.encoders.data import crop_object, load_index, normalize_image
 from pss.encoders.geometry import geometry_features
 from pss.encoders.tactile import load_tactile_expert
+from pss.encoders.tactile.handcrafted import handcrafted_tactile_features
 from pss.encoders.vision import load_vision_expert
 from pss.encoders.vision.handcrafted import (
     default_out_dim as handcrafted_out_dim,
@@ -248,6 +249,32 @@ class TactileTorchAdapter(ExpertAdapter):
                 xb = torch.as_tensor(X[start : start + batch_size], device=self.device)
                 out.append(self.model(xb).detach().cpu().numpy())
         return np.concatenate(out, axis=0)
+
+
+class HandcraftedTactileAdapter(ExpertAdapter):
+    """Zero-parameter contact statistics on the synthetic 8x8 grid."""
+
+    modality = "tactile"
+
+    def __init__(self, name: str, out_shape: tuple[int, int] = (8, 8)) -> None:
+        super().__init__(name)
+        self.out_shape = tuple(int(v) for v in out_shape)
+
+    def encode(
+        self, views: list[RawView], preserve_aspect: bool, batch_size: int = 256
+    ) -> np.ndarray:
+        return np.stack(
+            [
+                handcrafted_tactile_features(view.tactile.reshape(self.out_shape))
+                for view in views
+            ]
+        ).astype(np.float32)
+
+    def encode_one(self, view: RawView, preserve_aspect: bool) -> np.ndarray:
+        return handcrafted_tactile_features(view.tactile.reshape(self.out_shape))
+
+    def params(self) -> int:
+        return 0
 
 
 class OctopiTactileAdapter(ExpertAdapter):
@@ -509,6 +536,8 @@ def build_adapter(spec: dict, device: str, allow_download: bool) -> ExpertAdapte
     if name == "tactile_mlp_v0":
         expert = load_tactile_expert(resolve_file(spec["source"], "tactile.pt"), device=device)
         return TactileTorchAdapter(name, expert.encoder, device)
+    if name == "tactile_handcrafted_v0":
+        return HandcraftedTactileAdapter(name, out_shape=(8, 8))
     if name == "tactile_octopi_v0":
         schema = spec.get("input_schema", {}).get("tactile_frames", [3, 224, 224])
         frames = int(schema[0]) if isinstance(schema, (list, tuple)) and schema else 3

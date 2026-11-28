@@ -58,6 +58,12 @@ class ExpertContract(Protocol):
 
 
 def _as_batch(x) -> np.ndarray:
+    # Accept torch tensors (CPU or CUDA) as well as numpy arrays so the same
+    # validator can check the production registry encoders.
+    if hasattr(x, "detach"):
+        x = x.detach()
+    if hasattr(x, "cpu"):
+        x = x.cpu()
     arr = np.asarray(x, dtype=np.float64)
     if arr.ndim == 1:
         arr = arr[None, :]
@@ -69,6 +75,9 @@ def validate_expert(
     public_dim: int = 128,
     tol: float = 1e-6,
     probe=None,
+    *,
+    require_unit_norm: bool = True,
+    expected_dim: int | None = None,
 ) -> bool:
     """Validate an expert against the contract.
 
@@ -84,12 +93,28 @@ def validate_expert(
         Optional input passed to ``encode``.  When omitted only the static
         attributes and ``health()`` are checked; pass a real observation (or a
         list of observations) to check output shape, finiteness and norm.
+    require_unit_norm:
+        When ``False``, skip the unit-norm requirement.  Raw registry encoders
+        (SmallCNN/DINOv2/CLIP/tactile) emit unnormalized native-width features
+        and the projection head owns public-space normalization, so production
+        admission checks shape/finiteness only.  Defaults to ``True``, which is
+        the public-space contract the property suite validates.
+    expected_dim:
+        Optional override for the required width.  Used when the object is an
+        adapter around an encoder with a native width that differs from
+        ``public_dim``; the two must agree when both are supplied.
 
     Returns
     -------
     bool
         ``True`` if valid.  Raises :class:`ExpertValidationError` otherwise.
     """
+
+    target_dim = int(public_dim if expected_dim is None else expected_dim)
+    if expected_dim is not None and int(public_dim) != int(expected_dim):
+        raise ExpertValidationError(
+            f"public_dim={public_dim} conflicts with expected_dim={expected_dim}"
+        )
 
     for attr in ("modality", "version", "dim", "encode", "health"):
         if not hasattr(expert, attr):
@@ -99,9 +124,9 @@ def validate_expert(
         raise ExpertValidationError("expert.modality must be a non-empty string")
     if not isinstance(expert.version, str) or not expert.version:
         raise ExpertValidationError("expert.version must be a non-empty string")
-    if int(expert.dim) != int(public_dim):
+    if int(expert.dim) != target_dim:
         raise ExpertValidationError(
-            f"expert.dim={expert.dim} does not match public_dim={public_dim}"
+            f"expert.dim={expert.dim} does not match expected dim={target_dim}"
         )
 
     health = expert.health()
@@ -118,16 +143,17 @@ def validate_expert(
             raise ExpertValidationError(
                 f"expert.encode() must return (B, dim), got shape {arr.shape}"
             )
-        if arr.shape[1] != int(public_dim):
+        if arr.shape[1] != target_dim:
             raise ExpertValidationError(
-                f"expert.encode() returned dim {arr.shape[1]}, expected {public_dim}"
+                f"expert.encode() returned dim {arr.shape[1]}, expected {target_dim}"
             )
         if not np.all(np.isfinite(arr)):
             raise ExpertValidationError("expert.encode() returned NaN/Inf")
-        norms = np.linalg.norm(arr, axis=1)
-        if not np.allclose(norms, 1.0, atol=tol):
-            raise ExpertValidationError(
-                f"expert.encode() returned non-unit vectors: {norms.tolist()}"
-            )
+        if require_unit_norm:
+            norms = np.linalg.norm(arr, axis=1)
+            if not np.allclose(norms, 1.0, atol=tol):
+                raise ExpertValidationError(
+                    f"expert.encode() returned non-unit vectors: {norms.tolist()}"
+                )
 
     return True

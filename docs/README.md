@@ -30,6 +30,7 @@
 | `PSS-开放类别流实验报告.md` | 开放类别流 O0–O6：Tier A/B/C、拒识/聚类/查询/replay/guard 的结果与失败边界 |
 | `PSS-联合判别读出.md` | 原型余弦 vs 联合 LDA 读出：384 类 +9.4 点，生产 6 类不替代；含本轮多专家互补性结论（§7） |
 | `PSS-手工视觉专家与真实图像复核.md` | 0 参数手工视觉专家（HSV/HOG/LBP）与 SmallCNN/DINOv2 的合成、CLEVR、TAO 真实照片三方复核 |
+| `PSS-真实触觉专家复核.md` | 0 参数手工触觉描述子 vs 合成 MLP / PhysiCLeAR CNN / WT-MM CNN 的真实 GelSight 与 WT-MM 复核 |
 
 ### 计划 — `docs/plans/`
 

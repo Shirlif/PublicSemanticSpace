@@ -16,8 +16,10 @@ from pathlib import Path
 import numpy as np
 import torch
 
+from pss.contracts.schema import SPACE_VERSION
 from pss.encoders.tactile import load_tactile_expert
 from pss.encoders.vision import load_vision_expert
+from pss.experts.adapter import admit_encoder
 from pss.projection.features import load_paired_features
 from pss.projection.heads import load_projection
 
@@ -41,8 +43,16 @@ def extract_projected_features(
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     expert_dir = Path(expert_dir)
     projection_dir = Path(projection_dir)
-    vision = vision_expert or load_vision_expert(expert_dir / "vision.pt", device=device)
-    tactile = tactile_expert or load_tactile_expert(expert_dir / "tactile.pt", device=device)
+    vision = vision_expert or admit_encoder(
+        load_vision_expert(expert_dir / "vision.pt", device=device),
+        modality="vision",
+        version=f"smallcnn@{SPACE_VERSION}",
+    ).encoder
+    tactile = tactile_expert or admit_encoder(
+        load_tactile_expert(expert_dir / "tactile.pt", device=device),
+        modality="tactile",
+        version=f"mlp@{SPACE_VERSION}",
+    ).encoder
     feats = load_paired_features(data_dir, vision, tactile)
     X = {"vision": feats.vision, "tactile": feats.tactile, "geometry": feats.geometry}
     Z = {}

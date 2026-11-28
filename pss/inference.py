@@ -13,10 +13,12 @@ import numpy as np
 import torch
 from PIL import Image
 
+from pss.contracts.schema import SPACE_VERSION
 from pss.encoders.data import normalize_image
 from pss.encoders.geometry import geometry_features
 from pss.encoders.tactile.wtmm import WTMMTactileExpert, load_wtmm_tactile
 from pss.encoders.vision import load_vision_expert
+from pss.experts.adapter import admit_encoder
 from pss.projection import load_projection
 from pss.projection.features import load_paired_features
 from pss.prototypes import (
@@ -40,12 +42,23 @@ class PublicSemanticSpace:
         device: str | None = None,
     ):
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-        self.vision = load_vision_expert(vision_ckpt, device=self.device)
-        self.tactile = WTMMTactileExpert(
-            encoder=load_wtmm_tactile(tactile_ckpt, device=self.device),
-            device=self.device,
-            input_dim=64,
-        )
+        # Both experts are admitted against the same contract the registry and
+        # property suite use; a malformed checkpoint fails here, not at the
+        # first inference call.
+        self.vision = admit_encoder(
+            load_vision_expert(vision_ckpt, device=self.device),
+            modality="vision",
+            version=f"smallcnn@{SPACE_VERSION}",
+        ).encoder
+        self.tactile = admit_encoder(
+            WTMMTactileExpert(
+                encoder=load_wtmm_tactile(tactile_ckpt, device=self.device),
+                device=self.device,
+                input_dim=64,
+            ),
+            modality="tactile",
+            version=f"wtmm@{SPACE_VERSION}",
+        ).encoder
         self.heads = {
             m: load_projection(Path(projection_dir) / f"{m}.pt", device=self.device)
             for m in MODALITIES

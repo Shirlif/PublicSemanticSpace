@@ -25,8 +25,10 @@ from pathlib import Path
 import numpy as np
 import torch
 
+from pss.contracts.schema import SPACE_VERSION
 from pss.encoders.tactile import load_tactile_expert
 from pss.encoders.vision import load_vision_expert
+from pss.experts.adapter import admit_encoder
 from pss.learning.l2_package import PackageManager, PrototypePackage
 from pss.projection.features import load_paired_features
 from pss.projection.heads import load_projection
@@ -126,8 +128,16 @@ def add_category(
     if category in active.categories:
         raise ValueError(f"category {category!r} already exists")
 
-    vision = load_vision_expert(experts / "vision.pt", device=device)
-    tactile = load_tactile_expert(experts / "tactile.pt", device=device)
+    vision = admit_encoder(
+        load_vision_expert(experts / "vision.pt", device=device),
+        modality="vision",
+        version=f"smallcnn@{SPACE_VERSION}",
+    ).encoder
+    tactile = admit_encoder(
+        load_tactile_expert(experts / "tactile.pt", device=device),
+        modality="tactile",
+        version=f"mlp@{SPACE_VERSION}",
+    ).encoder
     feats = load_paired_features(data_dir, vision, tactile)
     raw = {"vision": feats.vision, "tactile": feats.tactile, "geometry": feats.geometry}
     heads = {

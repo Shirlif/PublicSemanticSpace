@@ -29,8 +29,10 @@ from sklearn.metrics import r2_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+from pss.contracts.schema import SPACE_VERSION
 from pss.encoders.tactile import load_tactile_expert
 from pss.encoders.vision import load_vision_expert
+from pss.experts.adapter import admit_encoder
 from pss.projection.features import PairedFeatures, load_paired_features
 from pss.projection.heads import ProjectionHead, load_projection, save_projection
 from pss.projection.losses import material_within_category, supcon_cross
@@ -204,8 +206,16 @@ def run_instance_view_experiment(
     data_dir = Path(data_dir)
     experts = Path(experts)
     projections = Path(projections)
-    vision = load_vision_expert(experts / "vision.pt", device=device)
-    tactile = load_tactile_expert(experts / "tactile.pt", device=device)
+    vision = admit_encoder(
+        load_vision_expert(experts / "vision.pt", device=device),
+        modality="vision",
+        version=f"smallcnn@{SPACE_VERSION}",
+    ).encoder
+    tactile = admit_encoder(
+        load_tactile_expert(experts / "tactile.pt", device=device),
+        modality="tactile",
+        version=f"mlp@{SPACE_VERSION}",
+    ).encoder
     feats: PairedFeatures = load_paired_features(data_dir, vision, tactile)
     views = np.asarray(feats.views)
     train_idx = np.where(np.isin(views, train_views))[0]

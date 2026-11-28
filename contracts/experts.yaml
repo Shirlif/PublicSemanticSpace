@@ -62,6 +62,23 @@ experts:
     owner: perception
     notes: 主线 R0：合成接触图，本轮全量 test top-1 0.220；D 仅研究用途，主线不做替换。
 
+  - name: tactile_handcrafted_v0
+    modality: tactile
+    route: R0
+    status: planned
+    input_schema:
+      contact_grid: [8, 8]
+    preprocess: contact_statistics_v1
+    feature_layer: fixed
+    output_dim: 118
+    normalize: none
+    license: project-internal
+    latency_ms: null
+    source: pss/encoders/tactile/handcrafted.py
+    version: "0.1.0"
+    owner: perception
+    notes: 非神经网络对照（强度/梯度/LBP/HOG/接触质心/时序统计，0 参数）；维度随输入形状变化：8x8=118、64x64 RGB=406、12x32=586。真实触觉见 docs/experiments/PSS-真实触觉专家复核.md。
+
   - name: geometry_handcrafted_v0
     modality: geometry
     route: R0

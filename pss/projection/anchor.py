@@ -28,8 +28,10 @@ from sklearn.metrics import r2_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+from pss.contracts.schema import SPACE_VERSION
 from pss.encoders.tactile import load_tactile_expert
 from pss.encoders.vision import load_vision_expert
+from pss.experts.adapter import admit_encoder
 from pss.projection.features import PairedFeatures, load_paired_features
 from pss.projection.heads import ProjectionHead, load_projection, save_projection
 from pss.projection.losses import material_within_category, supcon_cross
@@ -126,8 +128,16 @@ def _load_experts(experts: Path, modality: str, new_expert: Path | None, device:
         new_expert if modality == "tactile" and new_expert else experts / "tactile.pt"
     )
     return (
-        load_vision_expert(vision_path, device=device),
-        load_tactile_expert(tactile_path, device=device),
+        admit_encoder(
+            load_vision_expert(vision_path, device=device),
+            modality="vision",
+            version=f"smallcnn@{SPACE_VERSION}",
+        ).encoder,
+        admit_encoder(
+            load_tactile_expert(tactile_path, device=device),
+            modality="tactile",
+            version=f"mlp@{SPACE_VERSION}",
+        ).encoder,
     )
 
 

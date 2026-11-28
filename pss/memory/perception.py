@@ -18,10 +18,12 @@ from pathlib import Path
 import numpy as np
 import torch
 
+from pss.contracts.schema import SPACE_VERSION
 from pss.encoders.data import crop_object, normalize_image
 from pss.encoders.geometry import geometry_features
 from pss.encoders.tactile import load_tactile_expert
 from pss.encoders.vision import load_vision_expert
+from pss.experts.adapter import admit_encoder
 from pss.projection.heads import load_projection
 from pss.prototypes.bank import PrototypeBank
 from pss.prototypes.recognize import recognize
@@ -107,13 +109,25 @@ def load_perception_models(
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     expert_dir = Path(expert_dir)
     projection_dir = Path(projection_dir)
-    vision = vision_expert or load_vision_expert(expert_dir / "vision.pt", device=device)
+    vision = vision_expert or admit_encoder(
+        load_vision_expert(expert_dir / "vision.pt", device=device),
+        modality="vision",
+        version=f"smallcnn@{SPACE_VERSION}",
+    ).encoder
     dino_model = None
     if dino:
         from pss.encoders.vision.dinov2 import load_dinov2_encoder
 
-        dino_model = load_dinov2_encoder(device=device)
-    tactile = tactile_expert or load_tactile_expert(expert_dir / "tactile.pt", device=device)
+        dino_model = admit_encoder(
+            load_dinov2_encoder(device=device),
+            modality="vision",
+            version=f"dinov2@{SPACE_VERSION}",
+        ).encoder
+    tactile = tactile_expert or admit_encoder(
+        load_tactile_expert(expert_dir / "tactile.pt", device=device),
+        modality="tactile",
+        version=f"mlp@{SPACE_VERSION}",
+    ).encoder
     bank = None
     weights = None
     threshold = None

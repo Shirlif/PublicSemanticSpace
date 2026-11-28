@@ -1,5 +1,6 @@
 """Hot-swappable expert contract and synthetic stubs (property validation)."""
 
+from .adapter import EncoderExpert, admit_encoder, default_probe, resolve_out_dim
 from .contract import ExpertContract, ExpertHealth, ExpertValidationError, validate_expert
 from .quality import (
     QUALITY_LEVELS,
@@ -28,6 +29,10 @@ __all__ = [
     "ExpertHealth",
     "ExpertValidationError",
     "validate_expert",
+    "EncoderExpert",
+    "admit_encoder",
+    "default_probe",
+    "resolve_out_dim",
     "QUALITY_LEVELS",
     "QualityLevel",
     "make_quality_expert",

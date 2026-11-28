@@ -40,6 +40,7 @@ class PerceptionService:
         device: str | None = None,
         noise: PoseNoise | None = None,
         calibration: "CalibrationService | None" = None,
+        audit=None,
     ):
         self.config = config or PerceptionConfig()
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
@@ -47,22 +48,93 @@ class PerceptionService:
         # Opt-in.  With ``None`` the service behaves exactly as before and uses
         # the static checkpoint weights, so existing L2 numbers are unchanged.
         self.calibration = calibration
+        # Optional versioned audit sink (``CognitiveState`` or any object with
+        # ``commit``/``append``).  Admission events are written there as well
+        # as kept locally, so rejection is visible in the runtime's audit chain.
+        self.audit = audit
         self.models = None
         self.fallback = False
         self.error = ""
+        # Admission is part of the expert contract, so failures are recorded
+        # as events (not just a string) and surfaced through ``describe()``.
+        self.admission_events: list[dict] = []
         self._load()
+
+    def attach_audit(self, audit, *, replay: bool = False) -> None:
+        """Attach (or replace) the audit sink.
+
+        ``replay=True`` writes admission events already collected during
+        construction into the new sink; leave it false when the sink will only
+        receive future events.
+        """
+        self.audit = audit
+        if replay and audit is not None:
+            for event in list(getattr(self, "admission_events", [])):
+                self._emit_audit(event)
+
+    def _emit_audit(self, event: dict) -> None:
+        sink = getattr(self, "audit", None)
+        if sink is None:
+            return
+        target = f"{event.get('modality', '')}:{event.get('kind', '')}".strip(":")
+        reason = str(event.get("reason", ""))
+        if hasattr(sink, "commit"):
+            sink.commit(
+                str(event.get("event", "expert_event")),
+                target,
+                after=dict(event),
+                actor="perception",
+                reason=reason,
+            )
+        elif hasattr(sink, "append"):
+            sink.append(dict(event))
+        elif callable(sink):
+            sink(dict(event))
+
+    def _record_event(self, event: dict) -> None:
+        self.admission_events.append(event)
+        self._emit_audit(event)
+
+    def _record_admission(self, modality: str, kind: str, *, ok: bool, error=None) -> None:
+        self._record_event(
+            {
+                "event": "expert_admitted" if ok else "expert_rejected",
+                "modality": modality,
+                "kind": str(kind),
+                "ok": bool(ok),
+                "reason": "" if error is None else f"{type(error).__name__}: {error}",
+            }
+        )
+
+    def _build(self, modality: str, kind: str, factory):
+        """Run one registry builder, recording admission success or rejection."""
+        try:
+            encoder = factory()
+        except Exception as exc:
+            self._record_admission(modality, kind, ok=False, error=exc)
+            raise
+        self._record_admission(modality, kind, ok=True)
+        return encoder
 
     def _load(self) -> None:
         try:
-            vision = build_vision_encoder(
+            vision = self._build(
+                "vision",
                 self.config.vision,
-                expert_dir=BASE_EXPERTS,
-                device=self.device,
+                lambda: build_vision_encoder(
+                    self.config.vision,
+                    expert_dir=BASE_EXPERTS,
+                    device=self.device,
+                ),
             )
-            tactile = build_tactile_encoder(
+            tactile = self._build(
+                "tactile",
                 self.config.tactile,
-                expert_dir=BASE_EXPERTS,
-                device=self.device,
+                lambda: build_tactile_encoder(
+                    self.config.tactile,
+                    expert_dir=BASE_EXPERTS,
+                    device=self.device,
+                ),
             )
             projection = self.config.projection_dir
             if not Path(projection, "vision.pt").exists():
@@ -80,8 +152,26 @@ class PerceptionService:
                 raise
             self.fallback = True
             self.error = f"{type(exc).__name__}: {exc}"
+            self._record_event(
+                {
+                    "event": "admission_fallback",
+                    "modality": "",
+                    "kind": "",
+                    "ok": False,
+                    "reason": self.error,
+                }
+            )
             self.models = load_perception_models(
                 BASE_EXPERTS, BASE_PROJECTION, device=self.device
+            )
+            self._record_event(
+                {
+                    "event": "fallback_admitted",
+                    "modality": "",
+                    "kind": "smallcnn+mlp",
+                    "ok": True,
+                    "reason": "",
+                }
             )
 
     @staticmethod
@@ -168,9 +258,22 @@ class PerceptionService:
             "device": self.device,
             "fallback": self.fallback,
             "error": self.error,
+            "admission": self._admission_summary(),
             "calibration": calibration,
             "reliability": dict(getattr(self.models, "weights", None) or {}),
             "calibration_service": (
                 self.calibration.describe() if self.calibration is not None else None
             ),
+        }
+
+    def _admission_summary(self) -> dict:
+        events = list(getattr(self, "admission_events", []))
+        return {
+            "events": events,
+            "rejected": [
+                e for e in events if e.get("event") == "expert_rejected"
+            ],
+            "admitted": [
+                e for e in events if e.get("event") == "expert_admitted"
+            ],
         }

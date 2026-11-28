@@ -5,6 +5,7 @@ pytest.importorskip("torch")
 pytest.importorskip("sklearn")
 
 from pss.encoders.scripts.bench_expert_zoo import (
+    HandcraftedTactileAdapter,
     HandcraftedVisionAdapter,
     OctopiTactileAdapter,
     RawView,
@@ -141,6 +142,21 @@ def test_handcrafted_adapter_matches_spec_dim():
     assert isinstance(adapter, HandcraftedVisionAdapter)
     feats = adapter.encode([_vision_view()], preserve_aspect=False)
     assert tuple(feats.shape) == (1, adapter.out_dim)
+    assert adapter.params() == 0
+    assert np.isfinite(feats).all()
+
+
+def test_handcrafted_tactile_adapter_is_zero_param():
+    adapter = build_adapter(
+        {"name": "tactile_handcrafted_v0", "input_schema": {"contact_grid": [8, 8]}},
+        device="cpu",
+        allow_download=False,
+    )
+    assert isinstance(adapter, HandcraftedTactileAdapter)
+    view = _vision_view()
+    view.tactile = np.full(64, 0.5, dtype=np.float32)
+    feats = adapter.encode([view], preserve_aspect=False)
+    assert feats.shape[0] == 1 and feats.shape[1] > 0
     assert adapter.params() == 0
     assert np.isfinite(feats).all()
 

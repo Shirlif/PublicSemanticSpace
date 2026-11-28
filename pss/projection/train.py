@@ -16,8 +16,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from pss.contracts.schema import SPACE_VERSION
 from pss.encoders.tactile import load_tactile_expert
 from pss.encoders.vision import load_vision_expert
+from pss.experts.adapter import admit_encoder
 
 from .features import PairedFeatures, load_paired_features
 from .heads import PUBLIC_DIM, ProjectionHead, save_projection
@@ -156,8 +158,16 @@ def train_projections(
     torch.manual_seed(seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     ckpt_dir = Path(ckpt_dir)
-    vision = vision_expert or load_vision_expert(ckpt_dir / "vision.pt", device=device)
-    tactile = tactile_expert or load_tactile_expert(ckpt_dir / "tactile.pt", device=device)
+    vision = vision_expert or admit_encoder(
+        load_vision_expert(ckpt_dir / "vision.pt", device=device),
+        modality="vision",
+        version=f"smallcnn@{SPACE_VERSION}",
+    ).encoder
+    tactile = tactile_expert or admit_encoder(
+        load_tactile_expert(ckpt_dir / "tactile.pt", device=device),
+        modality="tactile",
+        version=f"mlp@{SPACE_VERSION}",
+    ).encoder
     feats: PairedFeatures = load_paired_features(data_dir, vision, tactile)
 
     splits = np.array(feats.splits)
