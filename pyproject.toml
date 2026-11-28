@@ -26,6 +26,11 @@ include = ["pss*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = [
+    "slow: long-running test; exclude with -m 'not slow' in fast gates",
+    "gpu: requires a CUDA device",
+    "needs_data: requires gitignored data/, checkpoints/ or bundles/",
+]
 
 [tool.ruff]
 line-length = 100

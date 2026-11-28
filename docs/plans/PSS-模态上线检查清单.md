@@ -44,10 +44,14 @@
 
 ## 5. 时间契约
 
-- [ ] 生产者填 `t_capture`、`t_arrival`、`clock`、`sensor_id`。
-- [ ] `Observation.add_stream(...)` 后调用 `refresh_staleness()`。
+- [ ] 生产者填 `t_capture`、`t_arrival`、`clock`、`sensor_id`，通过
+  `Observation.stamp_streams({modality: (t_capture, t_arrival)}, t_ref=...)`
+  一次性写入（`extract_frame` / `PerceptionService.observe` 也接受 `timings`）。
 - [ ] `max_latency_ms` 与注册表一致；超限流标记 stale。
-- [ ] `Observation.valid_raw()` 只返回可用流；tracking 已默认使用它。
+- [ ] `Observation.valid_raw()` 只返回可用流；tracker、`EntityLayer` token、
+  `pad_observations`、runtime 缺失模态检测都已默认使用它。
+- [ ] 回归：stale 流不得改变实体 ID（`tests/test_temporal_contract.py`）。
+- [ ] 真实驱动层用传感器时间覆盖默认的同步时间戳；不要用帧号冒充采集时间。
 
 ## 6. 版本与 artifact
 
@@ -63,6 +67,18 @@
 - [ ] `tests/test_golden_contract.py`（3 模态金标准不变）
 - [ ] `tests/test_temporal_contract.py`（同步/异步/时钟倒退）
 - [ ] `tests/test_artifact_versioning.py`（旧 artifact / 版本不兼容 / 回滚）
+- [ ] `tests/test_runtime_semantics_lock.py`（已知运行时语义缺口，改行为时同步更新）
+
+## 7.1 最小种子集（回归用，不训练）
+
+- [ ] 真实采集：30 物体 × 3 模态 × 2 会话，每格 ≥ 6 样本。
+- [ ] 目录符合 `objects/<object_id>/<modality>/session-<n>.npz`，
+  每格含 `features`、`timestamps_ns`、`sample_ids`。
+- [ ] `manifest.json` 的 `kind` 为 `real`，并填传感器、标定版本/日期、许可。
+- [ ] `python -m pss.eval.seedset validate --root <path>` 通过。
+- [ ] 数据卡随种子集保存；不提交到公开仓库。
+- [ ] CI 只跑 `build-synthetic`（30 × 3 × 2 = 180 格 / 1080 样本）验证布局，
+  不把合成数据当真实能力证据。
 
 ## 8. 文档与发布
 
@@ -83,6 +99,18 @@
 ## 最小命令
 
 ```bash
+# 兼容性契约门禁（快，CI 用）
+make compat
+
+# L0 属性套件（NumPy，CI 用）
+make property-l0
+
+# 种子集布局（合成；真实采集后把 --root 指向真实目录）
+make seedset-synthetic
+make seedset-validate
+python -m pss.eval.seedset validate --root <real-seedset> --min-objects 30
+
+# 单独跑某一组
 python -m pytest tests/test_golden_contract.py \
   tests/test_modality_contract.py \
   tests/test_compatibility_matrix.py \

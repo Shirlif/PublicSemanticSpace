@@ -686,10 +686,18 @@ python -m pytest tests/test_temporal_contract.py \
 - 分工文档：`contracts/README.md` §9 明确 `modalities.yaml` 是模态真源、`experts.yaml` 是登记清单；新增 `tests/test_experts_contract.py`。
 - 校准接入：`PublicSemanticSpace` 可选加载 `projection_dir/calibration.json`，用校准 reliability 覆盖注册表先验；新增 `tests/test_calibration_artifact.py`。
 
+**本轮补齐（2026-11-28，三轮）**：
+
+- 运行时语义锁定：新增 `tests/test_runtime_semantics_lock.py`，用 characterization test 锁定 6 类已知语义缺口（admin 默认、安全只报告、capacity 被忽略、TMS OUT 仍同步、符号关系冲突不可见、派生事实不入 `_records`），另有 `no_tools` 无区分、planner 非默认接线。**这些测试断言当前行为；修缺口时需同步改测试。**
+- 真实时间戳入口：新增 `Observation.stamp_streams(timings, t_ref=...)`；`extract_frame` / `PerceptionService.observe` 接受 `timings`；bundle replay 用 `t_s` 作为采集时间。真实驱动层只需填一次 timings。
+- 最小种子集工具：新增 `pss/eval/seedset.py`（布局、manifest、数据卡、校验、合成构建）与 `tests/test_seedset.py`；`make seedset-synthetic` 生成 30 × 3 × 2 = 180 格 / 1080 样本的合成集，`make seedset-validate` 校验。
+- CI/Makefile：新增 `make compat`、`make property-l0`、`make ci-fast`；CI 在单元测试后跑兼容性矩阵、L0 属性套件与种子集校验；`pyproject.toml` 注册 `slow/gpu/needs_data` marker。
+- 本地实测：compat 106 项约 4 s；property L0 34 项指标 0 失败，约 4.3 s；CI 增量远低于 5 分钟目标。
+
 **尚未完成**：
 
-- 真实种子集（30 物体 × 3 模态 × 2 会话）需要硬件采集；当前矩阵是合成扰动。
-- 真实感知生产者尚未填充真实 `t_capture/t_arrival`；契约与默认同步时间已接入，需在驱动层替换。
+- **真实**种子集（30 物体 × 3 模态 × 2 会话）仍需硬件采集；当前只有同形状的合成集与校验器。
+- 真实驱动层尚未接入 `t_capture/t_arrival`；`stamp_streams` 与 `timings` 通道已就绪。
 - 首次真正新增模态时，`SPACE_VERSION` 从 `0.1.1` 升到 `0.2.0`；本轮未改版本号。
 - `pss/demos/`、`pss/eval/scripts/` 仍使用兼容常量 `MODALITIES`，未强制迁移。
 - `ArtifactRegistry` 已可用，但尚未接入所有加载路径；当前是显式调用。
@@ -698,11 +706,9 @@ python -m pytest tests/test_temporal_contract.py \
 **验证命令**：
 
 ```bash
-python -m pytest tests/test_golden_contract.py tests/test_modality_registry.py \
-  tests/test_modality_contract.py tests/test_partial_modality_bank.py \
-  tests/test_joint_readout_masks.py tests/test_dynamic_space.py \
-  tests/test_temporal_contract.py tests/test_artifact_versioning.py \
-  tests/test_compatibility_matrix.py -q
+make compat          # 兼容性/契约门禁（106 项）
+make property-l0     # L0 属性套件（34 项指标）
+make seedset-synthetic && make seedset-validate
 ```
 
 ---
@@ -712,3 +718,5 @@ python -m pytest tests/test_golden_contract.py tests/test_modality_registry.py \
 | 日期 | 变更 |
 |---|---|
 | 2026-11-28 | 初稿：W0–W7、兼容性矩阵、版本策略、排期 |
+| 2026-11-28 | 二轮：W5 接线、W6 强制、校准接入、专家登记一致性 |
+| 2026-11-28 | 三轮：运行时语义锁定测试、真实时间戳入口、最小种子集工具、CI/Makefile 门禁 |

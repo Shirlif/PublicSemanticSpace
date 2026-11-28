@@ -27,6 +27,12 @@ jobs:
           pip install scikit-learn scipy cryptography opencv-python-headless pyzmq hypothesis pytest
       - name: Tests
         run: python -m pytest
+      - name: Compatibility matrix and property L0
+        run: |
+          make compat
+          make property-l0
+          make seedset-synthetic
+          make seedset-validate
       - name: Binding benchmark (quick)
         run: python bench/binding_stability.py --quick
       - name: Phase 1 binding comparison (quick)

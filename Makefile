@@ -1,4 +1,4 @@
-.PHONY: demo test bench bench-quick bench-phase1 data expert-data train-experts projection prototypes memory phase7 phase8 phase9 phase10 hard-occlusion rd2-mock pretrained-expert public-smoke-wt public-smoke-opengraph public-smoke-daimon tactile-wtmm projection-wtmm t1-instance t1-diagnostics public-space-bank public-space-demo category-pretrain-data category-pretrain-train category-pretrain-projection category-pretrain-prototypes category-pretrain encoder-priority encoder-priority-smoke typed-relations operator-derivation composition-loop active-policy language-head bilevel runtime runtime-phase17 runtime-defaults runtime-encoder runtime-binding runtime-rules runtime-planning runtime-language runtime-audit suite-smoke suite clevr-image tao-frames tao-pss repro-pack repro-fetch reproduce-l2 all
+.PHONY: demo test bench bench-quick bench-phase1 data expert-data train-experts projection prototypes memory phase7 phase8 phase9 phase10 hard-occlusion rd2-mock pretrained-expert public-smoke-wt public-smoke-opengraph public-smoke-daimon tactile-wtmm projection-wtmm t1-instance t1-diagnostics public-space-bank public-space-demo category-pretrain-data category-pretrain-train category-pretrain-projection category-pretrain-prototypes category-pretrain encoder-priority encoder-priority-smoke typed-relations operator-derivation composition-loop active-policy language-head bilevel runtime runtime-phase17 runtime-defaults runtime-encoder runtime-binding runtime-rules runtime-planning runtime-language runtime-audit suite-smoke suite clevr-image tao-frames tao-pss repro-pack repro-fetch reproduce-l2 compat property-l0 seedset-synthetic seedset-validate ci-fast all
 
 demo:
 	python -m pss.demos.semantic_space_demo
@@ -7,6 +7,40 @@ demo:
 
 test:
 	python -m pytest
+
+# Compatibility / contract gate (fast, no gitignored data needed).
+compat:
+	python -m pytest \
+		tests/test_modality_registry.py \
+		tests/test_modality_contract.py \
+		tests/test_partial_modality_bank.py \
+		tests/test_joint_readout_masks.py \
+		tests/test_dynamic_space.py \
+		tests/test_temporal_contract.py \
+		tests/test_real_timestamps.py \
+		tests/test_artifact_versioning.py \
+		tests/test_compatibility_matrix.py \
+		tests/test_golden_contract.py \
+		tests/test_experts_contract.py \
+		tests/test_calibration_artifact.py \
+		tests/test_runtime_semantics_lock.py \
+		tests/test_seedset.py \
+		-q
+
+# L0 property suite: NumPy only, safe for CI.
+property-l0:
+	python scripts/run_property_l0.py --seed 0
+
+# Synthetic seed set with the production layout (30 x 3 x 2 ~= 1k samples).
+# This validates the collection/validation pipeline; it is not real data.
+seedset-synthetic:
+	python -m pss.eval.seedset build-synthetic \
+		--out data/seedset_synthetic --objects 30 --sessions 2 --samples 6
+
+seedset-validate:
+	python -m pss.eval.seedset validate --root data/seedset_synthetic
+
+ci-fast: compat property-l0
 
 bench:
 	python bench/binding_stability.py
